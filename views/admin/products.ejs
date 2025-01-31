@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnique</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f5f5f5;
+        }
+
+        .btn-primary {
+  background-color: #570B4F; /* Blue background */
+  color: white; /* White text */
+  padding: 10px 20px; /* Padding for the button */
+  border: none; /* Remove any border */
+  border-radius: 5px; /* Rounded corners */
+  text-decoration: none; /* Remove underline */
+  display: inline-block; /* Ensure it behaves like a button */
+  font-size: 16px; /* Font size */
+  text-align: center; /* Center align text */
+  cursor: pointer; /* Show a pointer cursor on hover */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+  margin-top: 20px;
+}
+
+.btn-primary:hover {
+  background-color: #570B4F; /* Darker blue when hovered */
+  transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #fff;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+        }
+        .sidebar h1 {
+            color: #84CBCB;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+        }
+        .sidebar ul li {
+            margin: 15px 0;
+            cursor: pointer;
+            color: #333;
+        }
+        .sidebar ul li:hover {
+            color: #84CBCB;
+        }
+
+
+        
+        .pagination {
+    display: flex; /* Arrange the items horizontally */
+    list-style-type: none; /* Remove the bullets */
+    padding: 15px; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.pagination .page-item {
+    margin: 0 5px; /* Add some spacing between items */
+}
+
+.pagination .page-link {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none; /* Remove underline */
+    color: #570B4F; /* Link color */
+    border: 1px solid #dee2e6; /* Add border */
+    border-radius: 4px; /* Slightly rounded corners */
+    background-color: #fff; 
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #570B4F; 
+    color: white; 
+    border-color: #570B4F; 
+}
+
+.pagination .page-link:hover {
+    background-color: #570B4F;
+    color: white;
+    text-decoration: none; 
+}
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Top Header */
+        .header {
+            background-color: #84CBCB;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Table Section */
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        .table-container {
+            flex: 2;
+            padding: 20px;
+    
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .btn-update {
+            padding: 5px 10px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        /* .btn-delete {
+            padding: 5px 10px;
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        } */
+        .btn-update:hover, .btn-delete:hover {
+            opacity: 0.8;
+        }
+
+        .btn-search {
+            padding: 8px 15px;
+            background-color: #570B4F;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .btn-search:hover {
+            background-color: #d812be;
+        }
+
+
+        /* Style for buttons */
+button {
+    padding: 10px 20px; /* Same size for both buttons */
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none; /* Remove underline from links */
+    border-radius: 5px;
+    color: white;
+}
+
+/* Block button (red) */
+.ButtonList{
+            padding: 5px 10px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .ButtonUnlist {
+            padding: 5px 20px;
+            background-color: #ff0202;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+
+button a{
+    color: white;
+    text-decoration: none;
+}
+/* Optional: Hover effect */
+button:hover {
+    opacity: 0.9;
+}
+
+        /* Form Section */
+        .form-container {
+            background-color: #84CBCB;
+            padding: 20px;
+            width: 300px;
+        }
+        .form-container h3 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .form-container input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+        }
+        .form-container .create-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .form-container .create-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <!-- <div class="sidebar">
+        <h1>CosmiX</h1>
+        <ul>
+            <li>Dashboard</li>
+            <li>User Management</li>
+            <li>Products Management</li>
+            <li>Order Management</li>
+            <li>Category Management</li>
+            <li>Coupon Management</li>
+            <li>Offers Management</li>
+        </ul>
+    </div> -->
+
+    <!-- Main Section -->
+    <div class="main">
+        <!-- Header -->
+        <%- include('../../views/partials/admin/sidebar') %>
+<!-- 
+        <div class="header">Products Management</div> -->
+
+        <!-- Table and Form Content -->
+        <div class="content">
+            <!-- Table -->
+            <div class="table-container">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="text" placeholder="Search products" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <button class="btn-search">Search</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Image</th>
+                            <th>Quantity</th>
+
+                            <th>Regular Price</th>
+                            <th>Sale Price</th>
+                            <!-- <th>Offer Price</th>
+                            <th>Offer</th> -->
+                           
+                            <th>Status</th>
+                            <th>List/Unlist</th>
+                            <th>Update</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% products.forEach(product => { %>
+                        <tr>
+                            <td><%= product.productName %></td>
+                            <td><%= product.category.name %></td> <!-- Assuming category is populated -->
+                            <td>
+                                <% if (product.images && product.images.length > 0) { %>
+                                    <!-- Display only the first image -->
+                                    <img src="<%= product.images[0] %>" alt="Product Image" style="width: 50px; height: auto; margin-right: 5px;">
+
+                                <% } else { %>
+                                    <p>No image available</p>
+                                <% } %>
+                            </td>
+                            
+                            <td><%= product.quantity %></td>
+                            <td><%= product.regularPrice %></td>
+                            <td><%= product.salePrice %></td>
+                            <!-- <td>
+                                
+                            </td>
+                            <td>
+                               
+                                <button class="btn btn-info" onclick="addOffer('')" style="width: 100px;">
+                                    <a href="#" class="text-white">Add Offer</a>
+                                </button>
+                                
+                                <button class="btn btn-info" onclick="removeOffer('')" style="width: 100px;">
+                                    <a href="#" class="text-white">Remove</a>
+                                </button>
+                         
+                            </td> -->
+            
+                            
+                            <% if (product.isListed) { %>
+  <td>Listed</td>
+  <td>
+    <a href="/admin/unlistProduct?id=<%= product._id %>" class="btn-unlist">
+      <button type="button" class="ButtonUnlist" >Unlist</button>
+    </a>
+  </td>
+<% } else { %>
+  <td>Unlisted</td>
+  <td>
+    <a href="/admin/listProduct?id=<%= product._id %>" class="btn-list">
+      <button type="button" class="ButtonList">List</button>
+    </a>
+  </td>
+<% } %>
+
+                            <td>
+                                <a href="/admin/editProduct?id=<%= product._id %>"><button class="btn-update">Update</button></a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                    
+                    
+                    
+                </table>
+                <div class="container mt-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content center mb-20" style="margin-right:200px">
+                            <%for(let i=1;i<=totalPages;i++){%>
+                                <li class="page-item <%=(i===currentPage) ? 'active' : ''%>">
+                                    <a class="page-link" href="?page=<%=i%>"><%= i %></a>
+                                </li>
+                            <%}%>
+                        </ul>
+                    </nav>
+                </div>
+                
+            </div>
+
+          
+        </div>
+    </div>
+    <!-- <script>
+        async function addOffer(productId) {
+            const {value:amount} = await Swal.fire({
+                title:'Offer in Percentage',
+                input:'number',
+                inputLabel:'percetange',
+                inputPlaceHolder:'%',
+            })
+            $.ajax({
+                url:'/admin/addProductOffer',
+                method:'post',
+                data:{
+                    percentage:amount,
+                    productId:productId,
+                },
+                success:(response)=>{
+                    if(response.status===true){
+                        location.reload()
+                        Swal.fire('offer added','the offer has been removed','success')
+                    }else{
+                        alert('failed')
+                    }
+                }
+            })
+            
+        }
+
+        function removeOffer(productId){
+
+        }
+    </script> -->
+</body>
+</html>

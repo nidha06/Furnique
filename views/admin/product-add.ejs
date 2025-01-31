@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnique</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<style>
+/* Add Product Form Styling */
+.form-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: auto;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #570B4F;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+textarea {
+  resize: none;
+}
+
+button.submit-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #570B4F;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button.submit-btn:hover {
+  background-color: #d812be;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 15px;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 12px;
+  }
+}
+
+.errorMessage{
+  color: red;
+}
+</style>
+<body>
+    <%- include('../../views/partials/admin/sidebar') %>
+    <div class="content">
+  <h2 style="margin-bottom: 20px; color: #570B4F;">Add Product</h2>
+  <div class="form-container">
+    <form action="/admin/addProducts" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+        <div class="form-group">
+          <label for="productName">Product Name</label>
+          <input type="text" id="productName" name="productName" placeholder="Enter product name" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" placeholder="Enter product description" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="quantity">Quantity</label>
+          <input type="number" id="quantity" name="quantity" placeholder="Enter  quantity" required>
+          <div id="quantity-error" class="errorMessage"></div>
+        </div>
+        <div class="form-group">
+          <label for="regularPrice">Regular Price</label>
+          <input type="number" id="regularPrice" name="regularPrice" placeholder="Enter regular price" required>
+          <div id="regularPrice-error" class="errorMessage"></div>
+        </div>
+        <div class="form-group">
+          <label for="salesPrice">Sales Price</label>
+          <input type="number" id="salePrice" name="salePrice" placeholder="Enter sales price" required>
+          <div id="regularPrice-error" class="errorMessage"></div>
+        </div>
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" name="category" required>
+            <%for(let i=0;i<cat.length;i++){%>
+              <option value="<%=cat[i].name%>"><%=cat[i].name%></option>
+            <% } %>
+          </select>
+        </div>
+      
+        <% for(let i=1;i<=4;i++){ %>
+          <div class="form-group">
+            <label for="images">Upload Image <%=i%></label>
+            <input type="file" id="image<%=i%>" name="images" accept="image/png,image/jpeg,image.jpg" onchange="viewImage(event,'<%=i%>') " >
+            <div id="imagePreview<%=i%>" style="margin-top: 10px;">
+              <img id="imgView<%=i%>" src="" alt="" style="max-width: 100%; display: none;">
+            </div>
+            <div id="cropperContainer<%=i%>" style="display: none;">
+              <img id="croppedImg<%=i%>" src="" alt="" style="max-width: 100%;">
+              <button type="button" class="submit-btn" onclick="saveImage('<%=i%>')">Save</button>
+            </div>
+          </div>
+        <% } %>
+      
+        <div class="btn-container">
+          <button type="submit" class="submit-btn">Add Product</button>
+        </div>
+      </form>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Your script here
+  });
+</script>
+
+<script>
+// Store croppers and cropped data globally
+const croppers = {};
+const croppedImages = {};
+
+function viewImage(event, index) {
+  const input = event.target;
+  const reader = new FileReader();
+  
+  reader.onload = function() {
+    const image = document.getElementById('imgView' + index);
+    image.src = reader.result;
+    image.style.display = 'block';
+    
+    const cropperContainer = document.getElementById('cropperContainer' + index);
+    cropperContainer.style.display = 'block';
+
+    // Destroy existing cropper if any
+    if (croppers[index]) {
+      croppers[index].destroy();
+    }
+
+    // Initialize cropper
+    croppers[index] = new Cropper(image, {
+      aspectRatio: 1,
+      viewMode: 1,
+      guides: true,
+      background: false,
+      autoCropArea: 1,
+      zoomable: true
+    });
+  };
+  
+  reader.readAsDataURL(input.files[0]);
+}
+
+function saveImage(index) {
+  const cropper = croppers[index];
+  if (!cropper) return;
+
+  const croppedCanvas = cropper.getCroppedCanvas();
+  const image = document.getElementById('imgView' + index);
+  
+  croppedCanvas.toBlob((blob) => {
+    const timestamp = new Date().getTime();
+    const fileName = `product-image-${timestamp}-${index}.png`;
+    croppedImages[index] = new File([blob], fileName, { type: 'image/png' });
+    
+    // Update preview
+    image.src = croppedCanvas.toDataURL('image/jpeg');
+  }, 'image/png');
+
+  cropper.destroy();
+  croppers[index] = null;
+  document.getElementById('cropperContainer' + index).style.display = 'none';
+}
+
+function validateForm() {
+  const requiredFields = ['productName', 'description', 'quantity', 'regularPrice', 'salePrice', 'category'];
+  
+  for (const field of requiredFields) {
+    const input = document.getElementById(field);
+    if (!input.value.trim()) {
+      alert(`Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+      return false;
+    }
+  }
+
+  // Check if all required images are cropped
+  for (let i = 1; i <= 4; i++) {
+    if (!croppedImages[i]) {
+      alert(`Please crop image ${i} before submitting`);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+const quantity = document.getElementById('quantity');
+const regularPrice = document.getElementById('regularPrice');
+const salePrice = document.getElementById('salePrice');
+
+function displayErrorMessage(elementId, message) {
+  const errorElement = document.getElementById(elementId);
+  errorElement.innerText = message;
+  errorElement.style.display = "block";
+}
+
+function clearErrorMessages() {
+  const errorElements = document.getElementsByClassName('error-message');
+  Array.from(errorElements).forEach(element => {
+    element.innerText = '';
+    element.style.display = "none";
+  });
+}
+
+document.querySelector('form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  // Clear any previous error messages
+  clearErrorMessages();
+
+  let isValid = true;
+  
+  // Check product quantity
+  if (parseInt(quantity.value) < 0) {
+    displayErrorMessage('quantity-error', 'Please enter a non-negative quantity');
+    isValid = false;
+  }
+
+  // Check regular price
+  if (!/^\d+(\.\d{1,2})?$/.test(regularPrice.value) || parseFloat(regularPrice.value) < 0) {
+    displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+    isValid = false;
+  }
+
+  // Check sale price
+  if (!/^\d+(\.\d{1,2})?$/.test(salePrice.value) || parseFloat(salePrice.value) < 0) {
+    displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
+    isValid = false;
+  }
+
+  // Check if regular price is greater than sale price
+  if (parseFloat(regularPrice.value) <= parseFloat(salePrice.value)) {
+    displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
+    isValid = false;
+  }
+
+  // Check product name
+  const productName = document.getElementById('productName');
+  if (productName.value.trim() === "") {
+    displayErrorMessage('productName-error', 'Please enter a product name.');
+    isValid = false;
+  }
+
+  // If not valid, do not submit the form
+  if (!isValid) return;
+
+  // Validate the form before submitting
+  if (!validateForm()) return;
+
+  const formData = new FormData(this);
+  
+  // Remove existing image fields
+  for (let pair of formData.entries()) {
+    if (pair[0] === 'images') {
+      formData.delete(pair[0]);
+    }
+  }
+
+  // Add cropped images to form data
+  for (let i = 1; i <= 4; i++) {
+    if (croppedImages[i]) {
+      formData.append('images', croppedImages[i]);
+    }
+  }
+
+  try {
+            const response = await fetch('/admin/addProducts', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: result.message,
+                }).then(() => {
+                    window.location.reload(); // Reload the page or redirect
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: result.message,
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong. Please try again later.',
+            });
+        }
+    });
+  
+
+</script>
+
+</body>
+</html>

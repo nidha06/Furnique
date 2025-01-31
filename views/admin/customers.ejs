@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnique</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f5f5f5;
+            flex-wrap: wrap;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #fff;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+        }
+        .sidebar h1 {
+            color: #84CBCB;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+        }
+        .sidebar ul li {
+            margin: 15px 0;
+            cursor: pointer;
+            color: #333;
+        }
+        .sidebar ul li:hover {
+            color: #84CBCB;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        /* Top Header */
+        .header {
+            background-color: #84CBCB;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Table Section */
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        .table-container {
+            flex: 2;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .btn-update {
+            padding: 5px 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn-delete {
+            padding: 5px 10px;
+            background-color: #570B4F;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn-update:hover, .btn-delete:hover , .btn-ban:hover {
+            opacity: 0.8;
+        }
+
+        .btn-ban {
+            padding: 5px 10px;
+            background-color: #dcd21d;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .pagination {
+            display: flex; /* Arrange the items horizontally */
+            list-style-type: none; /* Remove the bullets */
+            padding: 15px; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+        }
+
+        .pagination .page-item {
+            margin: 0 5px; /* Add some spacing between items */
+        }
+
+        .pagination .page-link {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none; /* Remove underline */
+            color: #570B4F; /* Link color */
+            border: 1px solid #dee2e6; /* Add border */
+            border-radius: 4px; /* Slightly rounded corners */
+            background-color: #fff; /* White background */
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #570B4F; /* Highlight active item */
+            color: white; /* White text for active item */
+            border-color: #570B4F; /* Border same as background */
+        }
+
+        .pagination .page-link:hover {
+            background-color: #d812be; /* Darker blue on hover */
+            color: white;
+            text-decoration: none; /* Keep no underline */
+        }
+
+        .form-container {
+            background-color: #84CBCB;
+            padding: 20px;
+            width: 300px;
+        }
+        .form-container h3 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .form-container input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+        }
+        .form-container .create-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .form-container .create-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Media Query for Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                
+                box-shadow: none;
+            }
+
+            .main {
+                width: 100%;
+                margin-top: 20px;
+            }
+
+            .table-container {
+                padding: 10px;
+            }
+
+            table, th, td {
+                font-size: 12px;
+            }
+
+            .form-container {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .pagination {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                font-size: 16px;
+            }
+
+            .sidebar ul li {
+                font-size: 14px;
+            }
+
+            .form-container {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .btn-update, .btn-delete, .btn-ban {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <%- include('../../views/partials/admin/sidebar') %>
+        
+        <div class="content">
+            <div class="table-container">
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                  <input type="text" placeholder="Search user" 
+                      style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                  <button style="background-color: #570B4F; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">
+                      Search
+                  </button>
+              </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Block</th>
+                            <th>View</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%for(let i=0;i<data.length;i++){%>
+                        <tr>
+                            <td><%=data[i].name%></td>
+                            <td><%=data[i].email%></td>
+                            <% if(data[i].isBlocked === false) { %>
+                                <td><a href="/admin/blockCustomer?id=<%=data[i]._id%>" class="btn-update">Block</a></td>
+                            <% } else { %>
+                                <td><a href="/admin/unblockCustomer?id=<%=data[i]._id%>" class="btn-update" style="background-color: green;">UnBlock</a></td>
+                            <% } %>
+                            <td><button class="btn-delete">View</button></td>
+                        </tr>
+                    <%}%>
+                    </tbody>
+                </table>
+
+                <div class="container mt-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content center mb-20">
+                            <%for(let i =1;i<=totalPage;i++){%>
+                                <li class="page-item <%=(i===currentPage) ? 'active' : ''%> ">
+                                    <a class="page-link" href="?page=<%=i%>"> <%=i%> </a>
+                                </li>
+                            <%}%>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

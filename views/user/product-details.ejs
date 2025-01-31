@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="/css/tiny-slider.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #570B4F;
+}
+
+.product-container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 50px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-gallery {
+    flex: 1;
+    padding: 20px;
+}
+
+.main-image-container {
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+    height: auto;
+    text-align: center;
+}
+
+.zoom-image {
+    width: 100%;
+    transition: transform 0.3s ease-in-out;
+}
+
+.thumbnail-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    transition: border 0.3s;
+}
+
+.thumbnail:hover {
+    border: 2px solid #570B4F;
+}
+
+.product-details {
+    flex: 1;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.price {
+    font-size: 22px;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: #888;
+    margin-left: 10px;
+}
+
+.description {
+    margin: 15px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.features {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+.features li {
+    margin-bottom: 5px;
+    font-size: 16px;
+    color: #333;
+}
+
+.cart-options {
+    margin-top: 20px;
+}
+
+.add-to-cart {
+    background-color: #570B4F;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.add-to-cart:hover {
+    background-color: #0056b3;
+}
+
+.wishlist {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #ff4757;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+.breadcrumb-container {
+    width: 100%;
+    margin-bottom: 20px; /* Adds spacing between breadcrumb and main product image */
+}
+
+.page-header .breadcrumb {
+    background-color: #f5f5f5;
+    padding: 10px 0;
+    font-size: 16px;
+    text-align: center; /* Center the breadcrumb */
+}
+
+.page-header .breadcrumb a {
+    color: #570B4F;
+    text-decoration: none;
+}
+
+.page-header .breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.page-header .breadcrumb span {
+    margin: 0 5px;
+    color: #333;
+
+}
+.rating {
+    margin: 10px 0;
+    font-size: 18px;
+    color: #FFD700; /* Gold color for stars */
+}
+
+.star {
+    margin-right: 5px;
+}
+
+.rating-text {
+    margin-left: 10px;
+    color: #555;
+    font-size: 16px;
+}
+
+
+
+    </style>
+</head>
+<body>
+  <%- include('../../views/partials/user/header.ejs')%>
+
+  <div class="product-container">
+    <div class="breadcrumb-container">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="http://localhost:3001/" rel="nofollow">Home ></a>
+                    <span><a href="http://localhost:3001/shop" rel="nofollow">Shop ></a></span>
+                    <span><a href="#" rel="nofollow">Product Details</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <main class="product-container">
+        <div class="product-gallery">
+          <% if (typeof product !== 'undefined' && product.images && product.images.length > 0) { %>
+            <img id="main-image" src="/uploads/<%= product.images[0] %>" class="zoom-image" onmousemove="zoom(event)" onmouseout="resetZoom()">
+        <% } else { %>
+            <img id="main-image" src="/images/default-placeholder.png" class="zoom-image">
+        <% } %>
+        
+            <div class="thumbnail-container">
+                <% product.images.forEach(image => { %>
+                    <img class="thumbnail" src="/uploads/<%= image %>" onclick="changeImage(this)">
+                <% }); %>
+            </div>
+        </div>
+        <div class="product-details">
+            <h1><%= product.productName %></h1>
+            <div class="rating">
+              <span class="star">&#9733;</span>
+              <span class="star">&#9733;</span>
+              <span class="star">&#9733;</span>
+              <span class="star">&#9733;</span>
+              <span class="star">&#9734;</span>
+              <span class="rating-text">(4/5)</span>
+          </div>
+            <p class="price"> &#8377;<%= product.salePrice %> <span class="old-price"> &#8377;<%= product.regularPrice %> </span></p>
+            <h4><u>10% Off</u></h4>
+            <p class="description"><%= product.description %></p>
+            <ul class="features">
+                <li>*1 Year Warranty</li>
+                <li>*30-Day Return Policy</li>
+                <li>*Cash on Delivery Available</li>
+                <li><i>(25+ Reviews)</i></li>
+            </ul>
+            <div class="cart-options">
+                <button class="add-to-cart">Add to Cart</button>
+                <button class="wishlist">❤</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        function changeImage(element) {
+            document.getElementById('main-image').src = element.src;
+        }
+
+        function zoom(event) {
+            let image = document.getElementById("main-image");
+            let rect = image.getBoundingClientRect();
+            let x = (event.clientX - rect.left) / rect.width * 100;
+            let y = (event.clientY - rect.top) / rect.height * 100;
+            image.style.transformOrigin = `${x}% ${y}%`;
+            image.style.transform = "scale(2)";
+        }
+
+        function resetZoom() {
+            let image = document.getElementById("main-image");
+            image.style.transform = "scale(1)";
+        }
+    </script>
+    
+</body>
+</html>

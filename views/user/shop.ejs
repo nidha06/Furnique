@@ -1,0 +1,288 @@
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="favicon.png">
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+  <!-- Bootstrap CSS -->
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="/css/tiny-slider.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <title>Furni - Modern Furniture Store</title>
+  <style>
+	/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Product Section */
+.product-section {
+  padding: 50px 0;
+}
+
+/* Card Styles */
+.card {
+  border: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* Sidebar Filter Styles */
+.card-body h6 {
+  font-weight: bold;
+}
+
+.list-unstyled li {
+  padding: 5px 0;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 5px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.btn-outline-dark:hover {
+  background-color: #343a40;
+  color: #fff;
+}
+
+.btn-dark {
+  background-color: #343a40;
+}
+
+/* Pagination */
+.pagination .page-item .page-link {
+  color: #343a40;
+  border-radius: 5px;
+}
+
+.pagination .page-item .page-link:hover {
+  background-color: #343a40;
+  color: #fff;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #343a40;
+  border-color: #343a40;
+}
+
+/* Blurring and Unblurring Text Style */
+.blurring-text {
+  font-size: 2rem;
+    font-weight: lighter;
+  color: #fff;
+  animation: blurAnimation 5s infinite ease-in-out;
+}
+
+/* Animation for blur and unblur effect */
+@keyframes blurAnimation {
+  0% { 
+    filter: blur(5px); 
+  }
+  50% { 
+    filter: blur(0); 
+  }
+  100% { 
+    filter: blur(5px); 
+  }
+}
+
+.filter-sidebar {
+      position: absolute;
+      left: 0;
+      top: 100px;
+    }
+
+    .filter-sidebar .card {
+      width: 250px;
+    }
+
+
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Start Header/Navigation -->
+  <%- include('../../views/partials/user/header.ejs')%>
+
+  <!-- End Header/Navigation -->
+  <div class="container mt-4">
+	<form class="d-flex justify-content-center">
+	  <input class="form-control w-50" type="search" placeholder="Search products..." aria-label="Search">
+	  <button class="btn btn-dark ms-2" type="submit">Search</button>
+	</form>
+  </div>
+  
+  <!-- Start Hero Section -->
+  <!-- End Hero Section -->
+
+  <!-- Main Content -->
+  <div class="untree_co-section product-section before-footer-section">
+    <div class="container">
+      <div class="row">
+
+        <!-- Filter Sidebar -->
+<div class="col-12 col-md-3 mb-5">
+	<div class="card shadow-sm">
+	  <div class="card-body">
+		<h5 class="card-title mb-4">Filters</h5>
+  
+		<!-- Category Filter -->
+		<div class="mb-4">
+		  <h4 class="text-muted">Category</h4>
+		  <ul class="list-unstyled">
+			<% for(let i=0;i<category.length;i++){ %>
+			<li><h6><a href="/filter?category=<%= category[i]._id %>" class="text-decoration-none text-dark"><%= category[i].name %></a></h6></li>
+
+			
+			<% } %>
+		  </ul>
+		</div>
+  
+		<!-- Price Filter -->
+		<div class="mb-4">
+		  <h6 class="text-muted">Price Range</h6>
+		  <div class="form-check">
+			<input class="form-check-input" type="checkbox" id="priceUnder100">
+			<label class="form-check-label" for="priceUnder100">Under $100</label>
+		  </div>
+		  <div class="form-check">
+			<input class="form-check-input" type="checkbox" id="price100to500">
+			<label class="form-check-label" for="price100to500">$100 - $500</label>
+		  </div>
+		  <div class="form-check">
+			<input class="form-check-input" type="checkbox" id="price500to1000">
+			<label class="form-check-label" for="price500to1000">$500 - $1000</label>
+		  </div>
+		  <div class="form-check">
+			<input class="form-check-input" type="checkbox" id="priceAbove1000">
+			<label class="form-check-label" for="priceAbove1000">Above $1000</label>
+		  </div>
+		</div>
+  
+		<!-- Rating Filter -->
+		<div class="mb-4">
+		  <h6 class="text-muted">Rating</h6>
+		  <div class="form-check">
+			<input class="form-check-input" type="checkbox" id="rating5">
+			<label class="form-check-label" for="rating5">★★★★★</label>
+		  </div>
+		  <div class="form-check">
+			<input class="form-check-input" type="checkbox" id="rating4">
+			<label class="form-check-label" for="rating4">★★★★☆</label>
+		  </div>
+		  <div class="form-check">
+			<input class="form-check-input" type="checkbox" id="rating3">
+			<label class="form-check-label" for="rating3">★★★☆☆</label>
+		  </div>
+		</div>
+  
+		<!-- Apply Filters Button -->
+		<button class="btn btn-dark w-100">Apply Filters</button>
+	  </div>
+	</div>
+  </div>
+  
+
+        <!-- Product Grid -->
+		
+        <div class="col-12 col-md-9">
+          <div class="row">
+			<% for(let i=0;i<products.length;i++){ %>
+            <!-- Product Item -->
+			<div class="col-12 col-md-6 col-lg-4 mb-5">
+				<div class="card product-item shadow-sm position-relative">
+				  <!-- Wishlist Icon -->
+				  <a href="" class="wishlist-icon position-absolute top-0 end-0 m-2" style="font-size: 24px; color: #570B4F;">
+					<i class="fas fa-heart"></i>
+				</a>
+				  <a href="/productDetails?id=<%=products[i]._id %>">
+				  <img src="/uploads/<%=products[i].images[0] %>" class="card-img-top" alt="<%=products[i].productName %>">
+				  <div class="card-body">
+					<h5 class="card-title"><%=products[i].productName %></h5>
+					<p class="card-text text-muted">Price:&#8377;<%=products[i].salePrice%> <span> <strike><%=products[i].regularPrice%></strike></span> </p>
+				</a>
+					<a href="#" class="btn btn-outline-dark w-100 mt-3">Add to Cart</a>
+				  </div>
+				</div>
+			  </div>
+			  <% } %>
+			  
+
+            
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+		<% if (currentPage > 1) { %>
+		  <a class="btn" href="/shop?page=<%= currentPage - 1 %>">Prev</a>
+		<% } %>
+   
+   
+		<% for (let i = 1; i <= totalPages; i++) { %>
+		  <a class="btn <%= currentPage === i ? 'active' : '' %>" href="/shop?page=<%= i %>"><%= i %></a>
+		<% } %>
+   
+   
+		<% if (currentPage < totalPages) { %>
+		  <a class="btn" href="/shop?page=<%= currentPage + 1 %>">Next</a>
+		<% } %>
+	  </div>
+   
+   
+
+    </div>
+  </div>
+
+  <!-- Start Footer Section -->
+  <%-include("../../views/partials/user/footer.ejs")%>
+  <!-- End Footer Section -->
+
+  <!-- Scripts -->
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/tiny-slider.js"></script>
+  <script src="js/custom.js"></script>
+</body>
+</html>

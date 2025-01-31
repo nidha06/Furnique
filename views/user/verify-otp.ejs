@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #fdf3d2;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 90%;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #570B4F;
+    }
+
+    p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .otp-inputs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .otp-inputs input {
+      width: 50px;
+      height: 50px;
+      font-size: 18px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .timer {
+      font-size: 14px;
+      color: #570B4F;
+      margin-bottom: 10px;
+    }
+
+    .resend-link {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .resend-link a {
+      text-decoration: none;
+      color: #570B4F;
+      cursor: pointer;
+    }
+
+    .resend-link a.disabled {
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #570B4F;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Verify your Account</h2>
+    <p>The One-Time Password has been sent. Please enter your OTP below.</p>
+    <form id="otpForm" onsubmit="return handleSubmit(event)">
+      <div class="otp-inputs">
+        <input type="text" maxlength="1" required>
+        <input type="text" maxlength="1" required>
+        <input type="text" maxlength="1" required>
+        <input type="text" maxlength="1" required>
+        <input type="text" maxlength="1" required>
+        <input type="text" maxlength="1" required>
+      </div>
+      <div class="timer" id="timer">00:30</div>
+      <button type="submit" class="btn">Verify</button>
+    </form>
+    
+    <!-- Separate resend OTP form -->
+    <form action="/resend-otp" method="post" id="resendOtpForm">
+      <div class="resend-link">
+        <a href="#" id="resendLink" class="disabled" onclick="document.getElementById('resendOtpForm').submit();">Resend OTP</a>
+      </div>
+    </form>
+    
+  </div>
+
+  <script>
+    let timerInterval;
+    let resendTimeout;
+  
+    function startTimer(duration) {
+      const timerEl = document.getElementById('timer');
+      const resendLink = document.getElementById('resendLink');
+      let timeRemaining = duration;
+  
+      timerEl.textContent = `00:${timeRemaining < 10 ? '0' + timeRemaining : timeRemaining}`;
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        timerEl.textContent = `00:${timeRemaining < 10 ? '0' + timeRemaining : timeRemaining}`;
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          resendLink.classList.remove('disabled');
+        }
+      }, 1000);
+    }
+  
+    function resetTimer() {
+      clearInterval(timerInterval);
+      startTimer(30);
+    }
+  
+    function handleSubmit(event) {
+      event.preventDefault();
+  
+      const inputs = Array.from(document.querySelectorAll('.otp-inputs input'));
+      const otp = inputs.map(input => input.value).join('');
+  
+      // Debugging: log the entered OTP to ensure correct input
+      console.log("Entered OTP:", otp);
+  
+      // Send OTP to the server for verification via Fetch API
+      fetch('/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ otp })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // OTP verified successfully
+          window.location.href = 'http://localhost:3001/'; // Redirect to home
+        } else {
+          // OTP verification failed
+          Swal.fire({
+            icon: 'error',
+            title: 'Incorrect OTP',
+            text: 'The OTP you entered is incorrect. Please try again.'
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error verifying OTP:', error);
+      });
+    }
+  
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputs = document.querySelectorAll('.otp-inputs input');
+      const resendLink = document.getElementById('resendLink');
+  
+      inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          if (e.target.value.length === 1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+        });
+  
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && index > 0 && !input.value) {
+            inputs[index - 1].focus();
+          }
+        });
+      });
+  
+      resendLink.addEventListener('click', (e) => {
+        // Prevent the default link behavior
+        e.preventDefault();
+  
+        if (resendLink.classList.contains('disabled')) return;
+  
+        // Disable the resend link while the timer is reset
+        resendLink.classList.add('disabled');
+        resetTimer();
+  
+        // Clear OTP input fields after resending OTP
+        inputs.forEach(input => {
+          input.value = '';
+        });
+  
+        // Trigger the OTP resend action (you may want to call your server to resend OTP)
+        // fetch('/resend-otp', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json'
+        //   },
+        //   body: JSON.stringify({}) // Add any necessary data for the resend request here
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //   if (data.success) {
+        //     console.log("OTP resent successfully!");
+        //   } else {
+        //     console.error("Error resending OTP!");
+        //   }
+        // })
+        // .catch(error => {
+        //   console.error("Error resending OTP:", error);
+        // });
+      });
+  
+      startTimer(30);
+    });
+  </script>
+  
+</body>
+
+</html>

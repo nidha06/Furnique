@@ -1,0 +1,90 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Furnique</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    /* Layout */
+    .d-flex {
+      display: flex;
+    }
+
+    .content {
+      flex: 1;
+      padding: 50px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+
+    /* Error Page */
+    .error-container {
+      max-width: 600px;
+      
+      margin: auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    .error-container h1 {
+      font-size: 100px;
+      color: #d812be;
+    }
+    .error-container h2 {
+      font-size: 28px;
+      margin: 10px 0;
+      color: #570B4F;
+    }
+    .error-container p {
+      font-size: 16px;
+      margin: 20px 0;
+      color: #666;
+    }
+    .error-container a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #570B4F;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .error-container a:hover {
+      background-color: #d812be;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar & Content -->
+  
+    <!-- Include Sidebar Partial -->
+    <%- include('../../views/partials/admin/sidebar')%>
+
+    <!-- Content --> 
+     <div class="content">
+      <div class="error-container">
+        <h2>Error Page Admin</h2>
+        
+        <p>An Error Occured</p>
+        <a href="/admin/dashboard">Go Back to Dashboard</a>
+      </div> 
+    </div> 
+  
+</body>
+</html>
