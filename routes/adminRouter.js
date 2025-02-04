@@ -26,7 +26,7 @@ router.get('/editCategory',adminAuth,categoryController.getEditCategory);
 router.post('/editCategory/:id',adminAuth,categoryController.editCategory);
 //product management
 router.get('/addProducts',adminAuth,productController.getProductAddPage);
-router.post('/addProducts', upload, productController.addProducts);
+router.post('/addProducts', adminAuth,upload, productController.addProducts);
 router.get('/products',adminAuth,productController.getAllProducts);
 router.get('/listProduct',adminAuth,productController.getListProduct);
 router.get("/unlistProduct",adminAuth,productController.getUnlistProduct);

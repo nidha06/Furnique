@@ -81,6 +81,7 @@ button.submit-btn:hover {
         <div class="form-group">
           <label for="productName">Product Name</label>
           <input type="text" id="productName" name="productName" value="<%= product.productName %>" placeholder="Enter product name" required>
+          <div id="productName-error" class="errorMessage"></div>
         </div>
         <div class="form-group">
           <label for="description">Description</label>
@@ -119,6 +120,7 @@ button.submit-btn:hover {
             <div id="imagePreview<%= i %>" style="margin-top: 10px; height:200px; width:200px; overflow: hidden ; object-fit: fill; padding: 10px;">
               <img id="imgView<%= i %>" src="/uploads/<%=product.images[i]%>"alt="" style="max-width: 100%;" display: <%= product.images[i-1] ? 'block' : 'none' %>>
               <i onclick="deleteSingleImage('<%=product.images[i]%>','<%=product._id%>')"></i>
+
             </div>
 
             <div id="cropperContainer<%= i %>" style="display: none;">
@@ -184,15 +186,21 @@ function saveImage(index) {
     const timestamp = new Date().getTime();
     const fileName = `product-image-${timestamp}-${index}.png`;
     croppedImages[index] = new File([blob], fileName, { type: 'image/png' });
-    
+
     // Update preview
-    image.src = croppedCanvas.toDataURL('image/jpeg');
+    image.src = croppedCanvas.toDataURL('image/png');
+
+    // Replace the file input's file
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(croppedImages[index]);
+    document.getElementById('image' + index).files = dataTransfer.files;
   }, 'image/png');
 
   cropper.destroy();
   croppers[index] = null;
   document.getElementById('cropperContainer' + index).style.display = 'none';
 }
+
 
 function validateForm() {
   const requiredFields = ['productName', 'description', 'quantity', 'regularPrice', 'salePrice', 'category'];
@@ -242,6 +250,9 @@ document.querySelector('form').addEventListener('submit', async function (e) {
 
   let isValid = true;
   
+
+
+
   // Check product quantity
   if (parseInt(quantity.value) < 0) {
     displayErrorMessage('quantity-error', 'Please enter a non-negative quantity');
@@ -254,15 +265,42 @@ document.querySelector('form').addEventListener('submit', async function (e) {
     isValid = false;
   }
 
+  if (parseFloat(salePrice.value) > parseFloat(regularPrice.value)) {
+  displayErrorMessage('salePrice-error', 'Sale price cannot be greater than regular price');
+  isValid = false;
+}
+
+
   // Check sale price
   if (!/^\d+(\.\d{1,2})?$/.test(salePrice.value)) {
     displayErrorMessage('salePrice-error', 'Please enter a valid sale price with up to two decimal places');
     isValid = false;
   }
+  
 
   if (isValid) {
-    this.submit();
+    try {
+      const response = await fetch('/admin/editProduct/<%= product._id %>', {
+        method: 'POST',
+        body: new FormData(this),
+      });
+      const result = await response.json();
+
+      if (result.error && result.error.includes('Product with this name already exists')) {
+        displayErrorMessage('productName-error', result.error);
+        isValid = false;
+      }
+
+      // If the response is valid, submit the form
+      
+    } catch (error) {
+      console.error('Error:', error);
+    }
   }
+  
+  if (isValid) {
+        this.submit();
+      }
 
   function deleteSingleImage(imageId,productId){
     $.ajax({

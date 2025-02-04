@@ -33,25 +33,37 @@ const categoryInfo = async(req,res)=>{
 }
 
 
-const addCategory=async(req,res)=>{
-    const {name,description}=req.body;
-    try {
+const addCategory = async (req, res) => {
+    let { name, description } = req.body;
 
-       const existingCategory = await Category.findOne({name});
-       if(existingCategory){
-        return res.status(400).json({error:'Category alresdy exists'});
-       } 
-       const newCategory = new Category({
+    try {
+        // Convert input name to lowercase for a consistent check
+        const lowerCaseName = name.toLowerCase();
+
+        // Case-insensitive search using regex and $options: 'i'
+        const existingCategory = await Category.findOne({ 
+            name: { $regex: `^${lowerCaseName}$`, $options: 'i' } 
+        });
+
+        if (existingCategory) {
+            return res.status(400).json({ error: 'Category already exists' });
+        }
+
+        // Save the category with the original case for display purposes
+        const newCategory = new Category({
             name,
             description,
-       }) 
-       await newCategory.save();
-       return res.json({message:'category added successfully'})
+        });
+
+        await newCategory.save();
+        return res.json({ message: 'Category added successfully' });
 
     } catch (error) {
-        return res.status(500).json({error:'internal server error'});
+        console.error('Error in addCategory:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
-}
+};
+
 
 
 const getListCategory = async(req,res)=>{
@@ -92,37 +104,43 @@ const getEditCategory=async(req,res)=>{
 const editCategory = async (req, res) => {
     try {
         const id = req.params.id;
-        const { categoryname, description } = req.body;
+        const { categoryName, description } = req.body;
 
-       
+        // Convert category name to lowercase for case-insensitive check
+        const lowerCaseCategoryName = categoryName.trim().toLowerCase();
+
+        // Find the existing category by ID
         const existingCategory = await Category.findById(id);
         if (!existingCategory) {
             return res.status(404).json({ error: "Category not found" });
         }
 
-       
-        if (existingCategory.name !== categoryname) {
-            const duplicateCategory = await Category.findOne({ name: categoryname });
+        // If the name is changed, check for duplicate names (case-insensitive)
+        if (existingCategory.name.toLowerCase() !== lowerCaseCategoryName) {
+            const duplicateCategory = await Category.findOne({ 
+                name: { $regex: new RegExp(`^${lowerCaseCategoryName}$`, "i") } // Case-insensitive regex
+            });
+
             if (duplicateCategory) {
-                return res.status(400).json({ error: "Category exists, please choose another name" });
+                return res.status(400).json({ error: "Category already exists, please choose another name" });
             }
         }
 
-        // update category
+        // Update category
         const updatedCategory = await Category.findByIdAndUpdate(
             id,
-            { name: categoryname, description: description },
+            { name: categoryName.trim(), description: description.trim() },
             { new: true }
         );
 
         if (updatedCategory) {
-            res.redirect('/admin/category'); //  updated
+            return res.redirect('/admin/category'); // Redirect after successful update
         } else {
-            res.status(404).json({ error: "Category not found" });
+            return res.status(404).json({ error: "Category not found" });
         }
     } catch (error) {
-        console.error('Error updating category:', error);
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Error updating category:", error);
+        return res.status(500).json({ error: "Internal server error" });
     }
 };
 

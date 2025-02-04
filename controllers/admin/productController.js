@@ -156,15 +156,20 @@ const getListProduct = async(req,res)=>{
 }
 
 
-const getUnlistProduct = async(req,res)=>{
+const getUnlistProduct = async (req, res) => {
     try {
-        let id = req.query.id;
-        const result=await Product.updateOne({_id:id},{$set:{isListed:false}});
+        let id = req.query.id; // Get the product ID to unlist
+        // Update the product to set isListed to false
+        const result = await Product.updateOne({ _id: id }, { $set: { isListed: false } });
+
+        // Redirect to the products page (admin side)
         res.redirect('/admin/products');
     } catch (error) {
+        // In case of error, redirect to an error page
         res.redirect('/pageerror');
     }
-}
+};
+
 
 
 const getEditProduct = async (req, res) => {
@@ -185,61 +190,68 @@ const getEditProduct = async (req, res) => {
   };
 
 
-const editProduct= async (req, res) => {
+  const editProduct = async (req, res) => {
     try {
-      const id = req.params.id;
-      const product = await Product.findOne({ _id: id });
-      const data = req.body;
+        const id = req.params.id;
+        const product = await Product.findOne({ _id: id });
+        const data = req.body;
 
-      console.log(data);
-      
-  
-      // Check if a product with the same name already exists
-      const existingProduct = await Product.findOne({
-        productName: data.productName,
-        _id: { $ne: id }
-      });
-  
-      if (existingProduct) {
-        return res.status(400).json({ error: 'Product with this name already exists. Please try with another name.' });
-      }
-  
-      // Handle image updates
-      if (req.files && req.files.length > 0) {
-        req.files.forEach(file => {
-          // Extract the index from the fieldname (e.g., "images[0]" => 0)
-          const index = file.fieldname.match(/\[(\d+)\]/)[1];
-          product.images[index] = file.filename; // Replace the image at the specified index
+        console.log(data);
+
+        // Check if a product with the same name already exists (case insensitive)
+        const existingProduct = await Product.findOne({
+            productName: { $regex: new RegExp(`^${data.productName}$`, "i") },
+            _id: { $ne: id }
         });
-      }
 
-      const categoryId = await Category.findOne({name:data.category});
+        if (existingProduct) {
+            return res.status(400).json({ error: 'Product with this name already exists. Please try with another name.' });
+        }
 
-      if(!categoryId) {
-        console.log('category not found');
-        return res.status(404).json({ error: 'category not found' });
-      }
-  
-      // Update fields
-      const updateFields = {
-        productName: data.productName,
-        description: data.description,
-        category: categoryId,
-        regularPrice: data.regularPrice,
-        salePrice: data.salePrice,
-        quantity: data.quantity,
-        images: product.images, // Update the images array
-      };
-  
-      // Update the product in the database
-      await Product.findByIdAndUpdate(id, updateFields, { new: true });
-      res.redirect('/admin/products');
-  
+        // Validate Regular Price and Sale Price
+        const regularPrice = parseFloat(data.regularPrice);
+        const salePrice = parseFloat(data.salePrice);
+
+        if (salePrice > regularPrice) {
+            return res.status(400).json({ error: 'Sale price cannot be higher than the regular price.' });
+        }
+
+        // Handle image updates
+        if (req.files && req.files.length > 0) {
+            req.files.forEach(file => {
+                const index = file.fieldname.match(/\[(\d+)\]/)[1];
+                product.images[index] = file.filename;
+            });
+        }
+
+        // Find the category
+        const categoryId = await Category.findOne({ name: data.category });
+
+        if (!categoryId) {
+            console.log('Category not found');
+            return res.status(404).json({ error: 'Category not found' });
+        }
+
+        // Update fields
+        const updateFields = {
+            productName: data.productName.trim(),
+            description: data.description.trim(),
+            category: categoryId,
+            regularPrice: regularPrice,
+            salePrice: salePrice,
+            quantity: data.quantity,
+            images: product.images, 
+        };
+
+        // Update the product in the database
+        await Product.findByIdAndUpdate(id, updateFields, { new: true });
+        res.redirect('/admin/products');
+
     } catch (error) {
-      console.error(error);
-      res.redirect('/pageerror');
+        console.error(error);
+        res.redirect('/pageerror');
     }
-}
+};
 
 
 const deleteSingleImage = async(req,res)=>{

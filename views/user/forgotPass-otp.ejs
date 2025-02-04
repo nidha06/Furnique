@@ -118,7 +118,7 @@
     </form>
     
     <!-- Separate resend OTP form -->
-    <form action="/resend-otp" method="post" id="resendOtpForm">
+    <form action="/resend-forgot-otp" method="post" id="resendOtpForm">
       <div class="resend-link">
         <a href="#" id="resendLink" class="disabled" onclick="document.getElementById('resendOtpForm').submit();">Resend OTP</a>
       </div>
@@ -161,7 +161,7 @@
           console.log("Entered OTP:", otp);
       
           // Send OTP to the server for verification via Fetch API
-          fetch('/verify-otp', {
+          fetch('/verify-passForgot-otp', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -172,7 +172,7 @@
           .then(data => {
             if (data.success) {
               // OTP verified successfully
-              window.location.href = 'http://localhost:3001/'; // Redirect to home
+              window.location.href = '/reset-password'; // Redirect to home
             } else {
               // OTP verification failed
               Swal.fire({
