@@ -21,6 +21,9 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="/css/tiny-slider.css" rel="stylesheet">
   <link href="/css/style.css" rel="stylesheet">
+  <!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <title>Furni - Modern Furniture Store</title>
   <style>
 	/* General Styles */
@@ -240,7 +243,17 @@ body {
 					<h5 class="card-title"><%=products[i].productName %></h5>
 					<p class="card-text text-muted">Price:&#8377;<%=products[i].salePrice%> <span> <strike><%=products[i].regularPrice%></strike></span> </p>
 				</a>
-					<a href="#" class="btn btn-outline-dark w-100 mt-3">Add to Cart</a>
+        <% 
+                let isInCart = false;
+                if (cart) {
+                    isInCart = cart.items.some(item => item.product._id.toString() === products[i]._id.toString());
+                }
+            %>
+            <a href="#" class="btn btn-outline-dark w-100 mt-3 add-to-cart <%= isInCart ? 'disabled' : '' %>" 
+               data-id="<%= products[i]._id %>" <%= isInCart ? 'disabled' : '' %>>
+                <%= isInCart ? 'Added to Cart' : 'Add to Cart' %>
+            </a>
+
 				  </div>
 				</div>
 			  </div>
@@ -279,6 +292,70 @@ body {
   <!-- Start Footer Section -->
   <%-include("../../views/partials/user/footer.ejs")%>
   <!-- End Footer Section -->
+   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const productId = button.getAttribute('data-id');
+            try {
+              const response = await fetch('/add-to-cart',{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({productId})
+            })
+           
+           if(response.ok){
+            Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Product added to cart!',
+                    timer: 2000,
+                    toast:true,
+                    showConfirmButton: false
+                });
+
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+               
+           } 
+          else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: data.message
+                });
+            }
+            } catch (error) {
+              console.log(error)
+            }
+
+            
+
+  //          fetch("/add-to-cart")
+  // .then(response => response.text()) // Read as text first
+  // .then(text => {
+  //   try {
+  //     return JSON.parse(text); // Try parsing JSON
+  //   } catch {
+  //     throw new Error("Received non-JSON response");
+  //   }
+  // })
+  // .then(data => console.log(data))
+  // .catch(error => console.error("Error:", error));
+
+
+
+            
+
+        });
+    });
+});
+
+   </script>
 
   <!-- Scripts -->
   <script src="js/bootstrap.bundle.min.js"></script>

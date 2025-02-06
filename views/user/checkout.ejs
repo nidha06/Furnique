@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .checkout-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h3 {
+            margin-bottom: 15px;
+        }
+        .address-container, .payment-container, .order-summary {
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .checkout-btn {
+            width: 100%;
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .checkout-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="checkout-container">
+        <h2>Checkout</h2>
+        
+        <!-- Address Section -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Select Shipping Address</h5>
+            </div>
+            <div class="card-body">
+                <% if (address.length > 0) { %>
+                    <% address.forEach((address) => { %>
+                        <div class="form-check">
+                            <input type="radio" name="selectedAddress" id="address-<%= address._id %>" class="form-check-input" value="<%= address._id %>">
+                            <label for="address-<%= address._id %>" class="form-check-label">
+                                <strong><%= address.addressType %></strong><br>
+                                <%= address.name %>, <%= address.city %>, <%= address.landMark %>, <%= address.state %>, <%= address.pincode %><br>
+                                <small>Phone: <%= address.phone %></small>
+                            </label>
+                        </div>
+                        <a href="/editAddress?id=<%=address._id %>" class="btn-small">Edit</a>
+                    <% }) %>
+                <% } else { %>
+                    <p>No saved addresses. <a href="/addAddress">Add a new address</a></p>
+                <% } %>
+            </div>
+            <a href="/addAddress"> <button>Add Address</button></a>
+        </div>
+
+        <!-- Payment Method Section -->
+        <div class="section">
+            <h3>Payment Method</h3>
+            <div class="payment-container">
+                <label><input type="radio" name="payment" value="credit"> Credit/Debit Card</label><br>
+                <label><input type="radio" name="payment" value="paypal"> PayPal</label><br>
+                <label><input type="radio" name="payment" value="cod" checked> Cash on Delivery</label>
+            </div>
+        </div>
+
+        <!-- Order Summary Section -->
+        <div class="section">
+            <h3>Order Summary</h3>
+            <div class="order-summary">
+                <p>Product 1 - ₹1000</p>
+                <p>Product 2 - ₹1500</p>
+                <hr>
+                <h4>Total: ₹2500</h4>
+            </div>
+        </div>
+
+        <button class="checkout-btn" onclick="placeOrder()">Place Order</button>
+    </div>
+
+    <script>
+        function editAddress() {
+            alert("Redirecting to edit address page...");
+            window.location.href = '/edit-address';
+        }
+
+        function placeOrder() {
+            let selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+            if (!selectedAddress) {
+                alert("Please select a shipping address.");
+                return;
+            }
+
+            let paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            alert("Order placed successfully using " + paymentMethod);
+            window.location.href = '/order-success';
+        }
+    </script>
+</body>
+</html>

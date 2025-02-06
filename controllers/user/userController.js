@@ -1,6 +1,7 @@
 const User = require("../../models/userSchema");
 const Category = require('../../models/categorySchema');
 const Product = require('../../models/productSchema');
+const Cart = require('../../models/cartSchema');
 const env =require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require("bcrypt");
@@ -97,6 +98,9 @@ const signup = async(req,res)=>{
 const loadShoppingPage = async(req,res)=>{
     try {
         const user = req.session.user;
+       
+        let cart = null;
+
         const userData = await User.findOne({_id:user});
         const categories = await Category.find({isListed:true});
         const categoryIds = categories.map((category)=>category._id.toString());
@@ -117,7 +121,10 @@ const loadShoppingPage = async(req,res)=>{
 
         const totalPages = Math.ceil(totalProducts/limit);
         const categoriesWithIds = categories.map(category=>({_id:category._id,name:category.name}))
-
+       
+           
+        cart = await Cart.findOne({ user }).populate('items.product'); // Fetch the user's cart
+        
         res.render('shop',{
             user:userData,
             products:products,
@@ -125,6 +132,7 @@ const loadShoppingPage = async(req,res)=>{
             totalProducts:totalProducts,
             currentPage:page,
             totalPages:totalPages,
+            cart,
 
      } )
     } catch (error) {
@@ -322,7 +330,7 @@ const logout = async(req,res)=>{
 
 const filterProduct = async(req,res)=>{
     try {
-
+        let cart = null;
         const user = req.session.user;
         const category =req.query.category;
         const findCategory = category ? await Category.findOne({_id:category}):null;
@@ -361,6 +369,9 @@ const filterProduct = async(req,res)=>{
         }
 
         req.session.filteredProducts = currentProduct ;
+        
+            cart = await Cart.findOne({ user }).populate('items.product');
+     
         res.render('shop',{
             user:userData,
             products:currentProduct,
@@ -368,6 +379,7 @@ const filterProduct = async(req,res)=>{
             totalPages,
             currentPage,
             selectedCategory:category || null,
+            cart,
 
         })
     } catch (error) {
