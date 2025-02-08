@@ -103,11 +103,14 @@ button.submit-btn:hover {
           <div id="salePrice-error" class="errorMessage"></div>
         </div>
         <div class="form-group">
+      
           <label for="category">Category</label>
           <select id="category" name="category" required>
-            <% for (let i = 0; i < categories.length; i++) { %>
-              <option value="<%= categories[i].name %>" <%= product.category === categories[i].name ? 'selected' : '' %>><%= categories[i].name %></option>
-            <% } %>
+           
+            <% categories.forEach(category=>{ %>
+              
+                <option value="<%= category._id %>" <%= product.category === category._id ? 'selected' : '' %>><%= category.name %></option>
+              <% }) %>
           </select>
         </div>
         <%for(let i=0; i<product.images.length;i++){%>

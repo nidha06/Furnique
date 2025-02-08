@@ -125,39 +125,44 @@
             window.location.href = '/edit-address';
         }
 
-    
         function placeOrder() {
+    const checkoutBtn = document.querySelector('.checkout-btn');
+    checkoutBtn.disabled = true;
+    checkoutBtn.textContent = 'Placing Order...';
+
     let selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-    console.log('Selected Address Element:', selectedAddress);
-console.log('Selected Address Value:', selectedAddress?.value);
+    let paymentMethod = document.querySelector('input[name="payment"]:checked');
+
     if (!selectedAddress) {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Please select a shipping address.',
         });
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Place Order';
         return;
     }
 
-    let paymentMethod = document.querySelector('input[name="payment"]:checked');
     if (!paymentMethod) {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Please select a payment method.',
         });
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Place Order';
         return;
     }
-    
-    fetch('/order-success', { // Or '/api/order-success' if using a base path
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        
-        selectedAddressId: selectedAddress.value,
-        paymentMethod: paymentMethod.value
+
+    fetch('/order-success', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            selectedAddressId: selectedAddress.value,
+            paymentMethod: paymentMethod.value
+        })
     })
-})
     .then(response => response.json())
     .then(data => {
         if (data.success) {
@@ -167,7 +172,7 @@ console.log('Selected Address Value:', selectedAddress?.value);
                 text: `Your order has been placed successfully. Order ID: ${data.orderId}`,
             }).then(() => {
                 window.location.href = '/';
-            })
+            });
         } else {
             Swal.fire({
                 icon: 'error',
@@ -183,6 +188,10 @@ console.log('Selected Address Value:', selectedAddress?.value);
             title: 'Error',
             text: 'An unexpected error occurred while placing your order.',
         });
+    })
+    .finally(() => {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Place Order';
     });
 }
     

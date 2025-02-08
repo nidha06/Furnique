@@ -196,8 +196,6 @@ const getEditProduct = async (req, res) => {
         const product = await Product.findOne({ _id: id });
         const data = req.body;
 
-        console.log(data);
-
         // Check if a product with the same name already exists (case insensitive)
         const existingProduct = await Product.findOne({
             productName: { $regex: new RegExp(`^${data.productName}$`, "i") },
@@ -223,9 +221,10 @@ const getEditProduct = async (req, res) => {
                 product.images[index] = file.filename;
             });
         }
-
+console.log(data.category)
         // Find the category
-        const categoryId = await Category.findOne({ name: data.category });
+        const categoryId = await Category.findById(data.category);
+    
 
         if (!categoryId) {
             console.log('Category not found');

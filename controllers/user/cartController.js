@@ -153,8 +153,7 @@ exports.updateCart= async (req, res) => {
 };
 
 
-exports.getOrderSuccess= async (req, res) => {
-  
+exports.getOrderSuccess = async (req, res) => {
     console.log('Order Success Route Hit:', req.body);
     try {
         const { selectedAddressId, paymentMethod } = req.body;
@@ -171,26 +170,45 @@ exports.getOrderSuccess= async (req, res) => {
             return res.status(400).json({ success: false, message: 'Cart is empty.' });
         }
 
-        const addressDetails= await Address.findOne({userId})
-        let selectedAddress
+        // Fetch the selected address
+        const addressDetails = await Address.findOne({ userId });
+        let selectedAddress;
         if (addressDetails) {
-           selectedAddress = addressDetails.address.id(selectedAddressId); 
-          console.log(selectedAddress); // This will print the address object with name 'nidha'
+            selectedAddress = addressDetails.address.id(selectedAddressId);
+            console.log(selectedAddress);
         }
 
-        if (!addressDetails) {
+        if (!selectedAddress) {
             return res.status(404).json({ success: false, message: 'Selected address not found.' });
         }
 
-        // Prepare order items
+        // Validate stock and prepare order items
         const items = userCart.items.map(item => ({
             product: item.product._id,
             productName: item.product.productName,
             quantity: item.quantity,
             price: item.product.salePrice,
-            images:item.product.images[0]
-            
+            images: item.product.images[0]
         }));
+
+        // Check stock availability
+        for (const item of userCart.items) {
+            const product = await Product.findById(item.product._id);
+            if (!product) {
+                return res.status(404).json({ success: false, message: `Product not found: ${item.product._id}` });
+            }
+            if (item.quantity > product.quantity) {
+                return res.status(400).json({ success: false, message: `Not enough stock available for ${product.productName}` });
+            }
+        }
+
+        // Deduct stock
+        for (const item of userCart.items) {
+            const product = await Product.findById(item.product._id);
+            product.quantity -= item.quantity;
+            await product.save();
+            console.log("quantity now",product.quantity);
+        }
 
         // Calculate total price
         const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -205,7 +223,7 @@ exports.getOrderSuccess= async (req, res) => {
                 state: selectedAddress.state,
                 pincode: selectedAddress.pincode,
                 phone: selectedAddress.phone,
-                altPhone: selectedAddress.altPhone || '' // Optional field
+                altPhone: selectedAddress.altPhone || ''
             },
             paymentMethod,
             items,
@@ -217,7 +235,7 @@ exports.getOrderSuccess= async (req, res) => {
         // Clear the cart after placing the order
         userCart.items = [];
         await userCart.save();
-       
+
         res.status(201).json({ success: true, message: 'Order placed successfully.', orderId: order._id });
     } catch (error) {
         console.error('Error placing order:', error);

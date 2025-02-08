@@ -45,7 +45,7 @@ body {
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px #570B4F;
 }
 
 .card-title {
@@ -81,28 +81,28 @@ body {
 }
 
 .btn-outline-dark:hover {
-  background-color: #343a40;
+  background-color: #c213b0;
   color: #fff;
 }
 
 .btn-dark {
-  background-color: #343a40;
+  background-color: #570B4F;
 }
 
 /* Pagination */
 .pagination .page-item .page-link {
-  color: #343a40;
+  color: #570B4F;
   border-radius: 5px;
 }
 
 .pagination .page-item .page-link:hover {
-  background-color: #343a40;
+  background-color: #c213b0;
   color: #fff;
 }
 
 .pagination .page-item.active .page-link {
-  background-color: #343a40;
-  border-color: #343a40;
+  background-color: #c213b0;
+  border-color: #570B4F;
 }
 
 /* Blurring and Unblurring Text Style */
@@ -162,67 +162,68 @@ body {
     <div class="container">
       <div class="row">
 
+
         <!-- Filter Sidebar -->
 <div class="col-12 col-md-3 mb-5">
-	<div class="card shadow-sm">
-	  <div class="card-body">
-		<h5 class="card-title mb-4">Filters</h5>
-  
-		<!-- Category Filter -->
-		<div class="mb-4">
-		  <h4 class="text-muted">Category</h4>
-		  <ul class="list-unstyled">
-			<% for(let i=0;i<category.length;i++){ %>
-			<li><h6><a href="/filter?category=<%= category[i]._id %>" class="text-decoration-none text-dark"><%= category[i].name %></a></h6></li>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <!-- Sort Dropdown -->
+      <div class="mb-4">
+        <h4 style="color: #570B4F;" class="">Sort By</h4>
+        <select class="form-select" id="sortDropdown">
+          <option style="color: #570B4F;" value="new-arrival" <%= selectedSort === 'new-arrival' ? 'selected' : '' %>>New Arrival</option>
+          <option style="color: #570B4F;" value="a-to-z" <%= selectedSort === 'a-to-z' ? 'selected' : '' %>>A to Z</option>
+          <option style="color: #570B4F;" value="z-to-a" <%= selectedSort === 'z-to-a' ? 'selected' : '' %>>Z to A</option>
+          <option style="color: #570B4F;" value="high-to-low" <%= selectedSort === 'high-to-low' ? 'selected' : '' %>>Price: High to Low</option>
+          <option style="color: #570B4F;" value="low-to-high" <%= selectedSort === 'low-to-high' ? 'selected' : '' %>>Price: Low to High</option>
+      </select>
+      </div>
 
-			
-			<% } %>
-		  </ul>
-		</div>
-  
-		<!-- Price Filter -->
-		<div class="mb-4">
-		  <h6 class="text-muted">Price Range</h6>
-		  <div class="form-check">
-			<input class="form-check-input" type="checkbox" id="priceUnder100">
-			<label class="form-check-label" for="priceUnder100">Under $100</label>
-		  </div>
-		  <div class="form-check">
-			<input class="form-check-input" type="checkbox" id="price100to500">
-			<label class="form-check-label" for="price100to500">$100 - $500</label>
-		  </div>
-		  <div class="form-check">
-			<input class="form-check-input" type="checkbox" id="price500to1000">
-			<label class="form-check-label" for="price500to1000">$500 - $1000</label>
-		  </div>
-		  <div class="form-check">
-			<input class="form-check-input" type="checkbox" id="priceAbove1000">
-			<label class="form-check-label" for="priceAbove1000">Above $1000</label>
-		  </div>
-		</div>
-  
-		<!-- Rating Filter -->
-		<div class="mb-4">
-		  <h6 class="text-muted">Rating</h6>
-		  <div class="form-check">
-			<input class="form-check-input" type="checkbox" id="rating5">
-			<label class="form-check-label" for="rating5">★★★★★</label>
-		  </div>
-		  <div class="form-check">
-			<input class="form-check-input" type="checkbox" id="rating4">
-			<label class="form-check-label" for="rating4">★★★★☆</label>
-		  </div>
-		  <div class="form-check">
-			<input class="form-check-input" type="checkbox" id="rating3">
-			<label class="form-check-label" for="rating3">★★★☆☆</label>
-		  </div>
-		</div>
-  
-		<!-- Apply Filters Button -->
-		<button class="btn btn-dark w-100">Apply Filters</button>
-	  </div>
-	</div>
+      <!-- Category Filter -->
+      <div class="mb-4">
+        <h4 style="color: #570B4F;" class="">Category</h4>
+        <ul class="list-unstyled">
+          <% for(let i=0;i<category.length;i++){ %>
+          <li>
+            <h6 style="color: #570B4F;">
+              <a href="/filter?category=<%= category[i]._id %>" class="text-decoration-none">
+                <%= category[i].name %>
+              </a>
+            </h6>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+
+      <!-- Price Filter -->
+      <div class="mb-4">
+        <h6 style="color: #570B4F;" class="">Price Range</h6>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="priceUnder100">
+          <label style="color: #570B4F;" class="form-check-label" for="priceUnder100">Under &#8377;10000</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="price100to500">
+          <label style="color: #570B4F;" class="form-check-label" for="price100to500">&#8377;10000 - &#8377;15000</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="price500to1000">
+          <label style="color: #570B4F;" class="form-check-label" for="price500to1000">&#8377;15000 - &#8377;20000</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="priceAbove1000">
+          <label style="color: #570B4F;" class="form-check-label" for="priceAbove1000">Above &#8377;20000</label>
+        </div>
+      </div>
+
+      <!-- Apply Filters Button -->
+      <button style="background-color: #570B4F; color: #fff;" class="btn  w-100">Apply Filters</button>
+    </div>
   </div>
+</div>
+        <!-- Filter Sidebar -->
+<!-- Apply Filters Button -->
+		
   
 
         <!-- Product Grid -->
@@ -353,6 +354,108 @@ body {
 
         });
     });
+});
+
+// Add this to your existing script section
+document.addEventListener('DOMContentLoaded', function() {
+    const sortDropdown = document.getElementById('sortDropdown');
+    
+    async function handleSortChange() {
+        const selectedValue = sortDropdown.value;
+        const currentUrl = new URL(window.location.href);
+        
+        // Add or update the sort parameter
+        currentUrl.searchParams.set('sort', selectedValue);
+        
+        // Keep the existing page parameter if it exists
+        const page = currentUrl.searchParams.get('page');
+        if (page) {
+            currentUrl.searchParams.set('page', page);
+        }
+        
+        // Keep the existing category parameter if it exists
+        const category = currentUrl.searchParams.get('category');
+        if (category) {
+            currentUrl.searchParams.set('category', category);
+        }
+        
+        try {
+            window.location.href = currentUrl.toString();
+        } catch (error) {
+            console.error('Error during sorting:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong while sorting products!'
+            });
+        }
+    }
+
+    // Attach the event handler
+    sortDropdown.addEventListener('change', handleSortChange);
+});
+
+
+// Add this to your existing script section
+document.addEventListener('DOMContentLoaded', function() {
+    const priceCheckboxes = {
+        'priceUnder100': { min: 0, max: 10000 },
+        'price100to500': { min: 10000, max: 15000 },
+        'price500to1000': { min: 15000, max: 20000 },
+        'priceAbove1000': { min: 20000, max: Infinity }
+    };
+
+    const applyFilterButton = document.querySelector('.btn.btn-dark.w-100');
+    
+    applyFilterButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const currentUrl = new URL(window.location.href);
+        const selectedPrices = [];
+        
+        // Check which price ranges are selected
+        for (const [id, range] of Object.entries(priceCheckboxes)) {
+            if (document.getElementById(id).checked) {
+                selectedPrices.push(`${range.min}-${range.max}`);
+            }
+        }
+        
+        // Add price ranges to URL
+        if (selectedPrices.length > 0) {
+            currentUrl.searchParams.set('priceRanges', selectedPrices.join(','));
+        } else {
+            currentUrl.searchParams.delete('priceRanges');
+        }
+        
+        // Preserve existing sort and category parameters
+        const sort = currentUrl.searchParams.get('sort');
+        const category = currentUrl.searchParams.get('category');
+        
+        if (sort) currentUrl.searchParams.set('sort', sort);
+        if (category) currentUrl.searchParams.set('category', category);
+        
+        // Reset to page 1 when applying new filters
+        currentUrl.searchParams.set('page', '1');
+        
+        // Navigate to filtered URL
+        window.location.href = currentUrl.toString();
+    });
+
+    // Set checkboxes based on URL parameters when page loads
+    const urlParams = new URLSearchParams(window.location.search);
+    const priceRanges = urlParams.get('priceRanges');
+    
+    if (priceRanges) {
+        const ranges = priceRanges.split(',');
+        ranges.forEach(range => {
+            const [min, max] = range.split('-');
+            for (const [id, priceRange] of Object.entries(priceCheckboxes)) {
+                if (priceRange.min === parseInt(min) && priceRange.max === parseInt(max)) {
+                    document.getElementById(id).checked = true;
+                }
+            }
+        });
+    }
 });
 
    </script>

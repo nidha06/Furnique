@@ -52,6 +52,7 @@ router.get('/checkout',userAuth,cartController.getCheckout);
 router.post('/cart-update',userAuth,cartController.updateCart);
 router.post('/order-success',userAuth,cartController.getOrderSuccess);
 
+
 //order management
 
 router.get('/order-details/:orderId',userAuth,orderController.getOrderDetails);
