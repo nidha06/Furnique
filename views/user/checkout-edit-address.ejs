@@ -63,7 +63,7 @@
                     <input type="number" class="form-control" id="altPhone" value="<%= address.altPhone %>" name="altPhone" required>
                 </div>
                 <div class="col-12 text-center mt-3">
-                    <a href="/userProfile/#address"><button type="submit" class="btn btn-primary">Submit</button></a>
+                    <a href=""><button type="submit" class="btn btn-primary">Submit</button></a>
                 </div>
             </div>
         </form>
@@ -94,7 +94,7 @@
             const addressId= '<%= address._id.toLocaleString()%>'
 
             // Send data using Fetch API
-            fetch(`/editAddress?id=${addressId}`, {
+            fetch(`/checkout-editAddress?id=${addressId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -109,7 +109,7 @@
             })
             .then(data => {
                 Swal.fire('Success', 'Address added successfully!', 'success').then(() => {
-                    window.location.href='/userProfile/#address'
+                    window.location.href='/checkout'
                 });
             })
             .catch(error => {

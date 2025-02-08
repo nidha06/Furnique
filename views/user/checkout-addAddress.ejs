@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,62 +14,57 @@
         body {
             background-color: #f8f9fa;
         }
-        
     </style>
 </head>
 <body>
     <%- include('../../views/partials/user/header.ejs')%>
     <div style="max-width: 800px;
-    
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);" class="container mt-5">
-        <h3 class="text-center" style="color: #046963;">Edit User Address</h3>
-        <form id="addressForm" method="POST" action="/editAddress?id=<%= address._id.toLocaleString() %>">
+        <h3 class="text-center" style="color: #046963;">Create User Address</h3>
+        <form id="addressForm">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label for="addressType" class="form-label">Address Type:</label>
-                    <input type="text" class="form-control" id="addressType" value="<%= address.addressType %>" name="addressType" required>
+                    <label for="addressType" class="form-label">Address Type</label>
+                    <input type="text" class="form-control" id="addressType" name="addressType" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="name" class="form-label">Name:</label>
-                    <input type="text" class="form-control" id="name" value="<%= address.name %>" name="name" required>
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="city" class="form-label">City:</label>
-                    <input type="text" class="form-control" id="city" value="<%= address.city %>" name="city" required>
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="city" name="city" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="landMark" class="form-label">Landmark:</label>
-                    <input type="text" class="form-control" id="landMark" value="<%= address.landMark%>" name="landMark" required>
+                    <label for="landMark" class="form-label">Landmark</label>
+                    <input type="text" class="form-control" id="landMark" name="landMark" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="state" class="form-label">State:</label>
-                    <input type="text" class="form-control" id="state" value="<%= address.state %>" name="state" required>
+                    <label for="state" class="form-label">State</label>
+                    <input type="text" class="form-control" id="state" name="state" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="pincode" class="form-label">Pincode:</label>
-                    <input type="number" class="form-control" id="pincode" value="<%= address.pincode %>" name="pincode" required>
+                    <label for="pincode" class="form-label">Pincode</label>
+                    <input type="number" class="form-control" id="pincode" name="pincode" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="phone" class="form-label">Phone:</label>
-                    <input type="number" class="form-control" id="phone" value="<%= address.phone %>" name="phone" required>
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="number" class="form-control" id="phone" name="phone" maxlength="10">
                 </div>
                 <div class="col-md-6">
-                    <label for="altPhone" class="form-label">Alternate Phone:</label>
-                    <input type="number" class="form-control" id="altPhone" value="<%= address.altPhone %>" name="altPhone" required>
+                    <label for="altPhone" class="form-label">Alternate Phone</label>
+                    <input type="number" class="form-control" id="altPhone" name="altPhone" required>
                 </div>
                 <div class="col-12 text-center mt-3">
-                    <a href="/userProfile/#address"><button type="submit" class="btn btn-primary">Submit</button></a>
+                    <i href="/checkout"><button type="submit" class="btn btn-primary">Submit</button></i>
                 </div>
             </div>
         </form>
     </div>
-
-
-<script>
- 
-   document.getElementById('addressForm').addEventListener('submit', function(event) {
+    <script>
+        document.getElementById('addressForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent default form submission
             if (!validateForm()) {
                 return; // Stop execution if validation fails
@@ -91,10 +83,9 @@
             };
 
             
-            const addressId= '<%= address._id.toLocaleString()%>'
 
             // Send data using Fetch API
-            fetch(`/editAddress?id=${addressId}`, {
+            fetch('/checkout-addAddress', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -109,7 +100,7 @@
             })
             .then(data => {
                 Swal.fire('Success', 'Address added successfully!', 'success').then(() => {
-                    window.location.href='/userProfile/#address'
+                   window.location.href='/checkout'
                 });
             })
             .catch(error => {
@@ -118,8 +109,7 @@
             });
         });
 
-
-   function validateForm() {
+        function validateForm() {
             let isValid = true;
             const namePattern = /^[A-Za-z\s]+$/;
             const pincodePattern = /^\d{6}$/;
@@ -149,8 +139,6 @@
             }
             return isValid;
         }
-</script>
-
-
-
-
+    </script>
+</body>
+</html>

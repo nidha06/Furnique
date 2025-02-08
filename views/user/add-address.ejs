@@ -14,18 +14,16 @@
         body {
             background-color: #f8f9fa;
         }
-       
     </style>
 </head>
 <body>
     <%- include('../../views/partials/user/header.ejs')%>
     <div style="max-width: 800px;
-    background: ;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);" class="container mt-5">
         <h3 class="text-center" style="color: #046963;">Create User Address</h3>
-        <form id="addressForm" method="POST" action="/addAddress">
+        <form id="addressForm">
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="addressType" class="form-label">Address Type</label>
@@ -53,24 +51,62 @@
                 </div>
                 <div class="col-md-6">
                     <label for="phone" class="form-label">Phone</label>
-                    <input type="number" class="form-control" id="phone" name="phone" required>
+                    <input type="number" class="form-control" id="phone" name="phone" maxlength="10">
                 </div>
                 <div class="col-md-6">
                     <label for="altPhone" class="form-label">Alternate Phone</label>
                     <input type="number" class="form-control" id="altPhone" name="altPhone" required>
                 </div>
                 <div class="col-12 text-center mt-3">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <i href="/userProfile/#address"><button type="submit" class="btn btn-primary">Submit</button></i>
                 </div>
             </div>
         </form>
     </div>
-
     <script>
         document.getElementById('addressForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
             if (!validateForm()) {
-                event.preventDefault();
+                return; // Stop execution if validation fails
             }
+
+            // Collect form data
+            const formData = {
+                addressType: document.getElementById('addressType').value.trim(),
+                name: document.getElementById('name').value.trim(),
+                city: document.getElementById('city').value.trim(),
+                landMark: document.getElementById('landMark').value.trim(),
+                state: document.getElementById('state').value.trim(),
+                pincode: document.getElementById('pincode').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                altPhone: document.getElementById('altPhone').value.trim(),
+            };
+
+            
+
+            // Send data using Fetch API
+            fetch('/addAddress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                Swal.fire('Success', 'Address added successfully!', 'success').then(() => {
+                   window.location.href='/userProfile/#address'
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                Swal.fire('Error', 'Failed to add address. Please try again.', 'error');
+            });
         });
 
         function validateForm() {

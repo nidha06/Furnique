@@ -5,6 +5,7 @@ const env = require('dotenv').config();
 const session = require('express-session');
 const otpGenerator =require('otp-generator');
 const Address = require('../../models/addressSchema');
+const Order = require('../../models/orderSchema');
 
 function generateOtp(){
     const otp = otpGenerator.generate(6, { 
@@ -184,12 +185,14 @@ const postNewPassword=async(req,res)=>{
 
 const userProfile = async(req,res)=>{
     try {
-        const userId = req.session.user;
-        const userData = await User.findById(userId);
-        const addressData = await Address.findOne({userId:userId});
+        const user = req.session.user;
+        const userData = await User.findById(user);
+        const addressData = await Address.findOne({userId:user});
+        const orders = await Order.find({user}).sort({ createdAt: -1 });
         res.render('profile',{
             user:userData,
             userAddress:addressData,
+            orders:orders,
         })
         
     } catch (error) {
@@ -201,12 +204,23 @@ const userProfile = async(req,res)=>{
 const addAddress = async(req,res)=>{
     try {
         const user = req.session.user;
-        res.render('add-address',{user:user} );
+        res.render('checkout-AddAddress',{user:user} );
         
     } catch (error) {
         res.redirect('/pageNotFound');
     }
 }
+
+const checkoutAddAddress = async(req,res)=>{
+    try {
+        const user = req.session.user;
+        res.render('checkout-AddAddress',{user:user} );
+        
+    } catch (error) {
+        res.redirect('/pageNotFound');
+    }
+}
+
 
 const postAddAddress = async(req,res)=>{
     try {
@@ -225,42 +239,109 @@ const postAddAddress = async(req,res)=>{
             userAddress.address.push({addressType,name,city,landMark,state,pincode,phone,altPhone})
             await userAddress.save();
         }
-        res.redirect('/userProfile')
+        res.status(200).json({success:true,message:'Added succesfully'})
         
     } catch (error) {
        
         console.error('error adding address',error);
-        res.redirect('/pageNotFound');
+        res.status(500).json({success:false,error})
     }
 }
 
-const editAddress = async(req,res)=>{
+const checkoutPostAddAddress = async(req,res)=>{
     try {
-        const addressId = req.query.id;
-        const user = req.session.user;
-        const currAddress = await Address.findOne({
-            'address._id':addressId,
-        })
-        if(!currAddress){
-            res.redirect('/pageNotFound');
-        }
-        const addressData = currAddress.address.find((item)=>{
-            return item._id.toString();
+        const userId = req.session.user;
+        const userData = await User.findOne({_id:userId});
+        const {addressType,name,city,landMark,state,pincode,phone,altPhone} = req.body;
 
-        })
-        if(!addressData){
-            res.redirect('/pageNotFound');
+        const userAddress = await Address.findOne({userId:userData._id});
+        if(!userAddress){
+            const newAddress = new Address({
+                userId:userData._id,
+                address:({addressType,name,city,landMark,state,pincode,phone,altPhone}),
+            });
+            await newAddress.save();
+        }else{
+            userAddress.address.push({addressType,name,city,landMark,state,pincode,phone,altPhone})
+            await userAddress.save();
         }
-        res.render('edit-address',{
-            address:addressData,
-            user:user,
-        })
-    } catch (error) {
-        console.error('error in edit address',error);
-        res.redirect('/pageNotFound');
+        res.status(200).json({success:true,message:'Added succesfully'})
         
+    } catch (error) {
+       
+        console.error('error adding address',error);
+        res.status(500).json({success:false,error})
     }
 }
+
+const editAddress = async (req, res) => {
+    try {
+        const addressId = req.query.id; // Get the address ID from the query string
+        const user = req.session.user; // Get the logged-in user from the session
+
+        // Find the document containing the address
+        const addressDocument = await Address.findOne({
+            'address._id': addressId,
+        });
+
+        if (!addressDocument) {
+            console.error('Address document not found');
+            return res.redirect('/pageNotFound'); // Redirect if no document is found
+        }
+
+        // Extract the specific address from the array using Mongoose's .id() method
+        const currAddress = addressDocument.address.id(addressId);
+
+        if (!currAddress) {
+            console.error('Specific address not found in the document');
+            return res.redirect('/pageNotFound'); // Redirect if the specific address is not found
+        }
+
+        // Render the edit-address page with the address data and user information
+        res.render('edit-address', {
+            address: currAddress, // Pass the specific address object
+            user: user,           // Pass the user object
+        });
+    } catch (error) {
+        console.error('Error in edit address:', error);
+        res.redirect('/pageNotFound'); // Redirect to a 404 page on error
+    }
+};
+
+
+const checkoutEditAddress = async (req, res) => {
+    try {
+        const addressId = req.query.id; // Get the address ID from the query string
+        const user = req.session.user; // Get the logged-in user from the session
+
+        // Find the document containing the address
+        const addressDocument = await Address.findOne({
+            'address._id': addressId,
+        });
+
+        if (!addressDocument) {
+            console.error('Address document not found');
+            return res.redirect('/pageNotFound'); // Redirect if no document is found
+        }
+
+        // Extract the specific address from the array using Mongoose's .id() method
+        const currAddress = addressDocument.address.id(addressId);
+
+        if (!currAddress) {
+            console.error('Specific address not found in the document');
+            return res.redirect('/pageNotFound'); // Redirect if the specific address is not found
+        }
+
+        // Render the edit-address page with the address data and user information
+        res.render('checkout-edit-address', {
+            address: currAddress, // Pass the specific address object
+            user: user,           // Pass the user object
+        });
+    } catch (error) {
+        console.error('Error in edit address:', error);
+        res.redirect('/pageNotFound'); // Redirect to a 404 page on error
+    }
+};
 
 const postEditAddress = async(req,res)=>{
     try {
@@ -284,13 +365,45 @@ const postEditAddress = async(req,res)=>{
                 altPhone:data.altPhone,
             }}}
         )
-        res.redirect('/userProfile');
+        res.status(200).json({success:true,message:'Edited succesfully'})
     } catch (error) {
        console.error('error in edit address',error);
-       res.redirect('/pageNotFOund');
+       res.status(500).json({success:false,error})
         
     }
 }
+
+
+const checkoutPostEditAddress = async(req,res)=>{
+    try {
+        const data = req.body;
+        const addressId = req.query.id;
+        const user = req.session.user;
+        const findAddress = await Address.findOne({'address._id':addressId });
+        if(!findAddress){
+            res.redirect('/pageNotFound');
+        }
+        await Address.updateOne(
+            {'address._id':addressId},
+            {$set:{'address.$':{_id:addressId,
+                addressType:data.addressType,
+                name:data.name,
+                city:data.city,
+                landMark:data.landMark,
+                state:data.state,
+                pincode:data.pincode,
+                phone:data.phone,
+                altPhone:data.altPhone,
+            }}}
+        )
+        res.status(200).json({success:true,message:'Edited succesfully'})
+    } catch (error) {
+       console.error('error in edit address',error);
+       res.status(500).json({success:false,error})
+        
+    }
+}
+
 
 const deleteAddress = async(req,res)=>{
     try {
@@ -313,6 +426,15 @@ const deleteAddress = async(req,res)=>{
 
 
 
+
+
+// Get order details for a specific order
+
+
+
+
+
+
 module.exports = {
     getForgotPassPage,
     forgotEmailValid,
@@ -326,6 +448,11 @@ module.exports = {
     editAddress,
     postEditAddress,
     deleteAddress,
+    checkoutAddAddress,
+    checkoutPostAddAddress,
+    checkoutEditAddress,
+    checkoutPostEditAddress,
+    
 
     
 }

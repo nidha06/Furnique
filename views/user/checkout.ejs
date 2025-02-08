@@ -7,6 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/cart.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,7 +19,7 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px  #570B4F;
         }
         .section {
             margin-bottom: 20px;
@@ -35,7 +36,7 @@
         .checkout-btn {
             width: 100%;
             padding: 10px;
-            background: #28a745;
+            background: #0b5a1d;
             color: white;
             border: none;
             border-radius: 5px;
@@ -45,54 +46,73 @@
             background: #218838;
         }
     </style>
+    
+        <!-- Other head content -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
 </head>
 <body>
     <div class="checkout-container">
-        <h2>Checkout</h2>
+        <h2  style="color: #570B4F;" >Checkout</h2>
         
         <!-- Address Section -->
         <div class="card">
-            <div class="card-header">
-                <h5>Select Shipping Address</h5>
+            <div style="background-color: #570B4F;" class="card-header">
+                <h5 style="color: #ffffff;">Select Shipping Address</h5>
             </div>
             <div class="card-body">
-                <% if (address.length > 0) { %>
-                    <% address.forEach((address) => { %>
+                <% if (addresses.length > 0) { %>
+                    <% addresses.forEach(address => { %>
                         <div class="form-check">
                             <input type="radio" name="selectedAddress" id="address-<%= address._id %>" class="form-check-input" value="<%= address._id %>">
                             <label for="address-<%= address._id %>" class="form-check-label">
-                                <strong><%= address.addressType %></strong><br>
+                                <strong style="color: #570B4F;"><%= address.addressType %></strong><br>
                                 <%= address.name %>, <%= address.city %>, <%= address.landMark %>, <%= address.state %>, <%= address.pincode %><br>
                                 <small>Phone: <%= address.phone %></small>
                             </label>
+                           
                         </div>
-                        <a href="/editAddress?id=<%=address._id %>" class="btn-small">Edit</a>
+                        <a href="/checkout-editAddress?id=<%=address._id %>" class="btn-small"> <button style="background-color: #570B4F; color: #ffffff;">Edit Address</button></a>
+                       
                     <% }) %>
                 <% } else { %>
-                    <p>No saved addresses. <a href="/addAddress">Add a new address</a></p>
+                    <p>No saved addresses. </p>
                 <% } %>
             </div>
-            <a href="/addAddress"> <button>Add Address</button></a>
+            <a href="/checkout-addAddress"><button style="background-color: #570B4F;" class="checkout-btn" >Add Address</button></a>
         </div>
 
         <!-- Payment Method Section -->
         <div class="section">
-            <h3>Payment Method</h3>
+            <h3 style="color: #570B4F;">Payment Method</h3>
             <div class="payment-container">
-                <label><input type="radio" name="payment" value="credit"> Credit/Debit Card</label><br>
-                <label><input type="radio" name="payment" value="paypal"> PayPal</label><br>
-                <label><input type="radio" name="payment" value="cod" checked> Cash on Delivery</label>
+                <label style="color: #570B4F;"><input type="radio" name="payment" value="credit"> Credit/Debit Card</label><br>
+                <label style="color: #570B4F;"><input type="radio" name="payment" value="paypal"> PayPal</label><br>
+                <label style="color: #570B4F;"><input type="radio" name="payment" value="cod" checked> Cash on Delivery</label>
             </div>
         </div>
 
         <!-- Order Summary Section -->
         <div class="section">
-            <h3>Order Summary</h3>
+            <h3 style="color: #570B4F;">Order Summary</h3>
             <div class="order-summary">
-                <p>Product 1 - ₹1000</p>
-                <p>Product 2 - ₹1500</p>
-                <hr>
-                <h4>Total: ₹2500</h4>
+                <% if (cart.items.length > 0) { %>
+                    <% cart.items.forEach(product => { %>
+                        <div class="order-item">
+                            <div class="cart-item">
+                            <img src="/uploads/<%=product.product.images[0]%>">
+                            <div class="cart-details">
+                            <p style="color: #570B4F;"><strong><%= product.product.productName %></strong></p>
+                            <p style="color: #570B4F;">Price: ₹<%= product.product.salePrice %> × Quantity: <%= product.quantity %></p>
+                        </div>
+                        </div>
+                        </div>
+                    <% }) %>
+                    <hr>
+                    <h4 style="color: #570B4F;">Total: ₹<span id="cartTotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0).toFixed(2) %></span></h4>
+                <% } else { %>
+                    <p>Your cart is empty.</p>
+                <% } %>
             </div>
         </div>
 
@@ -105,17 +125,68 @@
             window.location.href = '/edit-address';
         }
 
+    
         function placeOrder() {
-            let selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-            if (!selectedAddress) {
-                alert("Please select a shipping address.");
-                return;
-            }
+    let selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+    console.log('Selected Address Element:', selectedAddress);
+console.log('Selected Address Value:', selectedAddress?.value);
+    if (!selectedAddress) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please select a shipping address.',
+        });
+        return;
+    }
 
-            let paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-            alert("Order placed successfully using " + paymentMethod);
-            window.location.href = '/order-success';
+    let paymentMethod = document.querySelector('input[name="payment"]:checked');
+    if (!paymentMethod) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please select a payment method.',
+        });
+        return;
+    }
+    
+    fetch('/order-success', { // Or '/api/order-success' if using a base path
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        
+        selectedAddressId: selectedAddress.value,
+        paymentMethod: paymentMethod.value
+    })
+})
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Placed!',
+                text: `Your order has been placed successfully. Order ID: ${data.orderId}`,
+            }).then(() => {
+                window.location.href = '/';
+            })
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+            });
         }
+    })
+    .catch(error => {
+        console.error('Error placing order:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred while placing your order.',
+        });
+    });
+}
+    
+
     </script>
 </body>
 </html>

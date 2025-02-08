@@ -4,6 +4,7 @@ const userController = require('../controllers/user/userController');
 const productController = require('../controllers/user/productController');
 const profileController = require('../controllers/user/profileController');
 const cartController = require("../controllers/user/cartController");
+const orderController = require('../controllers/user/orderController');
 const passport = require('passport');
 const { userAuth } = require('../middlewares/auth');
 
@@ -46,9 +47,18 @@ router.get('/deleteAddress',userAuth,profileController.deleteAddress);
 //cart management
 router.post('/add-to-cart',userAuth,cartController.addToCart);
 router.get('/cart',userAuth,cartController.getCart);
-router.post('/cart-remove', cartController.removeCart);
+router.post('/cart-remove',userAuth,cartController.removeCart);
 router.get('/checkout',userAuth,cartController.getCheckout);
 router.post('/cart-update',userAuth,cartController.updateCart);
+router.post('/order-success',userAuth,cartController.getOrderSuccess);
+
+//order management
+
+router.get('/order-details/:orderId',userAuth,orderController.getOrderDetails);
+router.get('/checkout-addAddress',userAuth,profileController.checkoutAddAddress);
+router.post('/checkout-addAddress',userAuth,profileController.checkoutPostAddAddress);
+router.get('/checkout-editAddress',userAuth,profileController.checkoutEditAddress);
+router.post('/checkout-editAddress',userAuth,profileController.checkoutPostEditAddress);
 
 
 

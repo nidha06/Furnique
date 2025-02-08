@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        /* General Reset */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent scrolling */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white; /* Light background color */
+            font-family: Arial, sans-serif;
+        }
+
+        /* Responsive Image Styling */
+        .confirmation-image {
+            max-width: 100%; /* Ensures the image doesn't exceed the screen width */
+            max-height: 100%; /* Ensures the image doesn't exceed the screen height */
+            object-fit: contain; /* Maintains aspect ratio while fitting within the viewport */
+            width: auto; /* Allows the image to scale proportionally */
+            height: auto; /* Allows the image to scale proportionally */
+        }
+
+        /* Close Button */
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.3s ease; /* Smooth hover effect */
+        }
+
+        .close-button:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsive Design for Small Screens */
+        @media (max-width: 768px) {
+            .close-button {
+                font-size: 14px; /* Smaller font size for smaller screens */
+                padding: 8px 16px; /* Smaller padding for smaller screens */
+            }
+
+            .confirmation-image {
+                max-width: 90%; /* Slightly reduce image size for better fit */
+                max-height: 90%;
+            }
+        }
+
+        /* Responsive Design for Very Small Screens */
+        @media (max-width: 480px) {
+            .close-button {
+                font-size: 12px; /* Even smaller font size */
+                padding: 6px 12px; /* Even smaller padding */
+                top: 10px; /* Adjust position for very small screens */
+                right: 10px;
+            }
+
+            .confirmation-image {
+                max-width: 100%; /* Ensure the image takes up the full width */
+                max-height: 100%; /* Ensure the image takes up the full height */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Close Button -->
+ 
+
+    <!-- Confirmation Image -->
+    <img src="/images/order-confirmed.gif" alt="Order Confirmation" class="confirmation-image">
+
+    <script>
+        // Optional: Automatically redirect after 5 seconds
+        setTimeout(() => {
+            window.location.href = 'http://localhost:3001/'; // Redirect to the home page or any other desired page
+        }, 4000); // 5000ms = 5 seconds
+    </script>
+</body>
+</html>

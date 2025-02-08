@@ -5,6 +5,7 @@ const Cart = require('../../models/cartSchema');
 const env =require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require("bcrypt");
+const otpGenerator =require('otp-generator');
 
 
 const loadSignup = async(req,res)=>{
@@ -54,7 +55,14 @@ async function sendVerificationEmail(email,otp){
 
 //GENERATING OTP....
 function generateOtp(){
-    return Math.floor(100000 + Math.random()*900000).toString()
+    const otp = otpGenerator.generate(6, { 
+        lowerCaseAlphabets:false,
+        upperCaseAlphabets: false, 
+        specialChars: false 
+    });
+    console.log(otp);
+    
+    return otp;
 }
 
 
@@ -63,16 +71,19 @@ const signup = async(req,res)=>{
     try {
         
       const {name,email,password,cpassword} = req.body;
+      console.log(req.body)
      // console.log("Session Data:", req.session.userData); // Check session data
 
       if(password !== cpassword){
         return res.render("signup",{message:"pass word do not match"});
       }
 
-      const findUser = await User.findOne({email})
+      const findUser = await User.findOne({email});
       if(findUser){
         return res.render("signup",{message:'user already exist in this mail id'});
       }
+      console.log(findUser);
+      
 
       const otp = generateOtp();
       const emailSent = await sendVerificationEmail(email,otp);

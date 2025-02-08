@@ -220,6 +220,7 @@ h1 {
               <span class="star">&#9733;</span>
               <span class="star">&#9734;</span>
               <span class="rating-text">(4/5)</span>
+              <button class="wishlist">❤</button>
           </div>
             <p class="price"> &#8377;<%= product.salePrice %> <span class="old-price"> &#8377;<%= product.regularPrice %> </span></p>
             <h4><u>10% Off</u></h4>
@@ -230,9 +231,26 @@ h1 {
                 <li>*Cash on Delivery Available</li>
                 <li><i>(25+ Reviews)</i></li>
             </ul>
+            <% if(product.quantity === 0  ){ %>
+            <h5 style="color: red;">Product Out of stock</h5>
+             <% } %>
+             <% if(product.quantity <= 5 ){ %>
+             <h5 style="color: red;">Limited Stock!!</h5>
+             <% } %>
             <div class="cart-options">
-                <button class="add-to-cart">Add to Cart</button>
-                <button class="wishlist">❤</button>
+                <% 
+                let isInCart = false;
+                if (cart) {
+                    isInCart = cart.items.some(item => item.product._id.toString() === product._id.toString());
+                }
+            %>
+        
+            <a href="#" class="btn btn-outline-dark w-100 mt-3 add-to-cart <%= isInCart ? 'disabled' : '' %>" 
+               data-id="<%= product._id %>" <%= isInCart ? 'disabled' : '' %>>
+                <%= isInCart ? 'Added to Cart' : 'Add to Cart' %>
+                
+            </a>
+                
             </div>
         </div>
     </main>
@@ -254,6 +272,59 @@ h1 {
             let image = document.getElementById("main-image");
             image.style.transform = "scale(1)";
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const productId = button.getAttribute('data-id');
+            try {
+              const response = await fetch('/add-to-cart',{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({productId})
+            })
+           
+           if(response.ok){
+        
+                  window.location.reload();
+               
+           }
+          else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: data.message
+                });
+            }
+            } catch (error) {
+              console.log(error)
+            }
+
+            
+
+  //          fetch("/add-to-cart")
+  // .then(response => response.text()) // Read as text first
+  // .then(text => {
+  //   try {
+  //     return JSON.parse(text); // Try parsing JSON
+  //   } catch {
+  //     throw new Error("Received non-JSON response");
+  //   }
+  // })
+  // .then(data => console.log(data))
+  // .catch(error => console.error("Error:", error));
+
+
+
+            
+
+        });
+    });
+});
+
     </script>
     
 </body>

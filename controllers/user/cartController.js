@@ -2,6 +2,7 @@ const Cart = require('../../models/cartSchema');
 const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
+const Order = require('../../models/orderSchema');
 
 exports.addToCart = async (req, res) => {
     try {
@@ -91,9 +92,12 @@ exports.getCheckout = async (req, res) => {
       res.redirect('/login');
     } // Assuming user session is stored
     const address = await Address.findOne({ userId:user }).populate('userId');
+    const cart = await Cart.findOne({ user }).populate('items.product') 
+    console.log(cart)
 
+   
     
-    res.render('checkout', { address: address ? address.address : [] });
+    res.render('checkout', { cart, addresses: address ? address.address : [] });
 
 } catch (error) {
     console.log(error);
@@ -148,3 +152,75 @@ exports.updateCart= async (req, res) => {
     }
 };
 
+
+exports.getOrderSuccess= async (req, res) => {
+  
+    console.log('Order Success Route Hit:', req.body);
+    try {
+        const { selectedAddressId, paymentMethod } = req.body;
+        const userId = req.session.user;
+
+        // Validate input
+        if (!userId || !selectedAddressId || !paymentMethod) {
+            return res.status(400).json({ success: false, message: 'Missing required fields.' });
+        }
+
+        // Fetch the user's cart
+        const userCart = await Cart.findOne({ user: userId }).populate('items.product');
+        if (!userCart || userCart.items.length === 0) {
+            return res.status(400).json({ success: false, message: 'Cart is empty.' });
+        }
+
+        const addressDetails= await Address.findOne({userId})
+        let selectedAddress
+        if (addressDetails) {
+           selectedAddress = addressDetails.address.id(selectedAddressId); 
+          console.log(selectedAddress); // This will print the address object with name 'nidha'
+        }
+
+        if (!addressDetails) {
+            return res.status(404).json({ success: false, message: 'Selected address not found.' });
+        }
+
+        // Prepare order items
+        const items = userCart.items.map(item => ({
+            product: item.product._id,
+            productName: item.product.productName,
+            quantity: item.quantity,
+            price: item.product.salePrice,
+            images:item.product.images[0]
+            
+        }));
+
+        // Calculate total price
+        const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
+
+        // Create the order
+        const order = new Order({
+            user: userId,
+            shippingAddress: {
+                addressType: selectedAddress.addressType,
+                name: selectedAddress.name,
+                city: selectedAddress.city,
+                state: selectedAddress.state,
+                pincode: selectedAddress.pincode,
+                phone: selectedAddress.phone,
+                altPhone: selectedAddress.altPhone || '' // Optional field
+            },
+            paymentMethod,
+            items,
+            totalPrice
+        });
+
+        await order.save();
+
+        // Clear the cart after placing the order
+        userCart.items = [];
+        await userCart.save();
+       
+        res.status(201).json({ success: true, message: 'Order placed successfully.', orderId: order._id });
+    } catch (error) {
+        console.error('Error placing order:', error);
+        res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+};

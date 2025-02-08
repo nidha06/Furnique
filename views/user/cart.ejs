@@ -136,10 +136,8 @@ function removeItem(productId) {
         if (data.success) {
             // Remove the item from the DOM without reloading the page
             const itemToRemove = document.querySelector(`.cart-item img[src="/uploads/${productId}"]`);
-            if (itemToRemove) {
-                itemToRemove.closest('.cart-item').remove();
-                calculateTotalPrice(); // Recalculate total after removing the item
-            }
+            window.location.reload()
+            
         } else {
             alert('Failed to remove item.');
         }

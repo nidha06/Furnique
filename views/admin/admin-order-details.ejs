@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Details - <%= order._id %></title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+  <!-- Custom Styles -->
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Arial', sans-serif;
+    }
+    .container {
+      margin-top: 30px;
+    }
+    .order-details {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .order-header h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: black;
+      margin-bottom: 15px;
+    }
+    .order-header p {
+      font-size: 0.9rem;
+      color: black;
+      margin-bottom: 20px;
+    }
+    .order-info h4 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: black;
+      margin-bottom: 15px;
+    }
+    .order-info p {
+      font-size: 0.95rem;
+      color: black;
+      margin-bottom: 10px;
+    }
+    .status-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .status-section p {
+      font-size: 1rem;
+      font-weight: 500;
+      color: black;
+    }
+    .status-section button {
+      padding: 8px 15px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .table th{
+        background-color: #570B4F;
+    }
+    .table th,
+    .table td {
+      vertical-align: middle;
+      border-color: #dee2e6;
+      
+    }
+    .table img {
+      max-width: 80px;
+      border-radius: 8px;
+    }
+    .back-button {
+      margin-bottom: 20px;
+      background-color: #570B4F;
+      
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .action-buttons button {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Back Button -->
+    <div  class="back-button">
+      <a href="/admin/orders" style="color: #fff;" class="btn  d-flex align-items-center">
+        <i class="fas fa-arrow-left me-2"></i> Back to Orders
+      </a>
+    </div>
+
+    <!-- Order Details Section -->
+    <div class="order-details">
+      <div class="order-header">
+        <h2 style="color: #570B4F;">Order Details</h2>
+        <p><strong>Order ID:</strong> <%= order._id %></p>
+      </div>
+
+      <!-- Shipping Address -->
+      <div class="order-info">
+        <h4 style="color: #570B4F;">Shipping Address</h4>
+        <p >
+          <strong><%= order.shippingAddress.name %></strong><br />
+          <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %><br />
+          Phone: <%= order.shippingAddress.phone %>
+        </p>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="order-info">
+        <h4 style="color: #570B4F;">Payment Method</h4>
+        <p ><%= order.paymentMethod.toUpperCase() %></p>
+      </div>
+
+      <!-- Status Section -->
+     
+       <!-- Status Section -->
+<div class="order-info status-section">
+  <h4 style="color: #570B4F;">Status:</h4>
+  <p id="current-status" data-status="<%= order.status.toLowerCase() %>">
+    <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+  </p>
+  <button class="btn"  style=" background-color: #570B4F; color: #fff; padding: 3px;" onclick="updateStatus('<%= order._id %>')">Update Status</button>
+</div>
+       
+
+      <!-- Total Price -->
+      <div class="order-info">
+        <h4 style="color: #570B4F;">Total Price</h4>
+        <p >&#8377; <%= order.totalPrice.toFixed(2) %></p>
+      </div>
+
+      <!-- Products Table -->
+      <div class="order-items mt-4">
+        <h4>Products</h4>
+        <table class="table table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <th>Product Image</th>
+              <th>Product Name</th>
+              <th>Quantity</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% order.items.forEach(item => { %>
+              <tr>
+                <td >
+                  <img src="/uploads/<%= item.image %>" alt="<%= item.productName %>" style="max-width: 100px;">
+                </td>
+                <td ><%= item.productName %></td>
+                <td><%= item.quantity %></td>
+                <td>&#8377; <%= item.price.toFixed(2) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button style="background-color: rgb(212, 4, 4); color: #fff;" class="btn " onclick="cancelOrder('<%= order._id %>')">
+          <i class="fas fa-ban me-2"></i> Cancel Order
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Cancel Order Function
+    function cancelOrder(orderId) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to cancel this order?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, cancel it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/admin/orders/${orderId}/cancel`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                title: 'Cancelled!',
+                text: 'Order has been cancelled.',
+                icon: 'success'
+              }).then(() => location.reload());
+            } else {
+              Swal.fire('Error', 'Failed to cancel the order.', 'error');
+            }
+          })
+          .catch(error => {
+            console.error('Error cancelling order:', error);
+            Swal.fire('Error', 'An error occurred while cancelling the order.', 'error');
+          });
+        }
+      });
+    }
+
+    // Update Status Function
+    function updateStatus(orderId) {
+      const statuses = ['ordered', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+      const currentStatus = document.getElementById('current-status').innerText.trim();
+
+      if (currentStatus === 'Delivered' || currentStatus === 'Cancelled') {
+        Swal.fire({
+          title: 'Error',
+          text: 'The status of this order cannot be changed anymore.',
+          icon: 'error'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Update Order Status',
+        input: 'select',
+        inputOptions: statuses.reduce((options, status) => {
+          options[status] = status.charAt(0).toUpperCase() + status.slice(1);
+          return options;
+        }, {}),
+        inputValue: currentStatus.toLowerCase(),
+        showCancelButton: true,
+        confirmButtonText: 'Update',
+        showLoaderOnConfirm: true,
+        preConfirm: (newStatus) => {
+          return fetch(`/admin/orders/${orderId}/update-status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (!data.success) throw new Error(data.message || 'Failed to update status.');
+            return data;
+          })
+          .catch(error => {
+            Swal.showValidationMessage(`Request failed: ${error.message}`);
+          });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Updated!',
+            text: 'Order status has been updated.',
+            icon: 'success'
+          }).then(() => location.reload());
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+  // Get the status element
+  const statusElement = document.getElementById("current-status");
+
+  // Get the status value from the data attribute
+  const status = statusElement.getAttribute("data-status");
+
+  // Apply styles based on the status
+  switch (status) {
+    case "cancelled":
+      statusElement.style.color = "red";
+      statusElement.style.fontWeight = "bold";
+      break;
+    case "delivered":
+      statusElement.style.color = "green";
+      statusElement.style.fontWeight = "bold";
+      break;
+    case "shipped":
+      statusElement.style.color = "blue";
+      statusElement.style.fontWeight = "bold";
+      break;
+    case "processing":
+      statusElement.style.color = "orange";
+      statusElement.style.fontWeight = "bold";
+      break;
+    case "pending":
+      statusElement.style.color = "gray";
+      statusElement.style.fontWeight = "bold";
+      break;
+    case "ordered":
+      statusElement.style.color = "purple";
+      statusElement.style.fontWeight = "bold";
+      break;
+    default:
+      statusElement.style.color = "black";
+      statusElement.style.fontWeight = "normal";
+  }
+});
+  </script>
+</body>
+</html>
