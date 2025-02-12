@@ -62,7 +62,7 @@
                         <div class="cart-details">
                             <h4><%= product.product.productName %></h4>
                             <p>Price: ₹<%= product.product.salePrice %></p>
-                            <input type="number" value="<%= product.quantity %>" min="1" class="quantity-input"
+                            <input type="number" value="<%= product.quantity %>" min="1" max="4" class="quantity-input"
                                 onchange="updateQuantity('<%= product.product._id %>', this.value)">
                         </div>
                         <button class="remove-btn" onclick="removeItem('<%= product.product._id %>')">Remove</button>
@@ -98,8 +98,8 @@ document.addEventListener('DOMContentLoaded', calculateTotalPrice);
 function updateQuantity(productId, newQuantity) {
     // Ensure the quantity is a valid number
     const parsedQuantity = parseInt(newQuantity);
-    if (isNaN(parsedQuantity) || parsedQuantity < 1) {
-        alert('Please enter a valid quantity.');
+    if (isNaN(parsedQuantity) || parsedQuantity < 1 || parsedQuantity > 4 ) {
+        alert('maximum quantity limit reached.');
         return;
     }
 

@@ -5,7 +5,6 @@ const customerInfo = async (req, res) => {
         let search = req.query.search || ""; 
         let page = parseInt(req.query.page) || 1;
         const limit = 4;
-
         const userData = await User.find({
             isAdmin: false,
             $or: [
@@ -16,7 +15,6 @@ const customerInfo = async (req, res) => {
             .limit(limit)
             .skip((page - 1) * limit)
             .exec();
-
         const count = await User.find({
             isAdmin: false,
             $or: [
@@ -24,12 +22,7 @@ const customerInfo = async (req, res) => {
                 { email: { $regex: ".*" + search + ".*", $options: "i" } },
             ],
         }).countDocuments();
-
         const totalPage = Math.ceil(count / limit); 
-
-        //console.log({ userData, count, totalPage, search, page, limit });
-
-        // Pass data to the EJS template
         res.render('customers', {
             data: userData,
             count: count,
@@ -44,16 +37,13 @@ const customerInfo = async (req, res) => {
     }
 };
 
-
 const customerBlocked = async (req, res) => {
     try {
         let id = req.query.id;
-        console.log("Blocking user with ID:", id); // Debugging log
         const result = await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        console.log("Update result:", result); // Debugging log
         res.redirect("/admin/users");
     } catch (error) {
-        console.error("Error blocking user:", error); // Debugging log
+        console.error("Error blocking user:", error);
         res.redirect("/pageerror");
     }
 };
@@ -61,12 +51,10 @@ const customerBlocked = async (req, res) => {
 const customerunBlocked = async (req, res) => {
     try {
         let id = req.query.id;
-        console.log("Unblocking user with ID:", id); // Debugging log
         const result = await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        console.log("Update result:", result); // Debugging log
         res.redirect("/admin/users");
     } catch (error) {
-        console.error("Error unblocking user:", error); // Debugging log
+        console.error("Error unblocking user:", error);
         res.redirect('/pageerror');
     }
 };

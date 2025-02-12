@@ -3,52 +3,47 @@ const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+
 
 exports.addToCart = async (req, res) => {
     try {
-      const user= req.session.user
-      const { productId } = req.body;
-  
-      if (!user) {
-        return res.status(400).json({ error: "User authentication required" });
-      }
+        const user = req.session.user;
+        const { productId } = req.body;
 
-      const product= await Product.findById(productId)
-  
-      let cart= await Cart.findOne({user})
-      if(!cart){
-        cart = new Cart({ user, items: [{product}]})
-      }
-      cart.items.push({
-        product,
-        quantity:1,
-      });
-      
-      await cart.save();
-  
-      res.status(200).json({success:true,cart});
+        if (!user) {
+            return res.status(400).json({ error: "User authentication required" });
+        }
+        const product = await Product.findById(productId);
+
+        let cart = await Cart.findOne({ user });
+        if (!cart) {
+            cart = new Cart({ user, items: [{ product }] });
+        }
+        cart.items.push({
+            product,
+            quantity: 1,
+        });
+
+        await cart.save();
+
+        res.status(200).json({ success: true, cart });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Server error" });
+        console.error(error);
+        res.status(500).json({ error: "Server error" });
     }
-  };
-
- 
+};
 
 exports.getCart = async (req, res) => {
     try {
-        const user = req.session.user; // Get logged-in user
-        console.log(req.session.user);
-        
+        const user = req.session.user;
+
         if (!user) {
-            return res.redirect('/login'); // Redirect to login if not authenticated
+            return res.redirect('/login');
         }
-
-        const cart = await Cart.findOne({ user }).populate('items.product') 
-        console.log(cart)
-
-        res.render('cart', { cart }); // Render the cart page with cart data
-       
+        const cart = await Cart.findOne({ user }).populate('items.product');
+        res.render('cart', { cart });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Server error" });
@@ -69,11 +64,8 @@ exports.removeCart = async (req, res) => {
             return res.status(404).json({ error: "Cart not found" });
         }
 
-        // Remove the item from the cart
         cart.items = cart.items.filter(item => item.product.toString() !== productId);
-
         await cart.save();
-
         res.status(200).json({ success: true, cart });
     } catch (error) {
         console.error(error);
@@ -82,69 +74,50 @@ exports.removeCart = async (req, res) => {
 };
 
 exports.getCheckout = async (req, res) => {
-  try {
-    
-    
-    const user= req.session.user;
+    try {
+        const user = req.session.user;
 
-    
-    if(!user){
-      res.redirect('/login');
-    } // Assuming user session is stored
-    const address = await Address.findOne({ userId:user }).populate('userId');
-    const cart = await Cart.findOne({ user }).populate('items.product') 
-    console.log(cart)
+        if (!user) {
+            res.redirect('/login');
+        }
 
-   
-    
-    res.render('checkout', { cart, addresses: address ? address.address : [] });
+        const address = await Address.findOne({ userId: user }).populate('userId');
+        const cart = await Cart.findOne({ user }).populate('items.product');
 
-} catch (error) {
-    console.log(error);
-    res.redirect('/cart');
-}
+        res.render('checkout', { cart, addresses: address ? address.address : [] });
+    } catch (error) {
+        console.log(error);
+        res.redirect('/cart');
+    }
 };
 
-
-
-
-exports.updateCart= async (req, res) => {
+exports.updateCart = async (req, res) => {
     const { productId, quantity } = req.body;
-    console.log('=======',productId, quantity)
 
     try {
-        // Validate input
         if (!productId || !quantity || isNaN(quantity) || quantity < 1) {
             return res.status(400).json({ success: false, message: 'Invalid product ID or quantity.' });
         }
 
-        // Ensure the user is authenticated
         const userId = req.session.user;
-        console.log('--------',userId);
-        
+
         if (!userId) {
             return res.status(401).json({ success: false, message: 'User not authenticated.' });
         }
 
-        // Find the user's cart
         const userCart = await Cart.findOne({ user: userId });
         if (!userCart) {
             return res.status(404).json({ success: false, message: 'Cart not found.' });
         }
 
-        // Find the specific item in the cart
         const itemIndex = userCart.items.findIndex(item => item.product.toString() === productId);
         if (itemIndex === -1) {
             return res.status(404).json({ success: false, message: 'Product not found in cart.' });
         }
 
-        // Update the quantity
         userCart.items[itemIndex].quantity = parseInt(quantity);
-
-        // Save the updated cart
         await userCart.save();
 
-        // Respond with success
         return res.json({ success: true, message: 'Cart updated successfully.' });
     } catch (error) {
         console.error('Error updating cart:', error);
@@ -152,37 +125,29 @@ exports.updateCart= async (req, res) => {
     }
 };
 
-
 exports.getOrderSuccess = async (req, res) => {
-    console.log('Order Success Route Hit:', req.body);
     try {
         const { selectedAddressId, paymentMethod } = req.body;
         const userId = req.session.user;
 
-        // Validate input
         if (!userId || !selectedAddressId || !paymentMethod) {
             return res.status(400).json({ success: false, message: 'Missing required fields.' });
         }
 
-        // Fetch the user's cart
         const userCart = await Cart.findOne({ user: userId }).populate('items.product');
         if (!userCart || userCart.items.length === 0) {
             return res.status(400).json({ success: false, message: 'Cart is empty.' });
         }
 
-        // Fetch the selected address
         const addressDetails = await Address.findOne({ userId });
         let selectedAddress;
         if (addressDetails) {
             selectedAddress = addressDetails.address.id(selectedAddressId);
-            console.log(selectedAddress);
         }
-
         if (!selectedAddress) {
             return res.status(404).json({ success: false, message: 'Selected address not found.' });
         }
 
-        // Validate stock and prepare order items
         const items = userCart.items.map(item => ({
             product: item.product._id,
             productName: item.product.productName,
@@ -191,7 +156,6 @@ exports.getOrderSuccess = async (req, res) => {
             images: item.product.images[0]
         }));
 
-        // Check stock availability
         for (const item of userCart.items) {
             const product = await Product.findById(item.product._id);
             if (!product) {
@@ -202,18 +166,14 @@ exports.getOrderSuccess = async (req, res) => {
             }
         }
 
-        // Deduct stock
         for (const item of userCart.items) {
             const product = await Product.findById(item.product._id);
             product.quantity -= item.quantity;
             await product.save();
-            console.log("quantity now",product.quantity);
         }
 
-        // Calculate total price
         const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
 
-        // Create the order
         const order = new Order({
             user: userId,
             shippingAddress: {
@@ -232,7 +192,6 @@ exports.getOrderSuccess = async (req, res) => {
 
         await order.save();
 
-        // Clear the cart after placing the order
         userCart.items = [];
         await userCart.save();
 

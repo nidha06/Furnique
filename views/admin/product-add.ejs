@@ -75,7 +75,16 @@
         <div class="form-group">
           <label for="productName">Product Name</label>
           <!-- Added an error container for product name -->
-          <input type="text" id="productName" name="productName" placeholder="Enter product name" required>
+          <input 
+          type="text" 
+          id="productName" 
+          name="productName" 
+          placeholder="Enter product name" 
+          required
+          minlength="3"
+          maxlength="100"
+          pattern="^[a-zA-Z0-9\s-]+$"
+        >
           <div id="productName-error" class="errorMessage"></div>
         </div>
         <div class="form-group">
@@ -134,6 +143,7 @@
     // Global objects for cropper instances and cropped image files
     const croppers = {};
     const croppedImages = {};
+    
 
     function viewImage(event, index) {
       const input = event.target;
@@ -255,20 +265,7 @@
 
       if (!isValid) return;
 
-      // Check product name uniqueness (case-insensitive)
-      try {
-        const response = await fetch(`/admin/checkProductName?name=${encodeURIComponent(productNameVal)}`);
-        const result = await response.json();
-        if (result.exists) {
-          displayErrorMessage('productName-error', 'A product with that name already exists.');
-          return; // Cancel submission if product name exists
-        }
-      } catch (error) {
-        console.error('Error checking product name uniqueness:', error);
-        displayErrorMessage('productName-error', 'Unable to verify product name uniqueness. Please try again.');
-        return;
-      }
-
+    
       // Validate remaining fields (if any) via synchronous function
       if (!validateFormFields()) return;
 

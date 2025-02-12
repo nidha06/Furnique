@@ -148,8 +148,8 @@ body {
 
   <!-- End Header/Navigation -->
   <div class="container mt-4">
-	<form class="d-flex justify-content-center">
-	  <input class="form-control w-50" type="search" placeholder="Search products..." aria-label="Search">
+	<form action="/shop" method="GET" class="d-flex justify-content-center">
+	  <input value="<%= searchQuery %>" class="form-control w-50" type="text" name="query" placeholder="Search products..." aria-label="Search">
 	  <button class="btn btn-dark ms-2" type="submit">Search</button>
 	</form>
   </div>
@@ -199,25 +199,29 @@ body {
       <div class="mb-4">
         <h6 style="color: #570B4F;" class="">Price Range</h6>
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="priceUnder100">
-          <label style="color: #570B4F;" class="form-check-label" for="priceUnder100">Under &#8377;10000</label>
+          <input class="form-check-input price-filter" type="checkbox" id="priceUnder10000" name="priceRange" 
+                 value="0-10000" <%= selectedPriceRanges.includes('0-10000') ? 'checked' : '' %>>
+          <label style="color: #570B4F;" class="form-check-label" for="priceUnder10000">Under ₹10000</label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="price100to500">
-          <label style="color: #570B4F;" class="form-check-label" for="price100to500">&#8377;10000 - &#8377;15000</label>
+          <input class="form-check-input price-filter" type="checkbox" id="price10000to15000" name="priceRange" 
+                 value="10000-15000" <%= selectedPriceRanges.includes('10000-15000') ? 'checked' : '' %>>
+          <label style="color: #570B4F;" class="form-check-label" for="price10000to15000">₹10000 - ₹15000</label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="price500to1000">
-          <label style="color: #570B4F;" class="form-check-label" for="price500to1000">&#8377;15000 - &#8377;20000</label>
+          <input class="form-check-input price-filter" type="checkbox" id="price15000to20000" name="priceRange" 
+                 value="15000-20000" <%= selectedPriceRanges.includes('15000-20000') ? 'checked' : '' %>>
+          <label style="color: #570B4F;" class="form-check-label" for="price15000to20000">₹15000 - ₹20000</label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="priceAbove1000">
-          <label style="color: #570B4F;" class="form-check-label" for="priceAbove1000">Above &#8377;20000</label>
+          <input class="form-check-input price-filter" type="checkbox" id="priceAbove20000" name="priceRange" 
+                 value="20000-999999" <%= selectedPriceRanges.includes('20000-999999') ? 'checked' : '' %>>
+          <label style="color: #570B4F;" class="form-check-label" for="priceAbove20000">Above ₹20000</label>
         </div>
       </div>
-
-      <!-- Apply Filters Button -->
-      <button style="background-color: #570B4F; color: #fff;" class="btn  w-100">Apply Filters</button>
+      
+      <!-- Update the apply filters button -->
+      <button id="applyFilters" style="background-color: #570B4F; color: #fff;" class="btn w-100">Apply Filters</button>
     </div>
   </div>
 </div>
@@ -244,17 +248,30 @@ body {
 					<h5 class="card-title"><%=products[i].productName %></h5>
 					<p class="card-text text-muted">Price:&#8377;<%=products[i].salePrice%> <span> <strike><%=products[i].regularPrice%></strike></span> </p>
 				</a>
-        <% 
-                let isInCart = false;
-                if (cart) {
-                    isInCart = cart.items.some(item => item.product._id.toString() === products[i]._id.toString());
-                }
-            %>
-            <a href="#" class="btn btn-outline-dark w-100 mt-3 add-to-cart <%= isInCart ? 'disabled' : '' %>" 
-               data-id="<%= products[i]._id %>" <%= isInCart ? 'disabled' : '' %>>
-                <%= isInCart ? 'Added to Cart' : 'Add to Cart' %>
-            </a>
+        <% if(user){ %>
+        <% let isInCart = false;%>
+        <%   if (cart) {%>
+              <%      isInCart = cart.items.some(item => item.product._id.toString() === products[i]._id.toString());%>
+                    <% } %>
 
+          <% if(isInCart){ %>
+             <a href="/cart" class="btn btn-outline-dark w-100 bg-dark mt-3" 
+             data-id="<%= products[i]._id %>">
+             Go to Cart
+          </a>
+           
+            <%} else{ %>
+              <a href="#" class="btn btn-outline-dark w-100 mt-3 add-to-cart" 
+               data-id="<%= products[i]._id %>">
+               Add to Cart
+            </a>  
+         <% } %>
+         
+         <% } else {%>
+              <a href="/login" class="btn btn-outline-dark w-100 mt-3 " >
+                Add to Cart
+             </a>
+              <% } %>
 				  </div>
 				</div>
 			  </div>
@@ -356,7 +373,7 @@ body {
     });
 });
 
-// Add this to your existing script section
+
 document.addEventListener('DOMContentLoaded', function() {
     const sortDropdown = document.getElementById('sortDropdown');
     
@@ -457,6 +474,63 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const applyFiltersBtn = document.getElementById('applyFilters');
+    
+    // Function to get current URL parameters
+    function getCurrentUrlParams() {
+        return new URLSearchParams(window.location.search);
+    }
+    
+    // Function to get selected price ranges
+    function getSelectedPriceRanges() {
+        const checkboxes = document.querySelectorAll('.price-filter:checked');
+        return Array.from(checkboxes).map(checkbox => checkbox.value);
+    }
+    
+    // Apply filters when button is clicked
+    applyFiltersBtn.addEventListener('click', function() {
+        const selectedPriceRanges = getSelectedPriceRanges();
+        const currentUrl = new URL(window.location.href);
+        const params = currentUrl.searchParams;
+        
+        // Update price ranges parameter
+        if (selectedPriceRanges.length > 0) {
+            params.set('priceRanges', selectedPriceRanges.join(','));
+        } else {
+            params.delete('priceRanges');
+        }
+        
+        // Preserve other parameters
+        const sort = params.get('sort');
+        if (sort) params.set('sort', sort);
+        
+        // Reset to page 1 when applying new filters
+        params.set('page', '1');
+        
+        // Navigate to filtered URL
+        window.location.href = currentUrl.toString();
+    });
+    
+    // Handle sort dropdown changes
+    const sortDropdown = document.getElementById('sortDropdown');
+    if (sortDropdown) {
+        sortDropdown.addEventListener('change', function() {
+            const currentUrl = new URL(window.location.href);
+            const params = currentUrl.searchParams;
+            
+            params.set('sort', this.value);
+            params.set('page', '1');  // Reset to first page on sort change
+            
+            window.location.href = currentUrl.toString();
+        });
+    }
+});
+
 
    </script>
 

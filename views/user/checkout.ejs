@@ -86,11 +86,21 @@
         <div class="section">
             <h3 style="color: #570B4F;">Payment Method</h3>
             <div class="payment-container">
-                <label style="color: #570B4F;"><input type="radio" name="payment" value="credit"> Credit/Debit Card</label><br>
-                <label style="color: #570B4F;"><input type="radio" name="payment" value="paypal"> PayPal</label><br>
-                <label style="color: #570B4F;"><input type="radio" name="payment" value="cod" checked> Cash on Delivery</label>
+              <label style="color: #570B4F;">
+                <input type="radio" name="payment" value="credit"> Credit/Debit Card
+              </label><br>
+              <label style="color: #570B4F;">
+                <input type="radio" name="payment" value="paypal"> PayPal
+              </label><br>
+              <label style="color: #570B4F;">
+                <input type="radio" name="payment" value="cod"> Cash on Delivery
+              </label><br>
+              <label style="color: #570B4F;">
+                <input type="radio" name="payment" value="razorpay"> Pay Online (Razorpay)
+              </label>
             </div>
-        </div>
+          </div>
+         
 
         <!-- Order Summary Section -->
         <div class="section">
@@ -118,84 +128,174 @@
 
         <button class="checkout-btn" onclick="placeOrder()">Place Order</button>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-        function editAddress() {
+       
+        
+
+        function placeOrder() {
+  const checkoutBtn = document.querySelector('.checkout-btn');
+  checkoutBtn.disabled = true;
+  checkoutBtn.textContent = 'Placing Order...';
+
+  let selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+  let paymentMethod = document.querySelector('input[name="payment"]:checked');
+
+  if (!selectedAddress) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Please select a shipping address.',
+    });
+    checkoutBtn.disabled = false;
+    checkoutBtn.textContent = 'Place Order';
+    return;
+  }
+
+  if (!paymentMethod) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Please select a payment method.',
+    });
+    checkoutBtn.disabled = false;
+    checkoutBtn.textContent = 'Place Order';
+    return;
+  }
+
+  if (paymentMethod.value === 'razorpay') {
+    // Handle Razorpay payment
+    fetch('/create-razorpay-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ total: parseFloat(document.getElementById('cartTotal').innerText) }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const options = {
+            key: 'rzp_test_yCX0ajp0D199Jj', // Replace with your Razorpay Key ID
+            amount: data.order.amount,
+            currency: data.order.currency,
+            name: 'Furni - Modern Furniture Store',
+            description: 'Order Payment',
+            image: '/images/favicon.png', // Replace with your logo URL
+            order_id: data.order.id,
+            handler: async function (response) {
+              fetch('/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  selectedAddressId: selectedAddress.value,
+                  paymentMethod: paymentMethod.value,
+                }),
+              })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success) {
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Order Placed!',
+                      text: `Your order has been placed successfully. Order ID: ${data.orderId}`,
+                    }).then(() => {
+                      window.location.href = '/';
+                    });
+                  } else {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: data.message,
+                    });
+                  }
+                })
+                .catch(error => {
+                  console.error('Error verifying payment:', error);
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An unexpected error occurred while verifying your payment.',
+                  });
+                });
+            },
+           
+            theme: {
+              color: '#570B4F',
+            },
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to create payment order.',
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error creating Razorpay order:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An unexpected error occurred while creating your payment order.',
+        });
+      })
+      .finally(() => {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Place Order';
+      });
+  } else {
+    // Handle COD or other payment methods
+    fetch('/order-success', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        selectedAddressId: selectedAddress.value,
+        paymentMethod: paymentMethod.value,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Order Placed!',
+            text: `Your order has been placed successfully. Order ID: ${data.orderId}`,
+          }).then(() => {
+            window.location.href = '/';
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error placing order:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An unexpected error occurred while placing your order.',
+        });
+      })
+      .finally(() => {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Place Order';
+      });
+  }
+}
+
+function editAddress() {
             alert("Redirecting to edit address page...");
             window.location.href = '/edit-address';
         }
-
-        function placeOrder() {
-    const checkoutBtn = document.querySelector('.checkout-btn');
-    checkoutBtn.disabled = true;
-    checkoutBtn.textContent = 'Placing Order...';
-
-    let selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-    let paymentMethod = document.querySelector('input[name="payment"]:checked');
-
-    if (!selectedAddress) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Please select a shipping address.',
-        });
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = 'Place Order';
-        return;
-    }
-
-    if (!paymentMethod) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Please select a payment method.',
-        });
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = 'Place Order';
-        return;
-    }
-
-    fetch('/order-success', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            selectedAddressId: selectedAddress.value,
-            paymentMethod: paymentMethod.value
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Order Placed!',
-                text: `Your order has been placed successfully. Order ID: ${data.orderId}`,
-            }).then(() => {
-                window.location.href = '/';
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message,
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error placing order:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'An unexpected error occurred while placing your order.',
-        });
-    })
-    .finally(() => {
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = 'Place Order';
-    });
-}
-    
-
     </script>
 </body>
 </html>

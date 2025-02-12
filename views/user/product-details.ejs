@@ -177,6 +177,81 @@ h1 {
     font-size: 16px;
 }
 
+.similar-products {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.similar-products h2 {
+    color: #570B4F;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.similar-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+.similar-product-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.similar-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.similar-product-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.similar-product-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.similar-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.similar-product-info {
+    padding: 10px;
+}
+
+.similar-product-info h3 {
+    font-size: 16px;
+    margin: 5px 0;
+    color: #333;
+}
+
+.similar-product-price {
+    font-size: 18px;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.similar-old-price {
+    text-decoration: line-through;
+    color: #888;
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+
 
 
     </style>
@@ -240,7 +315,7 @@ h1 {
             <div class="cart-options">
                 <% 
                 let isInCart = false;
-                if (cart) {
+                if (cart && user) {
                     isInCart = cart.items.some(item => item.product._id.toString() === product._id.toString());
                 }
             %>
@@ -250,10 +325,37 @@ h1 {
                 <%= isInCart ? 'Added to Cart' : 'Add to Cart' %>
                 
             </a>
+            
                 
             </div>
         </div>
+       
     </main>
+    <div class="similar-products">
+        <h2>Similar Products</h2>
+        <div class="similar-products-grid">
+            <% similarProducts.forEach(similarProduct => { %>
+                <div class="similar-product-card">
+                    <a href="/product-details?id=<%= similarProduct._id %>">
+                        <div class="similar-product-image">
+                            <% if (similarProduct.images && similarProduct.images.length > 0) { %>
+                                <img src="/uploads/<%= similarProduct.images[0] %>" alt="<%= similarProduct.productName %>">
+                            <% } else { %>
+                                <img src="/images/default-placeholder.png" alt="Default Image">
+                            <% } %>
+                        </div>
+                        <div class="similar-product-info">
+                            <h3><%= similarProduct.productName %></h3>
+                            <p class="similar-product-price">
+                                ₹<%= similarProduct.salePrice %>
+                                <span class="similar-old-price">₹<%= similarProduct.regularPrice %></span>
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            <% }); %>
+        </div>
+    </div>
     <script>
         function changeImage(element) {
             document.getElementById('main-image').src = element.src;

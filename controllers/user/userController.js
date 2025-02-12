@@ -106,103 +106,116 @@ const signup = async(req,res)=>{
     }
 }
 
-const loadShoppingPage = async(req, res) => {
+const loadShoppingPage = async (req, res) => {
     try {
-        const user = req.session.user;
-        let cart = null;
-        
-        const userData = await User.findOne({_id: user});
-        const categories = await Category.find({isListed: true});
-        const categoryIds = categories.map((category) => category._id.toString());
-        
-        const page = parseInt(req.query.page) || 1;
-        const limit = 9;
-        const skip = (page - 1) * limit;
-        
-        // Get sort parameter from query
-        const sortType = req.query.sort || 'new-arrival';
-        
-        // Get price ranges from query
-        const priceRanges = req.query.priceRanges;
-        
-        // Build query object
-        let query = {
-            isListed: true,
-            category: { $in: categoryIds },
-            quantity: { $gt: 0 }
-        };
-        
-        // Add price filter if present
-        if (priceRanges) {
-            const ranges = priceRanges.split(',').map(range => {
-                const [min, max] = range.split('-').map(Number);
-                return {
-                    salePrice: {
-                        $gte: min,
-                        ...(max !== Infinity && { $lte: max })
-                    }
-                };
-            });
-            
-            if (ranges.length > 0) {
-                query.$or = ranges;
-            }
-        }
-        
-        // Define sort options
-        let sortOptions = {};
-        switch(sortType) {
-            case 'new-arrival':
-                sortOptions = { createdOn: -1 };
-                break;
-            case 'a-to-z':
-                sortOptions = { productName: 1 };
-                break;
-            case 'z-to-a':
-                sortOptions = { productName: -1 };
-                break;
-            case 'high-to-low':
-                sortOptions = { salePrice: -1 };
-                break;
-            case 'low-to-high':
-                sortOptions = { salePrice: 1 };
-                break;
-            default:
-                sortOptions = { createdOn: -1 };
-        }
-        
-        // Find products with filtering and sorting
-        const products = await Product.find(query)
-            .sort(sortOptions)
-            .skip(skip)
-            .limit(limit);
-        
-        const totalProducts = await Product.countDocuments(query);
-        const totalPages = Math.ceil(totalProducts/limit);
-        
-        if (user) {
-            cart = await Cart.findOne({ user }).populate('items.product');
-        }
-        
-        res.render('shop', {
-            user: userData,
-            products: products,
-            category: categories,
-            totalProducts: totalProducts,
-            currentPage: page,
-            totalPages: totalPages,
-            cart,
-            selectedSort: sortType,
-            selectedPriceRanges: priceRanges ? priceRanges.split(',') : []
+      const user = req.session.user;
+      let cart = null;
+      const userData = await User.findOne({ _id: user });
+      const categories = await Category.find({ isListed: true });
+      const categoryIds = categories.map((category) => category._id.toString());
+      const page = parseInt(req.query.page) || 1;
+      const limit = 9;
+      const skip = (page - 1) * limit;
+  
+      // Get sort parameter from query
+      const sortType = req.query.sort || 'new-arrival';
+  
+      // Get price ranges from query
+      const priceRanges = req.query.priceRanges;
+  
+      // Get search query from query params
+      const searchQuery = req.query.query || '';
+  
+      // Build query object
+      let query = {
+        isListed: true,
+        category: { $in: categoryIds },
+        quantity: { $gt: 0 },
+      };
+  
+      // Add search filter if present
+      if (searchQuery) {
+        query.productName = { $regex: searchQuery, $options: 'i' }; // Case-insensitive search
+      }
+  
+      // Add price filter if present
+      if (priceRanges) {
+        const ranges = priceRanges.split(',').map(range => {
+          const [min, max] = range.split('-').map(Number);
+          return {
+            salePrice: {
+              $gte: min,
+              $lte: max === 999999 ? Number.MAX_SAFE_INTEGER : max,
+            },
+          };
         });
-        
+        if (ranges.length > 0) {
+          query.$or = ranges;
+        }
+      }
+  
+      // Define sort options using collation for proper string sorting
+      let sortOptions = {};
+      let collation = null;
+      switch (sortType) {
+        case 'new-arrival':
+          sortOptions = { createdOn: -1 };
+          break;
+        case 'a-to-z':
+          sortOptions = { productName: 1 };
+          collation = { locale: 'en', strength: 2 }; // Case-insensitive sorting
+          break;
+        case 'z-to-a':
+          sortOptions = { productName: -1 };
+          collation = { locale: 'en', strength: 2 }; // Case-insensitive sorting
+          break;
+        case 'high-to-low':
+          sortOptions = { salePrice: -1 };
+          break;
+        case 'low-to-high':
+          sortOptions = { salePrice: 1 };
+          break;
+        default:
+          sortOptions = { createdOn: -1 };
+      }
+  
+      // Find products with filtering and sorting
+      let productsQuery = Product.find(query)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limit);
+  
+      // Apply collation for alphabetical sorting if needed
+      if (collation) {
+        productsQuery = productsQuery.collation(collation);
+      }
+  
+      const products = await productsQuery;
+      const totalProducts = await Product.countDocuments(query);
+      const totalPages = Math.ceil(totalProducts / limit);
+  
+      if (user) {
+        cart = await Cart.findOne({ user }).populate('items.product');
+      }
+  
+      res.render('shop', {
+        user: userData,
+        products: products,
+        category: categories,
+        totalProducts: totalProducts,
+        currentPage: page,
+        totalPages: totalPages,
+        cart,
+        selectedSort: sortType,
+        selectedPriceRanges: priceRanges ? priceRanges.split(',') : [],
+        searchQuery: searchQuery, // Pass the search query back to the frontend
+      });
     } catch (error) {
-        console.log('Error loading shopping page:', error);
-        res.status(500).send('Internal server error');
+      console.log('Error loading shopping page:', error);
+      res.status(500).send('Internal server error');
     }
-};
+  };
 
-// Update filterProduct function similarly
 const filterProduct = async(req, res) => {
     try {
         let cart = null;
@@ -238,17 +251,21 @@ const filterProduct = async(req, res) => {
             }
         }
         
-        // Define sort options
+        // Define sort options using collation for proper string sorting
         let sortOptions = {};
+        let collation = null;
+
         switch(sortType) {
             case 'new-arrival':
                 sortOptions = { createdOn: -1 };
                 break;
             case 'a-to-z':
                 sortOptions = { productName: 1 };
+                collation = { locale: 'en', strength: 2 }; // Case-insensitive sorting
                 break;
             case 'z-to-a':
                 sortOptions = { productName: -1 };
+                collation = { locale: 'en', strength: 2 }; // Case-insensitive sorting
                 break;
             case 'high-to-low':
                 sortOptions = { salePrice: -1 };
@@ -260,9 +277,15 @@ const filterProduct = async(req, res) => {
                 sortOptions = { createdOn: -1 };
         }
         
-        let findProducts = await Product.find(query)
-            .sort(sortOptions)
-            .lean();
+        // Find products with proper collation
+        let productsQuery = Product.find(query).sort(sortOptions);
+
+        // Apply collation for alphabetical sorting if needed
+        if (collation) {
+            productsQuery = productsQuery.collation(collation);
+        }
+
+        const findProducts = await productsQuery.lean();
         
         const categories = await Category.find({isListed: true});
         
@@ -292,9 +315,12 @@ const filterProduct = async(req, res) => {
         });
         
     } catch (error) {
+        console.error('Error in filterProduct:', error);
         res.redirect('/pageNotFound');
     }
 };
+
+
 
 const pageNotFound = async(req,res)=>{
     try {
