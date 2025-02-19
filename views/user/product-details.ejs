@@ -250,7 +250,41 @@ h1 {
     font-size: 14px;
     margin-left: 5px;
 }
+.wishlist-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 
+.wishlist-icon:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.1);
+}
+
+.wishlist-icon i {
+  font-size: 18px;
+  color: #888;
+  transition: color 0.3s ease;
+}
+
+.wishlist-icon:hover i {
+  color: #570B4F;
+}
+
+.wishlist-icon i.fas.fa-heart {
+  color: #c213b0;
+}
 
 
 
@@ -276,6 +310,8 @@ h1 {
         <div class="product-gallery">
           <% if (typeof product !== 'undefined' && product.images && product.images.length > 0) { %>
             <img id="main-image" src="/uploads/<%= product.images[0] %>" class="zoom-image" onmousemove="zoom(event)" onmouseout="resetZoom()">
+            
+                
         <% } else { %>
             <img id="main-image" src="/images/default-placeholder.png" class="zoom-image">
         <% } %>

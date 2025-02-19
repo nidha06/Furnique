@@ -19,6 +19,12 @@ router.post('/verify-otp',userController.verifyOtp);
 router.post('/resend-otp',userController.resendOtp);
 router.get('/filter',userController.filterProduct);
 router.get('/productDetails',productController.productDetails);
+router.post('/add-wishlist',userAuth,productController.wishlistAdd);
+router.get('/get-wishlist-status',userAuth,productController.getWishlist);
+router.get('/wishlist', userAuth,productController.getListWishlist);
+router.post('/wishlist-toggle/:productId',userAuth,productController.toggleWishlistItem);
+router.post('/wishlist-remove/:productId', userAuth,productController.removeFromWishlist);
+router.get('/wishlist-count',userAuth,productController.getWishlistCount);
 
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
@@ -61,6 +67,8 @@ router.get('/checkout-addAddress',userAuth,profileController.checkoutAddAddress)
 router.post('/checkout-addAddress',userAuth,profileController.checkoutPostAddAddress);
 router.get('/checkout-editAddress',userAuth,profileController.checkoutEditAddress);
 router.post('/checkout-editAddress',userAuth,profileController.checkoutPostEditAddress);
+router.post('/submit-return/:orderId', orderController.submitReturn);
+router.put('/orders/:orderId/approve-return', orderController.approveReturn);
 
 //payment management
 router.get('/checkout',userAuth,paymentController.getCheckout);
@@ -68,6 +76,7 @@ router.post('/order-success',userAuth,paymentController.getOrderSuccess);
 // razorpay
 router.post('/create-razorpay-order',userAuth,paymentController.createRazorpayOrder);
 router.post('/verify-payment',userAuth,paymentController.verifyPayment);
+
 
 
 module.exports = router;

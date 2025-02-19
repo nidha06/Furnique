@@ -5,6 +5,8 @@ const customerContoller = require('../controllers/admin/customerController');
 const categoryController=require('../controllers/admin/categoryController');
 const productController=require('../controllers/admin/productController');
 const orderController = require('../controllers/admin/orderController');
+const offerController = require('../controllers/admin/offerController');
+const couponController = require('../controllers/admin/couponController');
 const upload = require('../middlewares/multerConfig');
 const {userAuth,adminAuth}=require("../middlewares/auth");
 
@@ -39,7 +41,22 @@ router.get('/orders',adminAuth,orderController.getOrderList);
 router.get('/order-details/:orderId',adminAuth,orderController.getOrderDetails);
 router.put('/orders/:orderId/cancel',adminAuth,orderController.cancelOrder);
 router.put('/orders/:orderId/update-status',adminAuth,orderController.updateOrderStatus);
-
+router.put('/orders/:orderId/approve-return',adminAuth,orderController.successReturn);
+//offer management
+router.get('/offermanagement',adminAuth,offerController.getOffer);
+router.get('/get-create-offer',adminAuth,offerController.getcreateOffer);
+router.post('/submit-offer',adminAuth,offerController.submitOffer);
+router.patch('/update-offer-status/:id', offerController.updateOfferStatus);
+router.get('/edit-offer/:id', adminAuth, offerController.getOfferForEdit);
+router.post('/update-offer/:id', adminAuth, offerController.updateOffer);
+//coupon management
+router.get('/coupons',adminAuth,couponController.getCoupons);
+router.get('/getCreateCoupon',adminAuth,couponController.getCreateCoupon);
+router.post('/createCoupon',adminAuth,couponController.createCoupon);
+router.get('/deleteCoupon/:id',adminAuth,couponController.deleteCoupon);
+router.get('/editCoupon/:id',adminAuth,couponController.editCouponPage);
+router.post('/updateCoupon/:id',adminAuth,couponController.updateCoupon);
+router.post('/update-coupon-status/:id', adminAuth, couponController.updateCouponStatus);
 
 
 

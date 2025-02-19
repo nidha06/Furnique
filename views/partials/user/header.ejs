@@ -29,9 +29,50 @@
                     </ul>
                 </li>
                 <li><a class="nav-link" href="/cart"><img src="/images/cart.svg" alt="Cart"></a></li>
-                <li><a class="nav-link" href="cart.html"><img src="/images/whishlist.png" alt="Wishlist"></a></li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="/wishlist">
+                      <i class="fa-solid fa-heart"></i>
+                      <!-- <span id="wishlist-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        0
+                        <span class="visually-hidden">wishlist items</span> -->
+                      </span>
+                    </a>
+                  </li>
             </ul>
         </div>
     </div>
 </nav>
+<script>
+    async function fetchWishlistCount() {
+    try {
+        const response = await fetch('/get-wishlist-count'); // Call the backend endpoint
+        if (!response.ok) {
+            throw new Error('Failed to fetch wishlist count');
+        }
+        const data = await response.json(); // Parse the JSON response
+
+        if (data.success) {
+            // Update the wishlist count in the UI
+            updateWishlistCountUI(data.count);
+        } else {
+            console.error('Error fetching wishlist count:', data.message);
+        }
+    } catch (error) {
+        console.error('Error fetching wishlist count:', error);
+    }
+}
+
+// Function to update the wishlist count in the UI
+function updateWishlistCountUI(count) {
+    const wishlistCountElement = document.getElementById('wishlist-count'); // Assuming you have an element with this ID
+    if (wishlistCountElement) {
+        wishlistCountElement.textContent = count; // Update the text content with the count
+    }
+}
+
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    fetchWishlistCount();
+});
+</script>
 <!-- End Header/Navigation -->

@@ -135,13 +135,51 @@ body {
     .filter-sidebar .card {
       width: 250px;
     }
+    .product-item {
+  position: relative;
+}
+/* Wishlist Icon Styling */
+.wishlist-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 
+.wishlist-icon:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.1);
+}
+
+.wishlist-icon i {
+  font-size: 18px;
+  color: #888;
+  transition: color 0.3s ease;
+}
+
+.wishlist-icon:hover i {
+  color: #570B4F;
+}
+
+.wishlist-icon i.fas.fa-heart {
+  color: #c213b0;
+}
 
 
   </style>
 </head>
 
-<body>
+<body data-user-logged-in="<%= user ? 'true' : 'false' %>">
 
   <!-- Start Header/Navigation -->
   <%- include('../../views/partials/user/header.ejs')%>
@@ -197,7 +235,7 @@ body {
 
       <!-- Price Filter -->
       <div class="mb-4">
-        <h6 style="color: #570B4F;" class="">Price Range</h6>
+        <h6 style="color: #570B4F;" class="">Price Range </h6>
         <div class="form-check">
           <input class="form-check-input price-filter" type="checkbox" id="priceUnder10000" name="priceRange" 
                  value="0-10000" <%= selectedPriceRanges.includes('0-10000') ? 'checked' : '' %>>
@@ -235,19 +273,22 @@ body {
         <div class="col-12 col-md-9">
           <div class="row">
 			<% for(let i=0;i<products.length;i++){ %>
-            <!-- Product Item -->
-			<div class="col-12 col-md-6 col-lg-4 mb-5">
-				<div class="card product-item shadow-sm position-relative">
-				  <!-- Wishlist Icon -->
-				  <a href="" class="wishlist-icon position-absolute top-0 end-0 m-2" style="font-size: 24px; color: #570B4F;">
-					<i class="fas fa-heart"></i>
-				</a>
-				  <a href="/productDetails?id=<%=products[i]._id %>">
-				  <img src="/uploads/<%=products[i].images[0] %>" class="card-img-top" alt="<%=products[i].productName %>">
-				  <div class="card-body">
-					<h5 class="card-title"><%=products[i].productName %></h5>
-					<p class="card-text text-muted">Price:&#8377;<%=products[i].salePrice%> <span> <strike><%=products[i].regularPrice%></strike></span> </p>
-				</a>
+        <div class="col-12 col-md-6 col-lg-4 mb-5">
+          <div class="card product-item shadow-sm position-relative">
+            <a href="/productDetails?id=<%=products[i]._id %>">
+              <img src="/uploads/<%=products[i].images[0] %>" class="card-img-top" alt="<%=products[i].productName %>">
+            </a>
+            <button class="wishlist-icon" data-product-id="<%= products[i]._id %>" title="Add to Wishlist">
+              <i class="far fa-heart"></i>
+            </button>
+            
+            <div class="card-body">
+              <h5 class="card-title"><%=products[i].productName %></h5>
+              <p class="card-text text-muted">
+                Price:&#8377;<%=products[i].salePrice%> 
+                <span><strike><%=products[i].regularPrice%></strike></span>
+              </p>
+				
         <% if(user){ %>
         <% let isInCart = false;%>
         <%   if (cart) {%>
@@ -531,6 +572,129 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
+// Add this at the top of your script
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to check if user is logged in
+  function isUserLoggedIn() {
+    // Check if there's a logged in user - this depends on how you track auth state
+    // You could check for presence of user object, auth token, etc.
+    return document.body.getAttribute('data-user-logged-in') === 'true';
+  }
+
+  // Wishlist Toggle Function
+  async function toggleWishlist(productId) {
+    try {
+      // Check if user is logged in
+      if (!isUserLoggedIn()) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Login Required',
+          text: 'Please log in to add items to your wishlist',
+          showCancelButton: true,
+          confirmButtonText: 'Login',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '/login';
+          }
+        });
+        return;
+      }
+
+      // Send request to add/remove from wishlist
+      const response = await fetch('/add-wishlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: data.added ? 'Added to Wishlist!' : 'Removed from Wishlist',
+          text: data.message,
+          timer: 2000,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false
+        });
+        
+        // Update the wishlist icon
+        updateWishlistIcon(productId, data.added);
+      } else {
+        // Show error message
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops!',
+          text: data.message || 'Something went wrong'
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update wishlist. Please try again.'
+      });
+    }
+  }
+
+  // Helper function to update wishlist icon
+  function updateWishlistIcon(productId, isInWishlist) {
+    const wishlistBtn = document.querySelector(`.wishlist-icon[data-product-id="${productId}"]`);
+    if (wishlistBtn) {
+      if (isInWishlist) {
+        wishlistBtn.innerHTML = '<i class="fas fa-heart" style="color: #c213b0;"></i>';
+        wishlistBtn.setAttribute('title', 'Remove from Wishlist');
+      } else {
+        wishlistBtn.innerHTML = '<i class="far fa-heart"></i>';
+        wishlistBtn.setAttribute('title', 'Add to Wishlist');
+      }
+    }
+  }
+
+  // Function to initialize wishlist status on page load
+  async function initializeWishlistStatus() {
+    try {
+      const response = await fetch('/get-wishlist-status');
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update each product's wishlist icon based on status
+        if (data.wishlistItems && data.wishlistItems.length > 0) {
+          data.wishlistItems.forEach(itemId => {
+            updateWishlistIcon(itemId, true);
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist status:", error);
+    }
+  }
+
+  // Get all wishlist buttons
+  const wishlistButtons = document.querySelectorAll('.wishlist-icon');
+  
+  // Add click event listeners to all wishlist buttons
+  wishlistButtons.forEach(button => {
+    button.addEventListener('click', function(event) {
+      event.preventDefault();
+      const productId = this.getAttribute('data-product-id');
+      toggleWishlist(productId);
+    });
+  });
+  
+  // Initialize wishlist status if user is logged in
+  if (isUserLoggedIn()) {
+    initializeWishlistStatus();
+  }
+});
 
    </script>
 

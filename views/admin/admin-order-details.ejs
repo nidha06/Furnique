@@ -63,7 +63,6 @@
       font-size: 0.9rem;
       font-weight: 500;
     }
-
     .table th{
         background-color: #570B4F;
     }
@@ -103,14 +102,12 @@
         <i class="fas fa-arrow-left me-2"></i> Back to Orders
       </a>
     </div>
-
     <!-- Order Details Section -->
     <div class="order-details">
       <div class="order-header">
         <h2 style="color: #570B4F;">Order Details</h2>
         <p><strong>Order ID:</strong> <%= order._id %></p>
       </div>
-
       <!-- Shipping Address -->
       <div class="order-info">
         <h4 style="color: #570B4F;">Shipping Address</h4>
@@ -120,13 +117,11 @@
           Phone: <%= order.shippingAddress.phone %>
         </p>
       </div>
-
       <!-- Payment Method -->
       <div class="order-info">
         <h4 style="color: #570B4F;">Payment Method</h4>
         <p ><%= order.paymentMethod.toUpperCase() %></p>
       </div>
-
       <!-- Status Section -->
      
        <!-- Status Section -->
@@ -137,14 +132,25 @@
   </p>
   <button class="btn"  style=" background-color: #570B4F; color: #fff; padding: 3px;" onclick="updateStatus('<%= order._id %>')">Update Status</button>
 </div>
-       
+
+<!-- Return Request Section -->
+<% if (order.returnRequest && order.returnRequest.status === 'pending') { %>
+  <div class="order-info">
+    <h4 style="color: #570B4F;">Return Request Details</h4>
+    <p><strong>Request Date:</strong> <%= new Date(order.returnRequest.requestDate).toLocaleDateString() %></p>
+    <p><strong>Reason:</strong> <%= order.returnRequest.reason %></p>
+    <p><strong>Additional Details:</strong> <%= order.returnRequest.details || 'None' %></p>
+    <button class="btn btn-success" onclick="approveReturn('<%= order._id %>')">
+      <i class="fas fa-check me-2"></i> Approve Return
+    </button>
+  </div>
+<% } %>
 
       <!-- Total Price -->
       <div class="order-info">
         <h4 style="color: #570B4F;">Total Price</h4>
         <p >&#8377; <%= order.totalPrice.toFixed(2) %></p>
       </div>
-
       <!-- Products Table -->
       <div class="order-items mt-4">
         <h4>Products</h4>
@@ -171,7 +177,6 @@
           </tbody>
         </table>
       </div>
-
       <!-- Action Buttons -->
       <div class="action-buttons">
         <button style="background-color: rgb(212, 4, 4); color: #fff;" class="btn " onclick="cancelOrder('<%= order._id %>')">
@@ -180,7 +185,6 @@
       </div>
     </div>
   </div>
-
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -225,7 +229,6 @@
     function updateStatus(orderId) {
       const statuses = ['ordered', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'];
       const currentStatus = document.getElementById('current-status').innerText.trim();
-
       if (currentStatus === 'Delivered' || currentStatus === 'Cancelled') {
         Swal.fire({
           title: 'Error',
@@ -234,7 +237,6 @@
         });
         return;
       }
-
       Swal.fire({
         title: 'Update Order Status',
         input: 'select',
@@ -273,44 +275,71 @@
       });
     }
 
+    // Approve Return Function
+    function approveReturn(orderId) {
+  console.log('Approving return for order ID:', orderId); // Debugging log
+  fetch(`/orders/${orderId}/approve-return`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      Swal.fire({
+        title: 'Approved!',
+        text: 'Return request has been approved.',
+        icon: 'success'
+      }).then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message || 'Failed to approve the return request.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error approving return:', error);
+    Swal.fire('Error', 'An error occurred while approving the return request.', 'error');
+  });
+}
     document.addEventListener("DOMContentLoaded", () => {
-  // Get the status element
-  const statusElement = document.getElementById("current-status");
-
-  // Get the status value from the data attribute
-  const status = statusElement.getAttribute("data-status");
-
-  // Apply styles based on the status
-  switch (status) {
-    case "cancelled":
-      statusElement.style.color = "red";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "delivered":
-      statusElement.style.color = "green";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "shipped":
-      statusElement.style.color = "blue";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "processing":
-      statusElement.style.color = "orange";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "pending":
-      statusElement.style.color = "gray";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "ordered":
-      statusElement.style.color = "purple";
-      statusElement.style.fontWeight = "bold";
-      break;
-    default:
-      statusElement.style.color = "black";
-      statusElement.style.fontWeight = "normal";
-  }
-});
+      // Get the status element
+      const statusElement = document.getElementById("current-status");
+      // Get the status value from the data attribute
+      const status = statusElement.getAttribute("data-status");
+      // Apply styles based on the status
+      switch (status) {
+        case "cancelled":
+          statusElement.style.color = "red";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "delivered":
+          statusElement.style.color = "green";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "shipped":
+          statusElement.style.color = "blue";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "processing":
+          statusElement.style.color = "orange";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "pending":
+          statusElement.style.color = "gray";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "ordered":
+          statusElement.style.color = "purple";
+          statusElement.style.fontWeight = "bold";
+          break;
+        default:
+          statusElement.style.color = "black";
+          statusElement.style.fontWeight = "normal";
+      }
+    });
   </script>
 </body>
 </html>

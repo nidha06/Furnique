@@ -7,7 +7,7 @@ const getOrderList = async (req, res) => {
     try {
         const orders = await Order.find()
             .populate('user', 'name email')
-            .select('shippingAddress paymentMethod items totalPrice status createdAt');
+            .select('shippingAddress paymentMethod items totalPrice status createdAt returnRequest');
         if (!orders || orders.length === 0) {
             return res.json({ success: false, message: "No orders found." });
         }
@@ -59,7 +59,7 @@ const getOrderDetails = async (req, res) => {
         const orderId = req.params.orderId;
         const order = await Order.findById(orderId)
             .populate('user', 'name email')
-            .select('shippingAddress paymentMethod items totalPrice status createdAt cancellationReason');
+            .select('shippingAddress paymentMethod items totalPrice status createdAt cancellationReason returnRequest');
         if (!order) {
             return res.status(404).send('Order not found');
         }
@@ -94,6 +94,7 @@ const getOrderDetails = async (req, res) => {
             status: order.status,
             cancellationReason: order.cancellationReason,
             createdAt: order.createdAt,
+            returnRequest: order.returnRequest || null,
         };
          console.log('simplified:',simplifiedOrder);
         res.render('admin-order-details', { order: simplifiedOrder });
@@ -144,9 +145,42 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+const successReturn= async (req, res) => {
+    try {
+      const { orderId } = req.params;
+  
+      // Find the order
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ success: false, message: 'Order not found.' });
+      }
+  
+      // Check if the order has a pending return request
+      if (!order.returnRequest || order.returnRequest.status !== 'pending') {
+        return res.status(400).json({ success: false, message: 'No pending return request for this order.' });
+      }
+  
+      // Update the return request status to "approved"
+      order.returnRequest.status = 'approved';
+      order.returnRequest.approvalDate = new Date();
+  
+      // Update the order status to "returned"
+      order.status = 'returned';
+  
+      // Save the updated order
+      await order.save();
+  
+      res.status(200).json({ success: true, message: 'Return request approved successfully.' });
+    } catch (error) {
+      console.error('Error approving return request:', error);
+      res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  };
+
 module.exports = {
     getOrderList,
     getOrderDetails,
     cancelOrder,
     updateOrderStatus,
+    successReturn,
 };

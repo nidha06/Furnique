@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnique - Offer Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f5f5f5;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        
+
+        .content {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px;
+        }
+
+        .create-btn {
+            background-color: #570B4F;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .create-btn:hover {
+            background-color: #d812be;
+            transform: scale(1.05);
+        }
+
+        .table-container {
+            flex: 1;
+            padding: 0 20px 20px 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+        th {
+            background-color: #ad71a5;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .btn-update, .btn-delete {
+            padding: 6px 12px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 0 4px;
+        }
+
+        .btn-update {
+            background-color: green;
+        }
+
+        .btn-delete {
+            background-color: red;
+        }
+
+        .btn-update:hover, .btn-delete:hover {
+            opacity: 0.8;
+        }
+
+        .pagination {
+            display: flex;
+            list-style-type: none;
+            padding: 15px;
+            justify-content: center;
+        }
+
+        .pagination .page-item {
+            margin: 0 5px;
+        }
+
+        .pagination .page-link {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #570B4F;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #570B4F;
+            color: white;
+            border-color: #570B4F;
+        }
+
+        /* Default button style */
+.btn-status {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    color: white;
+}
+
+/* Active button (Green) */
+.btn-status.active {
+    background-color: red; /* Green */
+}
+
+/* Inactive button (Red) */
+.btn-status.inactive {
+    background-color: green; /* Red */
+}
+
+/* Hover effect */
+.btn-status:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+    </style>
+</head>
+<body>
+    <div class="main">
+        <%- include('../../views/partials/admin/sidebar') %>
+
+        <div class="content">
+            <div class="header-container">
+                <a href="/admin/get-create-offer" class="create-btn">Create New Offer</a>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Offer Name</th>
+                            <th>Discount Type</th>
+                            <th>Discount Value</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Minimum Purchase</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% offers.forEach(offer => { %>
+                        <tr>
+                            <td><%= offer.title %></td>
+                            <td><%= offer.discount_type %></td>
+                            <td><%= offer.discount_value %><%= offer.discount_type === 'percentage' ? '%' : '₹' %></td>
+                            <td><%= new Date(offer.start_date).toLocaleDateString() %></td>
+                            <td><%= new Date(offer.end_date).toLocaleDateString() %></td>
+                            <td>₹<%= offer.minimum_purchase %></td>
+                            <td class="status-cell" data-id="<%= offer._id %>"><%= offer.status %></td>
+                            <td>
+                                <button class="btn-update" data-id="<%= offer._id %>">Edit</button></a>
+                                
+                                <button 
+                                class="btn-status <%= offer.status === 'active' ? 'active' : 'inactive' %>" 
+                                data-id="<%= offer._id %>" 
+                                data-status="<%= offer.status === 'active' ? 'inactive' : 'active' %>"
+                            >
+                                <%= offer.status === 'active' ? 'Deactivate' : 'Activate' %>
+                            </button>
+                                
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+
+                <div class="pagination-container">
+                    <ul class="pagination">
+                        <% for(let i=1; i<=totalPages; i++) { %>
+                            <li class="page-item <%= (i===currentPage) ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function () {
+    // Activate/Deactivate Offer
+    const statusButtons = document.querySelectorAll('.btn-status');
+    statusButtons.forEach(button => {
+        button.addEventListener('click', async function () {
+            const offerId = this.getAttribute('data-id');
+            const newStatus = this.getAttribute('data-status'); // Get the new status (active/inactive)
+
+            try {
+                // Send a PATCH request to update the status
+                const response = await fetch(`/admin/update-offer-status/${offerId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus }),
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Update the button text dynamically
+                    this.textContent = newStatus === 'active' ? 'Deactivate' : 'Activate';
+
+                    // Update the button class dynamically
+                    if (newStatus === 'active') {
+                        this.classList.remove('inactive');
+                        this.classList.add('active');
+                    } else {
+                        this.classList.remove('active');
+                        this.classList.add('inactive');
+                    }
+
+                    // Update the data-status attribute for the next click
+                    this.setAttribute('data-status', newStatus === 'active' ? 'inactive' : 'active');
+
+                    // Update the status in the table cell
+                    const statusCell = document.querySelector(`.status-cell[data-id="${offerId}"]`);
+                    if (statusCell) {
+                        statusCell.textContent = newStatus; // Update the status text
+                    }
+                } else {
+                    alert('Failed to update status. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An unexpected error occurred.');
+            }
+        });
+    });
+});
+            // Edit offer
+          // Edit Offer
+const editButtons = document.querySelectorAll('.btn-update');
+editButtons.forEach(button => {
+    button.addEventListener('click', function () {
+        const offerId = this.getAttribute('data-id');
+        window.location.href = `/admin/edit-offer/${offerId}`;
+    });
+});
+        
+    </script>
+</body>
+</html>

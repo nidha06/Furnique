@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnique - Create Coupon</title>
+    <style>
+        /* Same styles as your original design */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f5f5f5;
+        }
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .content {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+        }
+        .form-container {
+            width: 700px;
+            margin: 20px 150px;
+            color:#fff;
+            padding: 20px;
+            background-color: #ad71a5;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background-color: #570B4F;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #d812be;
+        }
+        .btn-secondary {
+            background-color: #ccc;
+            color: black;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <%- include('../../views/partials/admin/sidebar') %>
+        <div class="content">
+            <div class="form-container">
+                <h2>Create Coupon</h2>
+                <form action="/admin/createCoupon" method="POST">
+                    <div class="form-group">
+                        <label for="code">Coupon Code</label>
+                        <input type="text" id="code" name="code" placeholder="Enter coupon code" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="discountType">Discount Type</label>
+                        <select id="discountType" name="discountType" required>
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="fixed">Fixed Amount (₹)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="discountAmount">Discount Value</label>
+                        <input type="number" id="discountAmount" name="discountAmount" placeholder="Enter discount value" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="minPurchase">Minimum Purchase Amount (₹)</label>
+                        <input type="number" id="minPurchase" name="minPurchase" placeholder="Enter minimum purchase amount" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date</label>
+                        <input type="date" id="expiryDate" name="expiryDate" required>
+                    </div>
+                    <div class="button-group">
+                        <a href="/admin/coupons"> <button type="submit" class="btn-primary">Create Coupon</button></a>
+                        <a href="/admin/coupons" class="btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

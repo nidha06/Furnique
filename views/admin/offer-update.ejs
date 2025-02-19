@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnique - Edit Offer</title>
+    <style>
+         
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f4f4f4;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+       
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            /* margin-left: 250px; */
+            padding: 40px;
+            background-color: #eeeded;
+        }
+
+        /* Form Container */
+        .form-container {
+            background-color: #ad71a5;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+
+        .form-container h2 {
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .form-container h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background-color: #570B4F;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #570B4F;
+            box-shadow: 0 0 0 2px rgba(87, 11, 79, 0.1);
+            outline: none;
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .form-group select[multiple] {
+            height: 150px;
+            padding: 8px;
+            background-image: none;
+        }
+
+        .form-group select option {
+            padding: 8px;
+        }
+
+        .offer-type-selector {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .offer-type-selector label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            flex: 1;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #570B4F;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #d812be;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(87, 11, 79, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Error styles */
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-group.error input,
+        .form-group.error select {
+            border-color: #dc3545;
+        }
+
+        .form-group.error .error-message {
+            display: block;
+        }
+        .back-button {
+      margin-bottom: 20px;
+      background-color: #570B4F;
+      
+    }
+    </style>
+   
+</head>
+<body>
+        <%- include('../../views/partials/admin/sidebar') %>
+        <div class="content">
+            
+            <div class="form-container">
+                <h2>Edit Offer</h2>
+                <form action="/admin/update-offer/<%= offer._id %>" method="POST">
+                    <div class="form-group">
+                        <label for="title">Offer Name</label>
+                        <input type="text" id="title" name="title" value="<%= offer.title %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Offer Applies To</label>
+                        <div class="offer-type-selector">
+                            <label>
+                                <input type="radio" id="categoryBased" name="appliesTo" value="categoryBased" <%= offer.applies_to === 'categoryBased' ? 'checked' : '' %>>
+                                Category Based
+                            </label>
+                            <label>
+                                <input type="radio" id="productBased" name="appliesTo" value="productBased" <%= offer.applies_to === 'productBased' ? 'checked' : '' %>>
+                                Product Based
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="categorySelection">
+                        <label for="categories">Select Categories</label>
+                        <select id="categories" name="categories[]" multiple required>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>" <%= offer.categories && offer.categories.map(cat => cat.toString()).includes(category._id.toString()) ? 'selected' : '' %>>
+                                    <%= category.name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                        <div class="error-message">Please select at least one category</div>
+                    </div>
+                    <div class="form-group hidden" id="productSelection">
+                        <label for="products">Select Products</label>
+                        <select id="products" name="products[]" multiple>
+                            <% products.forEach(product => { %>
+                                <option value="<%= product._id %>" <%= offer.products && offer.products.map(prod => prod.toString()).includes(product._id.toString()) ? 'selected' : '' %>>
+                                    <%= product.productName %>
+                                </option>
+                            <% }); %>
+                        </select>
+                        <div class="error-message">Please select at least one product</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount_type">Discount Type</label>
+                        <select id="discount_type" name="discount_type" required>
+                            <option value="percentage" <%= offer.discount_type === 'percentage' ? 'selected' : '' %>>Percentage</option>
+                            <option value="fixed" <%= offer.discount_type === 'fixed' ? 'selected' : '' %>>Fixed Amount</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount_value">Discount Value</label>
+                        <input type="number" id="discount_value" name="discount_value" value="<%= offer.discount_value %>" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" id="start_date" name="start_date" value="<%= new Date(offer.start_date).toISOString().split('T')[0] %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date</label>
+                        <input type="date" id="end_date" name="end_date" value="<%= new Date(offer.end_date).toISOString().split('T')[0] %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="minimum_purchase">Minimum Purchase Amount (₹)</label>
+                        <input type="number" id="minimum_purchase" name="minimum_purchase" value="<%= offer.minimum_purchase %>" min="0" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary">Update Offer</button>
+                        <a href="/admin/offermanagement" class="btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+  
+    <script>
+        // Toggle between category and product selection
+        const offerTypeRadios = document.querySelectorAll('input[name="appliesTo"]');
+        const categorySelection = document.getElementById('categorySelection');
+        const productSelection = document.getElementById('productSelection');
+
+        offerTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (this.value === 'categoryBased') {
+                    categorySelection.classList.remove('hidden');
+                    productSelection.classList.add('hidden');
+                } else {
+                    categorySelection.classList.add('hidden');
+                    productSelection.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Initialize based on the current selection
+        if (document.querySelector('input[name="appliesTo"]:checked').value === 'categoryBased') {
+            categorySelection.classList.remove('hidden');
+            productSelection.classList.add('hidden');
+        } else {
+            categorySelection.classList.add('hidden');
+            productSelection.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

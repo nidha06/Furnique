@@ -49,6 +49,39 @@
         max-width: 60px;
       }
     }
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 10px;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -61,10 +94,10 @@
     </div>
     <div class="order-header">
       <h2 style="color: #570B4F;">Order Details</h2>
-      <p ><strong>Order ID:</strong> <%= order._id %></p>
+      <p><strong>Order ID:</strong> <%= order._id %></p>
     </div>
     <div class="order-info">
-      <h4 style="color: #570B4F;" >Shipping Address</h4>
+      <h4 style="color: #570B4F;">Shipping Address</h4>
       <p>
         <strong><%= order.shippingAddress.name %></strong><br>
         <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %><br>
@@ -76,7 +109,7 @@
       <p><%= order.paymentMethod.toUpperCase() %></p>
     </div>
     <div class="order-info">
-      <h4 style="color: #570B4F;" >Status</h4>
+      <h4 style="color: #570B4F;">Status</h4>
       <p id="current-status" data-status="<%= order.status.toLowerCase() %>">
         <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
       </p>
@@ -95,97 +128,181 @@
         <tbody>
           <% order.items.forEach(item => { %>
             <tr>
-              <td><img src="/uploads/<%= item.product.images[0] %>" ></td>
+              <td><img src="/uploads/<%= item.product.images[0] %>"></td>
               <td><%= item.productName %></td>
               <td><%= item.quantity %></td>
               <td>&#8377;<%= item.price.toFixed(2) %></td>
             </tr>
           <% }) %>
-         
-
         </tbody>
       </table>
-      <div class="order-info">
-  
+      <div class="order-actions">
         <% if (order.status.toLowerCase() !== 'cancelled' && order.status.toLowerCase() !== 'delivered') { %>
-            <button class="btn btn-danger" id="cancelBtn">
-                Cancel Order
-            </button>
+          <button class="btn btn-danger" id="cancelBtn">Cancel Order</button>
         <% } %>
-        
+
+        <!-- Return Button -->
+        <% if (order.status.toLowerCase() === 'delivered') { %>
+          <button class="btn btn-warning" id="returnBtn">Return Order</button>
+        <% } %>
       </div>
     </div>
   </div>
-</body>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-  // Get the status element
-  const statusElement = document.getElementById("current-status");
 
-  // Get the status value from the data attribute
-  const status = statusElement.getAttribute("data-status");
+  <!-- Return Modal -->
+  <div id="returnModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Return Request</h3>
+      <form id="returnForm">
+        <div class="mb-3">
+          <label for="reason" class="form-label">Reason for Return</label>
+          <select id="reason" class="form-select" required>
+            <option value="" disabled selected>Select a reason</option>
+            <option value="wrong_size">Wrong Size</option>
+            <option value="damaged">Damaged Product</option>
+            <option value="not_as_described">Not as Described</option>
+            <option value="changed_mind">Changed My Mind</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="details" class="form-label">Additional Details</label>
+          <textarea id="details" class="form-control" rows="3" placeholder="Provide additional details (optional)"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Return Request</button>
+      </form>
+    </div>
+  </div>
 
-  // Apply styles based on the status
-  switch (status) {
-    case "cancelled":
-      statusElement.style.color = "red";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "delivered":
-      statusElement.style.color = "green";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "shipped":
-      statusElement.style.color = "blue";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "processing":
-      statusElement.style.color = "orange";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "pending":
-      statusElement.style.color = "gray";
-      statusElement.style.fontWeight = "bold";
-      break;
-    case "ordered":
-      statusElement.style.color = "purple";
-      statusElement.style.fontWeight = "bold";
-      break;
-    default:
-      statusElement.style.color = "black";
-      statusElement.style.fontWeight = "normal";
-  }
-});
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Get the status element
+      const statusElement = document.getElementById("current-status");
+      const status = statusElement.getAttribute("data-status");
 
+      // Apply styles based on the status
+      switch (status) {
+        case "cancelled":
+          statusElement.style.color = "red";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "delivered":
+          statusElement.style.color = "green";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "shipped":
+          statusElement.style.color = "blue";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "processing":
+          statusElement.style.color = "orange";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "pending":
+          statusElement.style.color = "gray";
+          statusElement.style.fontWeight = "bold";
+          break;
+        case "ordered":
+          statusElement.style.color = "purple";
+          statusElement.style.fontWeight = "bold";
+          break;
+        default:
+          statusElement.style.color = "black";
+          statusElement.style.fontWeight = "normal";
+      }
 
-document.addEventListener("DOMContentLoaded", () => {
-const cancelBtn= document.getElementById('cancelBtn')
-cancelBtn.addEventListener('click', async () => {
-    const orderId = '<%= order._id %>';
+      // Cancel Order Button
+      const cancelBtn = document.getElementById('cancelBtn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', async () => {
+          const orderId = '<%= order._id %>';
+          try {
+            const response = await fetch(`/cancel/${orderId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            if (response.ok) {
+              const result = await response.json();
+              alert(result.message || 'Order cancelled successfully');
+              window.location.reload();
+            } else if (response.status === 400) {
+              const errorData = await response.json();
+              alert(errorData.message || 'Order cannot be cancelled');
+            } else {
+              alert('Failed to cancel order');
+            }
+          } catch (error) {
+            console.error('Error cancelling order:', error);
+            alert('An error occurred while cancelling the order');
+          }
+        });
+      }
 
-    try {
-      const response = await fetch(`/cancel/${orderId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      // Return Order Modal
+      const returnModal = document.getElementById('returnModal');
+      const returnBtn = document.getElementById('returnBtn');
+      const closeModal = document.querySelector('.close');
+
+      if (returnBtn) {
+        returnBtn.addEventListener('click', () => {
+          returnModal.style.display = 'block';
+        });
+      }
+
+      if (closeModal) {
+        closeModal.addEventListener('click', () => {
+          returnModal.style.display = 'none';
+        });
+      }
+
+      window.addEventListener('click', (event) => {
+        if (event.target === returnModal) {
+          returnModal.style.display = 'none';
+        }
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        alert(result.message || 'Order cancelled successfully');
-        window.location.reload();
-      } else if (response.status === 400) {
-        const errorData = await response.json();
-        alert(errorData.message || 'Order cannot be cancelled');
-      } else {
-        alert('Failed to cancel order');
+      // Submit Return Request
+      const returnForm = document.getElementById('returnForm');
+      if (returnForm) {
+        returnForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const reason = document.getElementById('reason').value;
+          const details = document.getElementById('details').value;
+
+          if (!reason) {
+            alert('Please select a reason for return.');
+            return;
+          }
+
+          const orderId = '<%= order._id %>';
+          try {
+            const response = await fetch(`/submit-return/${orderId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ reason, details }),
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              alert(result.message || 'Return request submitted successfully');
+              window.location.reload();
+            } else {
+              const errorData = await response.json();
+              alert(errorData.message || 'Failed to submit return request');
+            }
+          } catch (error) {
+            console.error('Error submitting return request:', error);
+            alert('An error occurred while submitting the return request');
+          }
+        });
       }
-    } catch (error) {
-      console.error('Error cancelling order:', error);
-      alert('An error occurred while cancelling the order');
-    }
-  });
-});
-</script>
+    });
+  </script>
+</body>
 </html>
