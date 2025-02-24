@@ -1,4 +1,5 @@
 const Order = require('../../models/orderSchema');
+const Wallet = require('../../models/walletSchema');
 
 // Get Order Details Controller
 const getOrderDetails = async (req, res) => {
@@ -22,7 +23,7 @@ const getOrderDetails = async (req, res) => {
 const cancelOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
-
+    const user=req.session.user
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).send('Order not found');
@@ -37,6 +38,37 @@ const cancelOrder = async (req, res) => {
     order.status = 'cancelled';
     await order.save();
 
+    if (order.paymentMethod === 'razorpay') {
+      console.log('Processing wallet refund for Razorpay payment...');
+      let wallet = await Wallet.findOne({ user: user });
+      if (!wallet) {
+          console.log('Creating new wallet for user:', user);
+          wallet = new Wallet({
+              user: user._id,
+              balance: 0,
+              transactions: [],
+          });
+          await wallet.save();
+      }
+  
+      console.log('Current wallet balance:', wallet.balance);
+      wallet.balance += order.totalPrice;
+  
+      wallet.transactions.push({
+          amount: order.totalPrice,
+          type: 'credit',
+          orderId: order._id,
+          description: `Order Refund : ${order._id}`,
+      });
+  
+      console.log('Updated wallet balance:', wallet.balance);
+      console.log('New transaction added:', wallet.transactions[wallet.transactions.length - 1]);
+  
+      await wallet.save();
+      console.log('Wallet updated successfully.');
+  
+  }
+  
     res.status(200).json({ message: 'Order cancelled successfully' });
   } catch (error) {
     console.error('Error cancelling order:', error);

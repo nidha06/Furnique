@@ -6,6 +6,8 @@ const offerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    
+   
     discount_type: {
         type: String,
         enum: ['percentage', 'fixed'],
@@ -31,16 +33,12 @@ const offerSchema = new mongoose.Schema({
        type:String,
         default:'active'
     },
-    categories:{
+    category:{
         type: Schema.Types.ObjectId,
         ref:"Category",
         required:true
     },
-    products:{
-        type: Schema.Types.ObjectId,
-        ref:"Product",
-        required:true
-    },
+   
 }, { timestamps: true });
 
 module.exports = mongoose.model('Offer', offerSchema);

@@ -7,6 +7,7 @@ const productController=require('../controllers/admin/productController');
 const orderController = require('../controllers/admin/orderController');
 const offerController = require('../controllers/admin/offerController');
 const couponController = require('../controllers/admin/couponController');
+const dashboardController = require('../controllers/admin/dashboardController');
 const upload = require('../middlewares/multerConfig');
 const {userAuth,adminAuth}=require("../middlewares/auth");
 
@@ -57,6 +58,9 @@ router.get('/deleteCoupon/:id',adminAuth,couponController.deleteCoupon);
 router.get('/editCoupon/:id',adminAuth,couponController.editCouponPage);
 router.post('/updateCoupon/:id',adminAuth,couponController.updateCoupon);
 router.post('/update-coupon-status/:id', adminAuth, couponController.updateCouponStatus);
+//dashboard management
+router.get('/reports-sales/export', adminAuth, dashboardController.generateSalesReport);
+router.get('/reports-sales', adminAuth,dashboardController.getReport);
 
 
 

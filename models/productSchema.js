@@ -23,7 +23,7 @@ const productSchema = new Schema({
         type:Number,
         required:true
     },
-    productOffer:{
+    offerPrice:{
         type: Number,
         default: 0
     },

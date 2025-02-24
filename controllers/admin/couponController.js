@@ -1,6 +1,6 @@
 const Coupon = require('../../models/couponSchema');
 
-// Get all coupons with pagination and search
+
 const getCoupons = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -47,7 +47,8 @@ const createCoupon = async (req, res) => {
             discountType,
             discountAmount,
             minPurchase,
-            expiryDate
+            expiryDate,
+            maxLimit
         } = req.body;
 
         // Validate discount amount
@@ -60,6 +61,7 @@ const createCoupon = async (req, res) => {
             discountType,
             discountAmount,
             minPurchase,
+            maxLimit,
             expiryDate
         });
 
@@ -126,7 +128,7 @@ const updateCoupon = async (req, res) => {
     }
 };
 
-// Validate coupon (for use in checkout)
+// Validate coupon 
 const validateCoupon = async (code, totalAmount) => {
     try {
         const coupon = await Coupon.findOne({
@@ -161,13 +163,13 @@ const validateCoupon = async (code, totalAmount) => {
     }
 };
 
-// Update coupon status (Activate/Deactivate)
+
 const updateCouponStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { isActive } = req.body;
 
-        // Update the coupon's isActive status
+        
         await Coupon.findByIdAndUpdate(id, { isActive });
 
         res.json({ success: true });

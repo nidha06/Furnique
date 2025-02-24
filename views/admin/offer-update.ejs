@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Furnique - Edit Offer</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
          
         * {
@@ -205,45 +206,19 @@
             <div class="form-container">
                 <h2>Edit Offer</h2>
                 <form action="/admin/update-offer/<%= offer._id %>" method="POST">
-                    <div class="form-group">
-                        <label for="title">Offer Name</label>
-                        <input type="text" id="title" name="title" value="<%= offer.title %>" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Offer Applies To</label>
-                        <div class="offer-type-selector">
-                            <label>
-                                <input type="radio" id="categoryBased" name="appliesTo" value="categoryBased" <%= offer.applies_to === 'categoryBased' ? 'checked' : '' %>>
-                                Category Based
-                            </label>
-                            <label>
-                                <input type="radio" id="productBased" name="appliesTo" value="productBased" <%= offer.applies_to === 'productBased' ? 'checked' : '' %>>
-                                Product Based
-                            </label>
-                        </div>
-                    </div>
+                   
+                   
                     <div class="form-group" id="categorySelection">
-                        <label for="categories">Select Categories</label>
-                        <select id="categories" name="categories[]" multiple required>
-                            <% categories.forEach(category => { %>
-                                <option value="<%= category._id %>" <%= offer.categories && offer.categories.map(cat => cat.toString()).includes(category._id.toString()) ? 'selected' : '' %>>
+                        <label for="category">Select category</label>
+                        <select id="category" name="category"  required>
+                            <% categories.forEach(category =>  { %>
+                               <option value="<%=category._id%>" <%=offer.category._id.toString() ===category._id.toString() ? 'selected' : '' %> >
                                     <%= category.name %>
                                 </option>
                             <% }); %>
                         </select>
-                        <div class="error-message">Please select at least one category</div>
                     </div>
-                    <div class="form-group hidden" id="productSelection">
-                        <label for="products">Select Products</label>
-                        <select id="products" name="products[]" multiple>
-                            <% products.forEach(product => { %>
-                                <option value="<%= product._id %>" <%= offer.products && offer.products.map(prod => prod.toString()).includes(product._id.toString()) ? 'selected' : '' %>>
-                                    <%= product.productName %>
-                                </option>
-                            <% }); %>
-                        </select>
-                        <div class="error-message">Please select at least one product</div>
-                    </div>
+                    
                     <div class="form-group">
                         <label for="discount_type">Discount Type</label>
                         <select id="discount_type" name="discount_type" required>
@@ -276,31 +251,81 @@
         </div>
   
     <script>
-        // Toggle between category and product selection
-        const offerTypeRadios = document.querySelectorAll('input[name="appliesTo"]');
-        const categorySelection = document.getElementById('categorySelection');
-        const productSelection = document.getElementById('productSelection');
 
-        offerTypeRadios.forEach(radio => {
-            radio.addEventListener('change', function () {
-                if (this.value === 'categoryBased') {
-                    categorySelection.classList.remove('hidden');
-                    productSelection.classList.add('hidden');
-                } else {
-                    categorySelection.classList.add('hidden');
-                    productSelection.classList.remove('hidden');
-                }
-            });
-        });
+       // Handle form submission via AJAX
+    document.querySelector('form').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Prevent default form submission
 
-        // Initialize based on the current selection
-        if (document.querySelector('input[name="appliesTo"]:checked').value === 'categoryBased') {
-            categorySelection.classList.remove('hidden');
-            productSelection.classList.add('hidden');
-        } else {
-            categorySelection.classList.add('hidden');
-            productSelection.classList.remove('hidden');
+        // Perform client-side validation
+        let hasError = false;
+
+        // Date validation
+        const startDate = new Date(document.getElementById('start_date').value);
+        const endDate = new Date(document.getElementById('end_date').value);
+
+        if (endDate < startDate) {
+            alert('End date cannot be before start date');
+            return;
         }
+
+        // Category/Product validation
+
+        const categorySelected = document.getElementById('category').selectedOptions.length;
+if (categorySelected === 0) {
+    document.getElementById('categorySelection').classList.add('error');
+    hasError = true;
+} else {
+    document.getElementById('categorySelection').classList.remove('error');
+}
+        if (hasError) {
+            return;
+        }
+
+        // Collect form data
+        const formData = {};
+        new FormData(document.querySelector('form')).forEach((value, key) => {
+        formData[key] = value;
+    });
+
+        try {
+            // Send POST request to the server
+            const response = await fetch(`/admin/update-offer/<%= offer._id %>`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Show success alert using SweetAlert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: result.message,
+                }).then(() => {
+                    // Redirect to the offer listing page
+                    window.location.href = '/admin/offermanagement';
+                });
+            } else {
+                // Show error alert if creation fails
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: result.message || 'Something went wrong!',
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'An unexpected error occurred!',
+            });
+        }
+    });
     </script>
 </body>
 </html>

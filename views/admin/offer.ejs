@@ -167,7 +167,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Offer Name</th>
+                            <th>Offer Category </th>                            
                             <th>Discount Type</th>
                             <th>Discount Value</th>
                             <th>Start Date</th>
@@ -180,7 +180,8 @@
                     <tbody>
                         <% offers.forEach(offer => { %>
                         <tr>
-                            <td><%= offer.title %></td>
+                            <td><%= offer.category.name %></td>
+                         
                             <td><%= offer.discount_type %></td>
                             <td><%= offer.discount_value %><%= offer.discount_type === 'percentage' ? '%' : '₹' %></td>
                             <td><%= new Date(offer.start_date).toLocaleDateString() %></td>

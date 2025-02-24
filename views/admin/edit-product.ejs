@@ -71,13 +71,19 @@ button.submit-btn:hover {
 .errorMessage{
   color: red;
 }
+.calculated-price {
+      color: #570B4F;
+      margin-top: 5px;
+      font-size: 14px;
+      font-weight: bold;
+    }
 </style>
 <body>
     <%- include('../../views/partials/admin/sidebar') %>
     <div class="content">
-  <h2 style="margin-bottom: 20px; color: #570B4F;">Update Product</h2>
-  <div class="form-container">
-    <form action="/admin/editProduct/<%= product._id %>" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+      <h2 style="margin-bottom: 20px; color: #570B4F;">Update Product</h2>
+      <div class="form-container">
+          <form action="/admin/editProduct/<%= product._id %>" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
         <div class="form-group">
           <label for="productName">Product Name</label>
           <input type="text" id="productName" name="productName" value="<%= product.productName %>" placeholder="Enter product name" required>
@@ -96,12 +102,24 @@ button.submit-btn:hover {
           <label for="regularPrice">Regular Price</label>
           <input type="number" id="regularPrice" name="regularPrice" value="<%= product.regularPrice %>" placeholder="Enter regular price" required>
           <div id="regularPrice-error" class="errorMessage"></div>
-        </div>
-        <div class="form-group">
-          <label for="salePrice">Sales Price</label>
-          <input type="number" id="salePrice" name="salePrice" value="<%= product.salePrice %>" placeholder="Enter sales price" required>
-          <div id="salePrice-error" class="errorMessage"></div>
-        </div>
+      </div>
+
+      <div class="form-group">
+          <label for="discount">Discount Percentage (%)</label>
+          <input 
+              type="number" 
+              id="discount" 
+              name="discount" 
+              placeholder="Enter discount percentage" 
+              min="0" 
+              max="100" 
+              value="<%= Math.round((1 - product.salePrice / product.regularPrice) * 100) %>"
+              required
+          >
+          <div id="discount-error" class="errorMessage"></div>
+          <div id="calculated-sale-price" class="calculated-price"></div>
+      </div>
+      <input type="hidden" id="salePrice" name="salePrice" value="<%= product.salePrice %>">
         <div class="form-group">
       
           <label for="category">Category</label>
@@ -143,6 +161,99 @@ button.submit-btn:hover {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script>
+  function calculateSalePrice() {
+    const regularPrice = parseFloat(document.getElementById('regularPrice').value) || 0;
+    const discount = parseFloat(document.getElementById('discount').value) || 0;
+    
+    if (regularPrice && discount >= 0 && discount <= 100) {
+        const discountAmount = (regularPrice * discount) / 100;
+        // Round the sale price to the nearest whole number
+        const salePrice = Math.round(regularPrice - discountAmount);
+        
+        // Update hidden sale price input
+        document.getElementById('salePrice').value = salePrice;
+        
+        // Display calculated sale price without decimals
+        document.getElementById('calculated-sale-price').textContent = 
+            `Final Sale Price: ₹${salePrice}`;
+    } else {
+        document.getElementById('calculated-sale-price').textContent = '';
+    }
+}
+
+// Add event listeners for price calculation
+document.getElementById('regularPrice').addEventListener('input', calculateSalePrice);
+document.getElementById('discount').addEventListener('input', calculateSalePrice);
+
+// Calculate initial sale price on page load
+window.addEventListener('DOMContentLoaded', calculateSalePrice);
+
+function validateForm() {
+    const requiredFields = ['productName', 'description', 'quantity', 'regularPrice', 'discount', 'category'];
+    
+    for (const field of requiredFields) {
+        const input = document.getElementById(field);
+        if (!input.value.trim()) {
+            alert(`Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+            return false;
+        }
+    }
+
+    const discount = parseFloat(document.getElementById('discount').value);
+    if (discount < 0 || discount > 100) {
+        alert('Discount must be between 0 and 100 percent');
+        return false;
+    }
+
+    return true;
+}
+
+document.querySelector('form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    clearErrorMessages();
+    let isValid = true;
+
+    // Validate numeric fields
+    const quantity = document.getElementById('quantity');
+    if (parseInt(quantity.value) < 0) {
+        displayErrorMessage('quantity-error', 'Please enter a non-negative quantity');
+        isValid = false;
+    }
+
+    const regularPrice = document.getElementById('regularPrice');
+    if (!/^\d+(\.\d{1,2})?$/.test(regularPrice.value) || parseFloat(regularPrice.value) < 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+    }
+
+    const discount = document.getElementById('discount');
+    if (parseFloat(discount.value) < 0 || parseFloat(discount.value) > 100) {
+        displayErrorMessage('discount-error', 'Discount must be between 0 and 100 percent.');
+        isValid = false;
+    }
+
+    if (isValid) {
+        try {
+            const response = await fetch('/admin/editProduct/<%= product._id %>', {
+                method: 'POST',
+                body: new FormData(this),
+            });
+            const result = await response.json();
+
+            if (result.error && result.error.includes('Product with this name already exists')) {
+                displayErrorMessage('productName-error', result.error);
+                isValid = false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    if (isValid) {
+        this.submit();
+    }
+});
+
 // Store croppers and cropped data globally
 const croppers = {};
 const croppedImages = {};

@@ -6,6 +6,9 @@ const profileController = require('../controllers/user/profileController');
 const cartController = require("../controllers/user/cartController");
 const orderController = require('../controllers/user/orderController');
 const paymentController = require('../controllers/user/paymentController');
+const walletController = require('../controllers/user/walletController');
+
+
 const passport = require('passport');
 const { userAuth } = require('../middlewares/auth');
 
@@ -30,7 +33,7 @@ router.get('/wishlist-count',userAuth,productController.getWishlistCount);
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
 
 router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),(req,res)=>{
-    res.redirect('/');
+userAuth, res.redirect('/');
 });
 
 router.get('/login',userController.loadLogin);
@@ -76,6 +79,13 @@ router.post('/order-success',userAuth,paymentController.getOrderSuccess);
 // razorpay
 router.post('/create-razorpay-order',userAuth,paymentController.createRazorpayOrder);
 router.post('/verify-payment',userAuth,paymentController.verifyPayment);
+//couponmanagement
+router.post('/apply-coupon',userAuth,cartController.applyCoupon);
+router.post('/apply-coupon',userAuth,cartController.getActiveCoupons);
+//wallet Management
+router.get('/getWallet',userAuth,profileController.getWalletDetails);
+router.get('/getWallet',userAuth,profileController.initializeWallet);
+
 
 
 

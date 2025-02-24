@@ -2,6 +2,7 @@ const { session } = require('passport');
 const mongoose = require('mongoose');
 const Order = require('../../models/orderSchema');
 const Product = require('../../models/productSchema');
+const Wallet = require('../../models/walletSchema');
 
 const getOrderList = async (req, res) => {
     try {
@@ -113,7 +114,30 @@ const cancelOrder = async (req, res) => {
         if (order.status === 'cancelled') {
             return res.status(400).json({ success: false, message: 'Order is already cancelled.' });
         }
-        order.status = 'cancelled';
+        
+        if(paymentMethod==='razorpay'){
+            let wallet = await Wallet.findOne({user});
+      
+            if(!wallet){
+               wallet= new Wallet({
+                user,
+                balance:0,
+                transactions:[],
+              })
+              await wallet.save()
+            }
+            wallet.balance +=totalPrice
+        
+            wallet.transactions.push({
+              amount:order.totalPrice,
+              type:'credit',
+              orderId:order._id,
+              description:`Order Refund : ${order._id}`,
+            })
+        
+            await wallet.save()
+          }
+          order.status = 'cancelled';
         await order.save();
         return res.json({ success: true, message: 'Order cancelled successfully.' });
     } catch (error) {
@@ -149,7 +173,7 @@ const successReturn= async (req, res) => {
     try {
       const { orderId } = req.params;
   
-      // Find the order
+      
       const order = await Order.findById(orderId);
       if (!order) {
         return res.status(404).json({ success: false, message: 'Order not found.' });

@@ -187,7 +187,7 @@ body {
   <!-- End Header/Navigation -->
   <div class="container mt-4">
 	<form action="/shop" method="GET" class="d-flex justify-content-center">
-	  <input value="<%= searchQuery %>" class="form-control w-50" type="text" name="query" placeholder="Search products..." aria-label="Search">
+	  <input value="<%=searchQuery %>" class="form-control w-50" type="text" name="query" placeholder="Search products..." aria-label="Search">
 	  <button class="btn btn-dark ms-2" type="submit">Search</button>
 	</form>
   </div>
@@ -224,7 +224,7 @@ body {
           <% for(let i=0;i<category.length;i++){ %>
           <li>
             <h6 style="color: #570B4F;">
-              <a href="/filter?category=<%= category[i]._id %>" class="text-decoration-none">
+              <a href="?category=<%= category[i]._id %>" class="text-decoration-none">
                 <%= category[i].name %>
               </a>
             </h6>
@@ -265,9 +265,6 @@ body {
 </div>
         <!-- Filter Sidebar -->
 <!-- Apply Filters Button -->
-		
-  
-
         <!-- Product Grid -->
 		
         <div class="col-12 col-md-9">
@@ -275,47 +272,69 @@ body {
 			<% for(let i=0;i<products.length;i++){ %>
         <div class="col-12 col-md-6 col-lg-4 mb-5">
           <div class="card product-item shadow-sm position-relative">
+            <!-- Product Image with Offer Badge -->
             <a href="/productDetails?id=<%=products[i]._id %>">
-              <img src="/uploads/<%=products[i].images[0] %>" class="card-img-top" alt="<%=products[i].productName %>">
+              <div class="position-relative">
+                <img src="/uploads/<%=products[i].images[0] %>" class="card-img-top" alt="<%=products[i].productName %>">
+                <% if (products[i].hasOffer) { %>
+                  <div class="position-absolute top-0 start-0 m-1">
+                    <div class="badge" style="background-color: #570B4F; color: white;">
+                      <%= products[i].discountPercentage %>% OFF
+                    </div>
+                  </div>
+                <% } %>
+              </div>
             </a>
-            <button class="wishlist-icon" data-product-id="<%= products[i]._id %>" title="Add to Wishlist">
-              <i class="far fa-heart"></i>
-            </button>
-            
+        
+            <!-- Wishlist Button -->
+            <button 
+            class="wishlist-icon" style= '<%= userWhishlist.includes(products[i]._id.toString()) ? 'color: #c213b0;' : '' %>'
+             
+            data-product-id= "<%= products[i]._id %>" 
+            title="Add to Wishlist">
+            <i class="far fa-heart"></i>
+        </button>
+        
             <div class="card-body">
               <h5 class="card-title"><%=products[i].productName %></h5>
-              <p class="card-text text-muted">
-                Price:&#8377;<%=products[i].salePrice%> 
-                <span><strike><%=products[i].regularPrice%></strike></span>
-              </p>
-				
-        <% if(user){ %>
-        <% let isInCart = false;%>
-        <%   if (cart) {%>
-              <%      isInCart = cart.items.some(item => item.product._id.toString() === products[i]._id.toString());%>
-                    <% } %>
-
-          <% if(isInCart){ %>
-             <a href="/cart" class="btn btn-outline-dark w-100 bg-dark mt-3" 
-             data-id="<%= products[i]._id %>">
-             Go to Cart
-          </a>
-           
-            <%} else{ %>
-              <a href="#" class="btn btn-outline-dark w-100 mt-3 add-to-cart" 
-               data-id="<%= products[i]._id %>">
-               Add to Cart
-            </a>  
-         <% } %>
-         
-         <% } else {%>
-              <a href="/login" class="btn btn-outline-dark w-100 mt-3 " >
-                Add to Cart
-             </a>
+              
+              <!-- Price Display -->
+              <div class="price-section">
+                <% if (products[i].hasOffer) { %>
+                  <p class="card-text mb-0">
+                    <span class="fw-bold" style="color: #570B4F;">₹<%= products[i].bestPrice %></span>
+                    <span class="text-muted text-decoration-line-through ms-2">₹<%= products[i].regularPrice %></span>
+                  </p>
+                <% } else { %>
+                  <p class="card-text mb-0">₹<%= products[i].regularPrice %></p>
+                <% } %>
+              </div>
+        
+              <!-- Add to Cart Button -->
+              <% if(user){ %>
+                <% let isInCart = false; %>
+                <% if (cart) { %>
+                  <% isInCart = cart.items.some(item => item.product._id.toString() === products[i]._id.toString()); %>
+                <% } %>
+        
+                <% if(isInCart){ %>
+                  <a href="/cart" class="btn w-100 mt-3" style="background-color:black; color: white;">
+                    Go to Cart
+                  </a>
+                <% } else { %>
+                  <a href="#" class="btn w-100 mt-3 add-to-cart" data-id="<%= products[i]._id %>" 
+                     style="background-color: #570B4F; color: white;">
+                    Add to Cart
+                  </a>
+                <% } %>
+              <% } else { %>
+                <a href="/login" class="btn w-100 mt-3" style="background-color: #570B4F; color: white;">
+                  Add to Cart
+                </a>
               <% } %>
-				  </div>
-				</div>
-			  </div>
+            </div>
+          </div>
+        </div>
 			  <% } %>
 			  
 

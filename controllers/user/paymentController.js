@@ -4,6 +4,7 @@ const User = require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
 const Payment = require('../../models/paymentSchema');
+const Coupon = require('../../models/couponSchema');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const razorpay = new Razorpay({
@@ -13,23 +14,27 @@ const razorpay = new Razorpay({
 
 
 
-const getCheckout = async (req, res) => {
+  const getCheckout = async (req, res) => {
     try {
-        const user = req.session.user;
-
-        if (!user) {
-            res.redirect('/login');
-        }
-
-        const address = await Address.findOne({ userId: user }).populate('userId');
-        const cart = await Cart.findOne({ user }).populate('items.product');
-
-        res.render('checkout', { cart, addresses: address ? address.address : [] });
+      const user = req.session.user;
+      const coupons = await Coupon.find({
+        isActive: true,
+        expiryDate: { $gt: new Date() },
+      }).sort({ createdAt: -1 });
+  
+      if (!user) {
+        res.redirect('/login');
+      }
+  
+      const address = await Address.findOne({ userId: user }).populate('userId');
+      const cart = await Cart.findOne({ user }).populate('items.product');
+  
+      res.render('checkout', { cart, coupons, addresses: address ? address.address : [],razorpayId:process.env.RAZORPAY_KEY_ID });
     } catch (error) {
-        console.log(error);
-        res.redirect('/cart');
+      console.log(error);
+      res.redirect('/cart');
     }
-};
+  };
 
 const getOrderSuccess = async (req, res) => {
     try {
@@ -109,6 +114,7 @@ const getOrderSuccess = async (req, res) => {
 };
 
 
+
 const createRazorpayOrder = async (req, res) => {
     try {
         let { total } = req.body;
@@ -142,42 +148,33 @@ const createRazorpayOrder = async (req, res) => {
 
 
 const verifyPayment = async (req, res) => {
-    try {
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, selectedAddressId, paymentMethod } = req.body;
-  
-      console.log('Verifying payment with:', {
-        razorpay_order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-        selectedAddressId,
-        paymentMethod,
-      });
-  
-      // Create signature
-      const generatedSignature = crypto
-        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-        .update(razorpay_order_id + "|" + razorpay_payment_id)
-        .digest('hex');
-  
-      console.log('Generated Signature:', generatedSignature);
-      console.log('Razorpay Signature:', razorpay_signature);
-  
-      if (generatedSignature !== razorpay_signature) {
-        return res.status(400).json({ success: false, error: 'Invalid payment signature' });
-      }
-  
-      // If verification successful, create order
-      await createOrderInDB(req, res, paymentMethod, null, razorpay_payment_id);
-      res.status(200).json({ success: true, message: 'Order placed successfully' });
-    } catch (error) {
-      console.error('Payment verification error:', error.message, error.stack);
-      res.status(500).json({ success: false, error: 'Payment verification failed' });
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, selectedAddressId, paymentMethod, coupon } = req.body;
+
+    console.log(req.body)
+    // Create signature
+    const generatedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest('hex');
+
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, error: 'Invalid payment signature' });
     }
-  };
+
+    // If verification successful, create order
+    await createOrderInDB(req, res, paymentMethod, razorpay_payment_id, coupon);
+    res.status(200).json({ success: true, message: 'Order placed successfully' });
+  } catch (error) {
+    console.error('Payment verification error:', error.message, error.stack);
+    res.status(500).json({ success: false, error: 'Payment verification failed' });
+  }
+};
 
 
-const createOrderInDB = async (req, res, paymentMethod, appliedCouponData, razorpay_payment_id) => {
+  const createOrderInDB = async (req, res, paymentMethod, razorpay_payment_id, couponCode) => {
     try {
+      
       const { selectedAddressId } = req.body;
       const userId = req.session.user;
   
@@ -196,6 +193,40 @@ const createOrderInDB = async (req, res, paymentMethod, appliedCouponData, razor
       if (!selectedAddress) {
         throw new Error('Selected address not found.');
       }
+  
+      // Validate and fetch coupon details
+      let appliedCoupon = null;
+      let couponDiscount = 0;
+      if (couponCode) {
+        const coupon = await Coupon.findOne({
+          code: couponCode.code,
+          isActive: true,
+          expiryDate: { $gt: new Date() },
+        });
+  
+        if (!coupon) {
+          throw new Error('Invalid or expired coupon.');
+        }
+  
+        // Calculate discount based on coupon type
+        const totalPrice = userCart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0);
+  
+        if (totalPrice < coupon.minPurchase) {
+          throw new Error(`Minimum purchase amount for this coupon is ₹${coupon.minPurchase}`);
+        }
+  
+        if (coupon.discountType === 'percentage') {
+          couponDiscount = Math.min((totalPrice * coupon.discountAmount) / 100, coupon.maxLimit || Infinity);
+        } else if (coupon.discountType === 'fixed') {
+          couponDiscount = coupon.discountAmount;
+        }
+  
+        appliedCoupon = {
+          code: coupon.code,
+          discountAmount: couponDiscount,
+        };
+      }
+  
   
       // Prepare order items
       const items = userCart.items.map(item => ({
@@ -224,11 +255,12 @@ const createOrderInDB = async (req, res, paymentMethod, appliedCouponData, razor
         await product.save();
       }
   
-      // Calculate total price
+      // Calculate total price after applying coupon discount
       const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
+      const discountedPrice = totalPrice - couponDiscount;
   
       // Create the order in the database
-      const Payment = new Payment({
+      const order = new Order({
         user: userId,
         shippingAddress: {
           addressType: selectedAddress.addressType,
@@ -241,15 +273,18 @@ const createOrderInDB = async (req, res, paymentMethod, appliedCouponData, razor
         },
         paymentMethod,
         items,
-        totalPrice,
+        totalPrice: discountedPrice, // Save the discounted price
+        appliedCoupon, // Save the coupon details
         razorpay_payment_id,
       });
   
-      await Payment.save();
+      await order.save();
   
       // Clear the cart
       userCart.items = [];
       await userCart.save();
+  
+      return order; // Return the created order for further use
     } catch (error) {
       console.error('Error creating order in DB:', error.message, error.stack);
       throw error; // Propagate the error to the calling function

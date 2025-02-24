@@ -311,6 +311,7 @@ h1 {
           <% if (typeof product !== 'undefined' && product.images && product.images.length > 0) { %>
             <img id="main-image" src="/uploads/<%= product.images[0] %>" class="zoom-image" onmousemove="zoom(event)" onmouseout="resetZoom()">
             
+            
                 
         <% } else { %>
             <img id="main-image" src="/images/default-placeholder.png" class="zoom-image">
@@ -331,10 +332,11 @@ h1 {
               <span class="star">&#9733;</span>
               <span class="star">&#9734;</span>
               <span class="rating-text">(4/5)</span>
-              <button class="wishlist">❤</button>
+              <button class="wishlist"  data-product-id= "<%= product._id %>" 
+                title="Add to Wishlist"> ❤</button>
           </div>
             <p class="price"> &#8377;<%= product.salePrice %> <span class="old-price"> &#8377;<%= product.regularPrice %> </span></p>
-            <h4><u>10% Off</u></h4>
+            <h4 style="color: green;"><u><%=product.productOffer %>%Off</u></h4>
             <p class="description"><%= product.description %></p>
             <ul class="features">
                 <li>*1 Year Warranty</li>
@@ -349,19 +351,27 @@ h1 {
              <h5 style="color: red;">Limited Stock!!</h5>
              <% } %>
             <div class="cart-options">
-                <% 
-                let isInCart = false;
-                if (cart && user) {
-                    isInCart = cart.items.some(item => item.product._id.toString() === product._id.toString());
-                }
-            %>
-        
-            <a href="#" class="btn btn-outline-dark w-100 mt-3 add-to-cart <%= isInCart ? 'disabled' : '' %>" 
-               data-id="<%= product._id %>" <%= isInCart ? 'disabled' : '' %>>
-                <%= isInCart ? 'Added to Cart' : 'Add to Cart' %>
-                
-            </a>
+                <% if(user){ %>
+                    <% let isInCart = false; %>
+                    <% if (cart) { %>
+                      <% isInCart = cart.items.some(item => item.product._id.toString() === product._id.toString()); %>
+                    <% } %>
             
+                    <% if(isInCart){ %>
+                      <a href="/cart" class="btn w-100 mt-3" style="background-color:black; color: white;">
+                        Go to Cart
+                      </a>
+                    <% } else { %>
+                      <a href="#" class="btn w-100 mt-3 add-to-cart" data-id="<%= product._id %>" 
+                         style="background-color: #570B4F; color: white;">
+                        Add to Cart
+                      </a>
+                    <% } %>
+                  <% } else { %>
+                    <a href="/login" class="btn w-100 mt-3" style="background-color: #570B4F; color: white;">
+                      Add to Cart
+                    </a>
+                  <% } %>
                 
             </div>
         </div>
@@ -461,6 +471,128 @@ h1 {
 
         });
     });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to check if user is logged in
+  function isUserLoggedIn() {
+    // Check if there's a logged in user - this depends on how you track auth state
+    // You could check for presence of user object, auth token, etc.
+    return document.body.getAttribute('data-user-logged-in') === 'true';
+  }
+
+  // Wishlist Toggle Function
+  async function toggleWishlist(productId) {
+    try {
+      // Check if user is logged in
+      if (!isUserLoggedIn()) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Login Required',
+          text: 'Please log in to add items to your wishlist',
+          showCancelButton: true,
+          confirmButtonText: 'Login',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '/login';
+          }
+        });
+        return;
+      }
+
+      // Send request to add/remove from wishlist
+      const response = await fetch('/add-wishlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: data.added ? 'Added to Wishlist!' : 'Removed from Wishlist',
+          text: data.message,
+          timer: 2000,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false
+        });
+        
+        // Update the wishlist icon
+        updateWishlistIcon(productId, data.added);
+      } else {
+        // Show error message
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops!',
+          text: data.message || 'Something went wrong'
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update wishlist. Please try again.'
+      });
+    }
+  }
+
+  // Helper function to update wishlist icon
+  function updateWishlistIcon(productId, isInWishlist) {
+    const wishlistBtn = document.querySelector(`.wishlist-icon[data-product-id="${productId}"]`);
+    if (wishlistBtn) {
+      if (isInWishlist) {
+        wishlistBtn.innerHTML = '<i class="fas fa-heart" style="color: #c213b0;"></i>';
+        wishlistBtn.setAttribute('title', 'Remove from Wishlist');
+      } else {
+        wishlistBtn.innerHTML = '<i class="far fa-heart"></i>';
+        wishlistBtn.setAttribute('title', 'Add to Wishlist');
+      }
+    }
+  }
+
+  // Function to initialize wishlist status on page load
+  async function initializeWishlistStatus() {
+    try {
+      const response = await fetch('/get-wishlist-status');
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update each product's wishlist icon based on status
+        if (data.wishlistItems && data.wishlistItems.length > 0) {
+          data.wishlistItems.forEach(itemId => {
+            updateWishlistIcon(itemId, true);
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist status:", error);
+    }
+  }
+
+  // Get all wishlist buttons
+  const wishlistButtons = document.querySelectorAll('.wishlist-icon');
+  
+  // Add click event listeners to all wishlist buttons
+  wishlistButtons.forEach(button => {
+    button.addEventListener('click', function(event) {
+      event.preventDefault();
+      const productId = this.getAttribute('data-product-id');
+      toggleWishlist(productId);
+    });
+  });
+  
+  // Initialize wishlist status if user is logged in
+  if (isUserLoggedIn()) {
+    initializeWishlistStatus();
+  }
 });
 
     </script>

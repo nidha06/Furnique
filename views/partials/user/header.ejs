@@ -16,6 +16,12 @@
                 <li><a class="nav-link" href="about.html">About us</a></li>
                 <li><a class="nav-link" href="contact.html">Contact us</a></li>
                 <!-- <li><a class="nav-link" href="http://localhost:3001/login">Sign in</a></li> -->
+                <% if ((typeof user) ==='undefined') {%>	
+                    <li><a class="nav-link" href="/login">Sign in</a></li>
+                    <% }else{ %> 
+                        <li style="font-size: larger; color: #fff;"></li>
+                        
+                        <% } %> 
             </ul>
 
             <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
@@ -29,15 +35,13 @@
                     </ul>
                 </li>
                 <li><a class="nav-link" href="/cart"><img src="/images/cart.svg" alt="Cart"></a></li>
-                <li class="nav-item">
-                    <a class="nav-link position-relative" href="/wishlist">
-                      <i class="fa-solid fa-heart"></i>
+                
+                    <li><a class="nav-link" href="/wishlist"><img src="images/whishlist.png" alt="Wishlist"></a></li>
                       <!-- <span id="wishlist-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                         0
                         <span class="visually-hidden">wishlist items</span> -->
-                      </span>
-                    </a>
-                  </li>
+                     
+                 
             </ul>
         </div>
     </div>

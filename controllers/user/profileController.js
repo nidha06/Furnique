@@ -6,6 +6,7 @@ const session = require('express-session');
 const otpGenerator = require('otp-generator');
 const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
+const Wallet = require('../../models/walletSchema');
 
 function generateOtp() {
     const otp = otpGenerator.generate(6, { 
@@ -159,10 +160,21 @@ const userProfile = async (req, res) => {
         const userData = await User.findById(user);
         const addressData = await Address.findOne({ userId: user });
         const orders = await Order.find({ user }).sort({ createdAt: -1 });
+        let wallet = await Wallet.findOne({ user});
+        if(!wallet){
+            wallet= new Wallet({
+             user,
+             balance:0,
+             transactions:[],
+           })
+           await wallet.save()
+         }
+         console.log(wallet)
         res.render('profile', {
             user: userData,
             userAddress: addressData,
             orders: orders,
+            wallet,
         });
     } catch (error) {
         console.error('Error retrieving user data', error);
@@ -340,6 +352,46 @@ const deleteAddress = async (req, res) => {
     }
 };
 
+ // Initialize wallet for new user
+ const initializeWallet = async(userId) =>{
+    try {
+      const wallet = await Wallet.findOne({ user: userId });
+      if (!wallet) {
+        return await Wallet.create({ user: userId });
+      }
+      return wallet;
+    } catch (error) {
+      console.error('Error initializing wallet:', error);
+      throw error;
+    }
+  }
+
+  // Get wallet details
+  const getWalletDetails=  async (req, res)=> {
+    try {
+      const userId = req.session.user;
+      let wallet = await Wallet.findOne({ user: userId })
+        .populate({
+          path: 'transactions.orderId',
+          select: '_id totalPrice status'
+        });
+
+      if (!wallet) {
+        wallet = await walletController.initializeWallet(userId);
+      }
+
+      res.json({
+        balance: wallet.balance,
+        transactions: wallet.transactions
+      });
+    } catch (error) {
+      console.error('Error getting wallet details:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+
+
 module.exports = {
     getForgotPassPage,
     forgotEmailValid,
@@ -357,4 +409,6 @@ module.exports = {
     checkoutPostAddAddress,
     checkoutEditAddress,
     checkoutPostEditAddress,
+    initializeWallet,
+    getWalletDetails,
 };

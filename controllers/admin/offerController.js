@@ -2,7 +2,7 @@
 const Offer = require('../../models/offerSchema');
 const Product = require('../../models/productSchema'); // Assuming you have a product schema
 const Category = require('../../models/categorySchema'); // Assuming you have a category schema
-
+const mongoose = require("mongoose");
 const getOffer = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -11,7 +11,7 @@ const getOffer = async (req, res) => {
         const offers = await Offer.find()
             .sort({ created_at: -1 })
             .skip(skip)
-            .limit(limit);
+            .limit(limit).populate('category', 'name');
         const totalOffers = await Offer.countDocuments();
         const totalPages = Math.ceil(totalOffers / limit);
         return res.render('offer', {
@@ -45,19 +45,21 @@ const submitOffer = async (req, res) => {
        
         const {
             title,
-            offerType,
-            categories,
-            discount_type:discountType,
-            discount_value:discountValue,
-            start_date:startDate,
-            end_date:endDate,
-            minimum_purchase:minimumPurchase,
+            category,
+            discount_type,
+            discount_value,
+            start_date,
+            end_date,
+            minimum_purchase,
  
         } = req.body;
+        console.log(req.body);
+        
         
 
         // Validate required fields
-        if ( !title || !offerType ||  !discountType || !discountValue || !startDate || !endDate || !minimumPurchase) {
+        if ( !title ||  !discount_type || !discount_value || !start_date || !end_date || !minimum_purchase) {
+           console.log('jfnifhjnfifhnv');
             return res.status(400).json({ success: false, message: 'All fields are required' });
         }
         
@@ -65,14 +67,12 @@ const submitOffer = async (req, res) => {
         const newOffer = new Offer({
             title,
             
-            categories: offerType === 'categoryBased' ? categories : [],
-            products: offerType === 'productBased' ? products : [],
-            discount_type: discountType,
-            discount_value: discountValue,
-            start_date: new Date(startDate),
-            end_date: new Date(endDate),
-            minimum_purchase: minimumPurchase,
-        
+            category,
+            discount_type,
+            discount_value,
+            start_date: new Date(start_date),
+            end_date: new Date(end_date),
+            minimum_purchase, 
             
         });
 
@@ -103,8 +103,10 @@ const updateOfferStatus = async (req, res) => {
         const updatedOffer = await Offer.findByIdAndUpdate(
             id,
             { status },
+            { categories: req.body.categories }, // Single value, not an array
             { new: true } // Return the updated document
         );
+        
 
         if (!updatedOffer) {
             return res.status(404).json({ success: false, message: 'Offer not found' });
@@ -122,21 +124,19 @@ const getOfferForEdit = async (req, res) => {
     try {
         const offerId = req.params.id;
 
-        // Fetch the offer details and populate categories and products
-        const offer = await Offer.findById(offerId)
-            .populate('categories', 'name') // Populate only the `name` field of categories
-            .populate('products', 'productName'); // Populate only the `productName` field of products
-
+        // Fetch the offer details and populate the category name
+        const offer = await Offer.findById(offerId).populate('category', 'name'); // Populate only the `name` field of the category
+   
         if (!offer) {
             return res.status(404).send('Offer not found');
         }
 
-        // Fetch all categories and products for dropdowns
+        // Fetch all categories for the dropdown
         const categories = await Category.find({}, { name: 1, _id: 1 });
-        const products = await Product.find({}, { productName: 1, _id: 1 });
-
-        // Render the edit form with the offer data
-        return res.render('offer-update', { offer, categories, products });
+       console.log(offer);
+       
+        // Render the edit form with the offer data and categories
+        return res.render('offer-update', { offer, categories });
     } catch (error) {
         console.error('Error in getOfferForEdit:', error);
         res.status(500).send('Internal Server Error');
@@ -146,25 +146,45 @@ const getOfferForEdit = async (req, res) => {
 
 const updateOffer = async (req, res) => {
     try {
-        const offerId = req.params.id;
-        const updateData = req.body;
+        const offerId = req.params.id; // Extract the offer ID from the URL
+        const { title, discount_type, discount_value, start_date, end_date, minimum_purchase, category } = req.body;
 
-        // Convert categories and products from strings to arrays if needed
-        if (updateData.categories && !Array.isArray(updateData.categories)) {
-            updateData.categories = updateData.categories.split(',');
+        console.log(req.body)
+        // Validate the offer ID
+        if (!mongoose.Types.ObjectId.isValid(offerId)) {
+            return res.status(400).json({ success: false, message: 'Invalid offer ID' });
         }
-        if (updateData.products && !Array.isArray(updateData.products)) {
-            updateData.products = updateData.products.split(',');
+
+        // Validate the category ID
+        if (!mongoose.Types.ObjectId.isValid(category)) {
+            return res.status(400).json({ success: false, message: 'Invalid category ID' });
         }
 
         // Update the offer in the database
-        await Offer.findByIdAndUpdate(offerId, updateData);
+        const updatedOffer = await Offer.findByIdAndUpdate(
+            offerId,
+            {
+                title,
+                discount_type,
+                discount_value,
+                start_date,
+                end_date,
+                minimum_purchase,
+                category,
+            },
+            { new: true } // Return the updated document
+        );
 
-        // Redirect to the offer management page
-        res.redirect('/admin/offermanagement');
+        // Check if the offer exists
+        if (!updatedOffer) {
+            return res.status(404).json({ success: false, message: 'Offer not found' });
+        }
+
+        // Redirect to the offer management page or send a success response
+        return res.status(200).json({success: true, message: 'edited successfully'})
     } catch (error) {
         console.error('Error in updateOffer:', error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 

@@ -64,6 +64,11 @@
       font-size: 13px;
       margin-top: 5px;
     }
+    .calculated-price {
+      color: #fff;
+      margin-top: 5px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -102,11 +107,23 @@
           <input type="number" id="regularPrice" name="regularPrice" placeholder="Enter regular price" required>
           <div id="regularPrice-error" class="errorMessage"></div>
         </div>
+        
         <div class="form-group">
-          <label for="salePrice">Sales Price</label>
-          <input type="number" id="salePrice" name="salePrice" placeholder="Enter sales price" required>
-          <div id="salePrice-error" class="errorMessage"></div>
+          <label for="discount">Discount Percentage (%)</label>
+          <input 
+            type="number" 
+            id="discount" 
+            name="discount" 
+            placeholder="Enter discount percentage" 
+            min="0" 
+            max="100" 
+            required
+          >
+          <div id="discount-error" class="errorMessage"></div>
+          <div id="calculated-sale-price" class="calculated-price"></div>
         </div>
+        <input type="hidden" id="salePrice" name="salePrice">
+       
         <div class="form-group">
           <label for="category">Category</label>
           <select id="category" name="category" required>
@@ -140,6 +157,55 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
   <script>
+    function calculateSalePrice() {
+  const regularPrice = parseFloat(document.getElementById('regularPrice').value) || 0;
+  const discount = parseFloat(document.getElementById('discount').value) || 0;
+  
+  if (regularPrice && discount >= 0 && discount <= 100) {
+    const discountAmount = (regularPrice * discount) / 100;
+    // Round the sale price to the nearest whole number
+    const salePrice = Math.round(regularPrice - discountAmount);
+    
+    // Update hidden sale price input
+    document.getElementById('salePrice').value = salePrice;
+    
+    // Display calculated sale price without decimals
+    document.getElementById('calculated-sale-price').textContent = 
+      `Final Sale Price: ₹${salePrice}`;
+  } else {
+    document.getElementById('calculated-sale-price').textContent = '';
+  }
+}
+
+    // Add event listeners for price calculation
+    document.getElementById('regularPrice').addEventListener('input', calculateSalePrice);
+    document.getElementById('discount').addEventListener('input', calculateSalePrice);
+
+    // Modified form validation
+    document.querySelector('form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearErrorMessages();
+      let isValid = true;
+
+      // Validate numeric fields
+      const quantity = document.getElementById('quantity');
+      if (parseInt(quantity.value) < 0) {
+        displayErrorMessage('quantity-error', 'Please enter a non-negative quantity');
+        isValid = false;
+      }
+
+      const regularPrice = document.getElementById('regularPrice');
+      if (!/^\d+(\.\d{1,2})?$/.test(regularPrice.value) || parseFloat(regularPrice.value) < 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+      }
+
+      const discount = document.getElementById('discount');
+      if (parseFloat(discount.value) < 0 || parseFloat(discount.value) > 100) {
+        displayErrorMessage('discount-error', 'Discount must be between 0 and 100 percent.');
+        isValid = false;
+      }
+    });
     // Global objects for cropper instances and cropped image files
     const croppers = {};
     const croppedImages = {};
@@ -240,15 +306,8 @@
         displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
         isValid = false;
       }
-      const salePrice = document.getElementById('salePrice');
-      if (!/^\d+(\.\d{1,2})?$/.test(salePrice.value) || parseFloat(salePrice.value) < 0) {
-        displayErrorMessage('salePrice-error', 'Please enter a valid non-negative sale price.');
-        isValid = false;
-      }
-      if (parseFloat(regularPrice.value) <= parseFloat(salePrice.value)) {
-        displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
-        isValid = false;
-      }
+      
+     
 
       // Validate product name and check case-insensitive uniqueness
       const productName = document.getElementById('productName');

@@ -11,12 +11,12 @@ const paymentSchema = new mongoose.Schema({
   // Payment method used (e.g., COD, Credit/Debit Card, PayPal, Razorpay)
   paymentMethod: {
     type: String,
-    enum: ['COD', 'Credit/Debit Card', 'PayPal', 'Razorpay'], // Add all valid payment methods here
+    enum: ['cod', 'credit/debit Card', 'payPal', 'razorpay'], // Add all valid payment methods here
     required: true,
   },
 
   // Total amount paid
-  amount: {
+  totalPrice: {
     type: Number,
     required: true,
   },

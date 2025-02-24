@@ -102,6 +102,28 @@
     .breadcrumb a:hover::after {
       transform: scaleX(1);
     }
+    .wallet-balance-card {
+  background: linear-gradient(145deg, #4a0944, #d812be);
+  color: white;
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-balance-card h4 {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1rem;
+}
+
+.badge {
+  padding: 0.5em 1em;
+  border-radius: 30px;
+}
+
+.table td {
+  vertical-align: middle;
+}
   </style>
 </head>
 <body>
@@ -139,20 +161,11 @@
                       </a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab" aria-controls="track-orders" aria-selected="false">
-                        <i class="fi-rs-shopping-cart-check mr-10"></i>Wallet Status
+                      <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#wallet" role="tab" aria-controls="track-orders" aria-selected="false">
+                        <i class="fi-rs-shopping-cart-check mr-10"></i>Wallet 
                       </a>
                     </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#wallet-history" role="tab" aria-controls="track-orders" aria-selected="false">
-                        <i class="fi-rs-shopping-cart-check mr-10"></i>Wallet History
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#referal" role="tab" aria-controls="track-orders" aria-selected="false">
-                        <i class="fi-rs-shopping-cart-check mr-10"></i>Referals
-                      </a>
-                    </li>
+                   
                     <li class="nav-item">
                       <a class="nav-link" href="/logout">
                         <i class="fi-rs-sign-out mr-10"></i>Logout
@@ -162,6 +175,8 @@
                 </div>
               </div>
               <div class="col-md-8">
+
+
                 <div class="tab-content dashboard-content">
                   <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
                     <div class="card card-green">
@@ -174,7 +189,7 @@
                         <p class="card-text">
                           <strong>Email:</strong> <%=user.email %>
                         </p>
-                        <a href="" class="btn btn-sm btn-success ml-2">Change Email</a>
+                        
                         <a href="" class="btn btn-sm btn-success">Change Password</a>
                       </div>
                     </div>
@@ -268,53 +283,62 @@
                       </div>
                     </div>
                   </div>
-                  <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
+
+
+
+                  <!-- wallet -->
+                  <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="wallet-tab">
                     <div class="card">
                       <div class="card-header">
                         <h5 class="mb-0">Wallet</h5>
                       </div>
                       <div class="card-body contact-from-area">
                         <div class="row">
-                          <div class="col-lg-8 mx-auto text-center mt-90">
-                            <form>
-                              <div class="form-group">
-                                <label for="walletAmount" class="h4">Amount</label>
-                                <div class="h3">$500.00</div>
+                          <div class="col-lg-8 mx-auto text-center">
+                            <div class="wallet-balance-card">
+                              <h4>Available Balance</h4>
+                              <div id="walletAmount" class="h2 mb-4"><%=wallet?.balance?.toLocaleString('en-IN',{style:"currency",currency:"INR"})%></div>
+                            </div>
+                            
+                            <!-- Transaction History Table -->
+                            <% if(wallet.transactions.length >0){ %>
+                            <div class="mt-4">
+                              <h5>Recent Transactions</h5>
+                              <div class="table-responsive">
+                                <table class="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Date</th>
+                                      <th>Type</th>
+                                      <th>Amount</th>
+                                      <th>Description</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    
+                                    <%wallet.transactions.forEach(transaction=>{ %>
+                                      <tr>
+                                      <td><%=transaction?.date.toLocaleDateString()%></td>
+                                      <td><%=transaction?.type%></td>
+                                      <td><%=transaction?.amount%></td>
+                                      <td><%=transaction?.description%></td>
+                                    </tr>
+                                  <%  })  %>
+                                
+                                  </tbody>
+                                </table>
                               </div>
-                              <button type="button" class="btn btn-success" onclick="">Add Money</button>
-                            </form>
+                            </div>
+                            <% } %>
+
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
-                    <div class="card">
-                      <div class="card-header">
-                        <h5 class="mb-0">Wallet History</h5>
-                      </div>
-                      <div class="card-body">
-                        <div class="table-responsive">
-                          <table class="table">
-                            <thead>
-                              <tr>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Amount</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>2023-10-01</td>
-                                <td>Added</td>
-                                <td>$100.00</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+
+
+                  <!-- refferal -->
                   <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
                     <div class="card">
                       <div class="card-header">
@@ -362,6 +386,41 @@
       }
     }
   });
+
+  async function loadWalletDetails() {
+  try {
+    const response = await fetch('/wallet/details');
+    const data = await response.json();
+    
+    // Update wallet amount
+    document.querySelector('#walletAmount').textContent = `₹${data.balance.toFixed(2)}`;
+    
+    // Update transaction history
+    const tbody = document.querySelector('#wallet-history table tbody');
+    tbody.innerHTML = '';
+    
+    data.transactions.forEach(transaction => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${new Date(transaction.date).toLocaleDateString()}</td>
+        <td>${transaction.type === 'credit' ? 
+          '<span class="badge bg-success">Credit</span>' : 
+          '<span class="badge bg-danger">Debit</span>'}
+        </td>
+        <td class="${transaction.type === 'credit' ? 'text-success' : 'text-danger'}">
+          ${transaction.type === 'credit' ? '+' : '-'}₹${transaction.amount.toFixed(2)}
+        </td>
+        <td>${transaction.description}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Error loading wallet details:', error);
+  }
+}
+
+// Add this to your existing HTML
+document.addEventListener('DOMContentLoaded', loadWalletDetails);
 </script>
 
 </html>

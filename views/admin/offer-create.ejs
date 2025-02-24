@@ -275,39 +275,19 @@
                         <input type="text" id="title" name="title" required>
                     </div>
 
-                    <div class="form-group">
-                        <label>Offer Applies To</label>
-                        <div class="offer-type-selector">
-                            <label>
-                                <input type="radio" id="categoryBased" name="offerType" value="category" checked>
-                                Category Based
-                            </label>
-                            <label>
-                                <input type="radio" id="productBased" name="offerType" value="product">
-                                Product Based
-                            </label>
-                        </div>
-                    </div>
 
                     <div class="form-group" id="categorySelection">
-                        <label for="categories">Select Categories</label>
-                        <select id="categories" name="categories[]" multiple required>
-                            <% for(let i = 0; i < categories.length; i++){ %>
-                                <option value="<%= categories[i].name %>"><%= categories[i].name %></option>
-                              <% } %>
+                        <label for="category">Select Category</label>
+                        <select id="category" name="category" required>
+                          <!-- In the category select options -->
+<% for(let i = 0; i < categories.length; i++){ %>
+    <option value="<%= categories[i]._id %>"><%= categories[i].name %></option>
+<% } %>
                         </select>
                         <div class="error-message">Please select at least one category</div>
                     </div>
 
-                    <div class="form-group hidden" id="productSelection">
-                        <label for="products">Select Products</label>
-                        <select id="products" name="products[]" multiple>
-                            <% for(let i = 0; i < products.length; i++){ %>
-                                <option value="<%=products[i].productName %>"><%=products[i].productName %></option>
-                              <% } %>
-                        </select>
-                        <div class="error-message">Please select at least one product</div>
-                    </div>
+                    
 
                     <div class="form-group">
                         <label for="discount_type">Discount Type</label>
@@ -348,17 +328,6 @@
             </div>
         </div>
     </div>
-    <script>
-        document.getElementById('categoryBased').addEventListener('change', () => {
-            document.getElementById('categories').style.display = 'block';
-            document.getElementById('products').style.display = 'none';
-        });
-    
-        document.getElementById('productBased').addEventListener('change', () => {
-            document.getElementById('products').style.display = 'block';
-            document.getElementById('categories').style.display = 'none';
-        });
-    </script>
 
     <script>
         // Date validation
@@ -370,67 +339,9 @@
             document.getElementById('end_date').min = this.value;
         });
 
-        // Category/Product selection toggle
-        const offerTypeRadios = document.querySelectorAll('input[name="offerType"]');
-        const categorySelection = document.getElementById('categorySelection');
-        const productSelection = document.getElementById('productSelection');
 
-        offerTypeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'category') {
-                    categorySelection.classList.remove('hidden');
-                    productSelection.classList.add('hidden');
-                    document.getElementById('products').value = '';
-                } else {
-                    categorySelection.classList.add('hidden');
-                    productSelection.classList.remove('hidden');
-                    document.getElementById('categories').value = '';
-                }
-            });
-        });
 
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            let hasError = false;
 
-            // Date validation
-            const startDate = new Date(document.getElementById('start_date').value);
-            const endDate = new Date(document.getElementById('end_date').value);
-            
-            if (endDate < startDate) {
-                e.preventDefault();
-                alert('End date cannot be before start date');
-                hasError = true;
-            }
-
-            // Category/Product validation
-            const offerType = document.querySelector('input[name="offerType"]:checked').value;
-            
-            if (offerType === 'category') {
-                const categoriesSelected = document.getElementById('categories').selectedOptions.length;
-                if (categoriesSelected === 0) {
-                    e.preventDefault();
-                    categorySelection.classList.add('error');
-                    hasError = true;
-                } else {
-                    categorySelection.classList.remove('error');
-                }
-            } else {
-                const productsSelected = document.getElementById('products').selectedOptions.length;
-                if (productsSelected === 0) {
-                    e.preventDefault();
-                    productSelection.classList.add('error');
-                    hasError = true;
-                } else {
-                    productSelection.classList.remove('error');
-                }
-            }
-
-            if (hasError) {
-                e.preventDefault();
-            }
-        });
-        
     // Handle form submission via AJAX
     document.querySelector('form').addEventListener('submit', async function(e) {
         e.preventDefault(); // Prevent default form submission
@@ -448,41 +359,24 @@
         }
 
         // Category/Product validation
-        const offerType = document.querySelector('input[name="offerType"]:checked').value;
 
-        if (offerType === 'category') {
-            const categoriesSelected = document.getElementById('categories').selectedOptions.length;
-            if (categoriesSelected === 0) {
-                document.getElementById('categorySelection').classList.add('error');
-                hasError = true;
-            } else {
-                document.getElementById('categorySelection').classList.remove('error');
-            }
-        } else {
-            const productsSelected = document.getElementById('products').selectedOptions.length;
-            if (productsSelected === 0) {
-                document.getElementById('productSelection').classList.add('error');
-                hasError = true;
-            } else {
-                document.getElementById('productSelection').classList.remove('error');
-            }
-        }
-
+        const categorySelected = document.getElementById('category').value;
+if (!categorySelected) {
+    document.getElementById('categorySelection').classList.add('error');
+    hasError = true;
+} else {
+    document.getElementById('categorySelection').classList.remove('error');
+}
         if (hasError) {
             return;
         }
 
         // Collect form data
-        const formData = new FormData(this);
-        const data = {};
-        formData.forEach((value, key) => {
-            if (key === 'categories[]' || key === 'products[]') {
-                data[key] = formData.getAll(key); // Handle multiple selections
-            } else {
-                data[key] = value;
-            }
-        });
-
+        const formData = {};
+        new FormData(document.querySelector('form')).forEach((value, key) => {
+        formData[key] = value;
+    });
+    
         try {
             // Send POST request to the server
             const response = await fetch('/admin/submit-offer', {
@@ -490,7 +384,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(formData),
             });
 
             const result = await response.json();
@@ -522,7 +416,7 @@
             });
         }
     });
-
     </script>
+
 </body>
 </html>

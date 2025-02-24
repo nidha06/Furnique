@@ -2,6 +2,7 @@ const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const User = require('../../models/userSchema');
 const Cart = require('../../models/cartSchema');
+const Offer = require('../../models/offerSchema');
 const Wishlist = require('../../models/wishlistSchema');
 
 
@@ -10,6 +11,7 @@ const productDetails = async (req, res) => {
         const userId = req.session.user;
         const userData = await User.findById(userId);
         const productId = req.query.id;
+        
 
         const product = await Product.findById(productId).populate('category');
         const findCategory = product.category;
@@ -20,13 +22,28 @@ const productDetails = async (req, res) => {
             _id: { $ne: productId }
         }).limit(4);
 
+        
+        const catOffer= await Offer.findOne({category:product.category._id})
+
+        const productDiscount = product.regularPrice > 0 ? 
+        Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100) : 0;
+        
+        const bestDiscount= Math.max(productDiscount,catOffer.discount_value);
+      
+          if(bestDiscount>productDiscount){
+            console.log(Math.floor(product.regularPrice *(1-bestDiscount/100)))
+            product.productOffer=bestDiscount;
+            product.salePrice=Math.floor(product.regularPrice *(1-bestDiscount/100))
+
+          }
+     
         res.render('product-details', {
             user: userData,
             product: product,
             quantity: product.quantity,
             category: findCategory,
             cart: cart,
-            similarProducts: similarProducts
+            similarProducts: similarProducts,
         });
 
     } catch (error) {
@@ -36,20 +53,20 @@ const productDetails = async (req, res) => {
 }
 
 
-// In your routes file (e.g., wishlist.js or user.js)
+
 
 const wishlistAdd = async (req, res) => {
     try {
         const { productId } = req.body;
         const userId = req.session.user;
 
-        // Validate product exists
+        
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
 
-        // Find or create wishlist
+        
         let wishlist = await Wishlist.findOne({ user: userId });
         if (!wishlist) {
             wishlist = new Wishlist({
@@ -58,16 +75,16 @@ const wishlistAdd = async (req, res) => {
             });
         }
 
-        // Check if product is in wishlist
+        
         const productIndex = wishlist.products.indexOf(productId);
         let added = false;
 
         if (productIndex === -1) {
-            // Add to wishlist
+            
             wishlist.products.push(productId);
             added = true;
         } else {
-            // Remove from wishlist
+            
             wishlist.products.splice(productIndex, 1);
         }
 
@@ -84,7 +101,7 @@ const wishlistAdd = async (req, res) => {
     }
 };
   
-  // Get wishlist status for current user
+  
   const getWishlist = async (req, res) => {
     try {
       const userId = req.session.user;
@@ -126,16 +143,16 @@ const wishlistAdd = async (req, res) => {
     try {
       const productId = req.params.productId;
       
-      // Validate product exists
+      
       const product = await Product.findById(productId);
       if (!product) {
         return res.status(404).json({ success: false, message: 'Product not found' });
       }
       
-      // Find user's wishlist
+      
       let wishlist = await Wishlist.findOne({ user: req.session.user });
       
-      // Create wishlist if it doesn't exist
+      
       if (!wishlist) {
         wishlist = await Wishlist.create({
           user: req.session.user,
@@ -168,7 +185,7 @@ const removeFromWishlist = async (req, res) => {
     try {
       const productId = req.params.productId;
       
-      // Find user's wishlist
+      
       const wishlist = await Wishlist.findOne({ user: req.session.user });
       
       if (!wishlist) {
@@ -209,5 +226,5 @@ module.exports = {
     getListWishlist,
     toggleWishlistItem,
     removeFromWishlist,
-    getWishlistCount, // Export the new function
+    getWishlistCount, 
 };

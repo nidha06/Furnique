@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Report - Furnique Admin Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #570B4F;
+    }
+
+    /* Content Styling */
+    .content {
+      /* Purple background for the content area */
+      margin-left: 15px; /* Adjust based on sidebar width */
+      padding: 20px; /* Reduced padding for smaller content area */
+      max-width: 1200px; /* Limit the width of the content area */
+      margin: 0 auto; /* Center the content horizontally */
+      border-radius: 10px; /* Add rounded corners for aesthetics */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+      transition: margin-left 0.3s ease; /* Smooth transition for responsiveness */
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        margin-left: 0; /* Collapse sidebar on smaller screens */
+        max-width: 100%; /* Full width on smaller screens */
+        padding: 10px; /* Reduce padding further for mobile devices */
+      }
+    }
+
+    /* Report Header */
+    .report-header {
+      margin-bottom: 1rem; /* Reduced spacing */
+    }
+
+    /* Summary Card */
+    .summary-card {
+      margin-bottom: 1rem; /* Reduced spacing */
+    }
+
+    /* Table Styling */
+    .table-responsive {
+      max-height: 300px; /* Reduced height for the table */
+      overflow-y: auto;
+    }
+
+    /* Export Buttons */
+    .export-buttons {
+      margin-bottom: 0.5rem; /* Reduced spacing */
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <%- include('../../views/partials/admin/sidebar') %>
+
+  <!-- Main Content -->
+  <div class="content">
+    <!-- Report Header -->
+    <div class="report-header text-center">
+      <h1 class="display-6">Sales Report</h1> <!-- Reduced font size -->
+      <p class="lead">Generated on: <%= new Date().toLocaleDateString() %></p>
+    </div>
+    <div class="card mb-4">
+      <div class="card-body" style="background-color: #ad71a5; color: #fff;">
+        <form id="filterForm" class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Filter By Date</label>
+            <select class="form-select" id="reportType" name="reportType">
+              <option value="">Select Type</option>
+              <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily</option>
+              <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
+              <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
+              <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Range</option>
+            </select>
+          </div>
+    
+          <div class="col-md-3 custom-date" style="display: none;">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="startDate" name="startDate" value="<%= startDate || '' %>">
+          </div>
+    
+          <div class="col-md-3 custom-date" style="display: none;">
+            <label class="form-label">End Date</label>
+            <input type="date" class="form-control" id="endDate" name="endDate" value="<%= endDate || '' %>">
+          </div>
+    
+      
+    
+       
+    
+          <div class="col-12">
+            <button type="submit" class="btn btn-light">Apply Filters</button>
+            <button type="reset" class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+
+    <!-- Export Buttons -->
+    <div class="export-buttons d-flex justify-content-end">
+      <a href="/admin/reports-sales/export?format=excel" class="btn btn-success me-2">
+        <i class="fas fa-file-excel me-1"></i> Export to Excel
+      </a>
+      <a href="/admin/reports-sales/export?format=pdf" class="btn btn-danger">
+        <i class="fas fa-file-pdf me-1"></i> Export to PDF
+      </a>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="row" >
+      <div class="col-md-6">
+        <div class="card summary-card">
+          <div class="card-body" style=" background-color: #ad71a5; color: #fff;">
+            <h5 class="card-title">Summary</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Total Orders:</strong> <%= summary?.totalOrders || 0 %></li>
+              <li class="list-group-item"><strong>Total Items Sold:</strong> <%= summary?.totalItems || 0 %></li>
+              <li class="list-group-item"><strong>Total Amount:</strong> $<%= (summary?.totalAmount || 0).toFixed(2) %></li>
+              <li class="list-group-item"><strong>Total Coupon Discount:</strong> $<%= (summary?.couponDiscount || 0).toFixed(2) %></li>
+              <li class="list-group-item"><strong>Net Amount:</strong> $<%= ((summary?.totalAmount || 0) - (summary?.couponDiscount || 0)).toFixed(2) %></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card summary-card">
+          <div class="card-body" style=" background-color: #ad71a5; color: #fff;">
+            <h5 class="card-title">Payment Methods</h5>
+            <ul class="list-group list-group-flush">
+              <% Object.entries(summary?.paymentMethods || {}).forEach(([method, count]) => { %>
+                <li class="list-group-item"><strong><%= method %>:</strong> <%= count %> orders</li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Details Table -->
+    <div class="card mt-3">
+      <div class="card-header" style=" background-color: #ad71a5; color: #fff;">
+        <h5 class="card-title mb-0">Order Details</h5>
+      </div>
+      <div class="card-body table-responsive" style=" background-color: #ad71a5; color: #fff;">
+        <table class="table table-bordered table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Status</th>
+              <th>Payment Method</th>
+              <th>Amount</th>
+              <th>Discount</th>
+              <th>Final Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% (orders || []).forEach(order => { %>
+              <tr>
+                <td><%= order._id.toString() %></td>
+                <td><%= order.createdAt.toLocaleDateString() %></td>
+                <td><%= order.user.name %></td>
+                <td>
+                    <% let totalQuantity = order.items.reduce((total, val) => { 
+                        return total + val.quantity; 
+                 }, 0); %>
+                 
+                 <%= totalQuantity %>
+                 
+                </td>
+                <td><%= order.status %></td>
+                <td><%= order.paymentMethod %></td>
+                <td>$<%= (order.totalPrice + order.appliedCoupon?.discountAmount || 0).toFixed(2) %></td>
+                <td>$<%= ((order.appliedCoupon?.discountAmount || 0)).toFixed(2) %></td>
+                <td>$<%= ((order.totalPrice + order.appliedCoupon?.discountAmount || 0) - (order.appliedCoupon?.discountAmount || 0)).toFixed(2) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Font Awesome Icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const reportType = document.getElementById('reportType');
+    const customDateFields = document.querySelectorAll('.custom-date');
+    
+    function toggleCustomDateFields() {
+        const isCustom = reportType.value === 'custom';
+        customDateFields.forEach(field => {
+            field.style.display = isCustom ? 'block' : 'none';
+        });
+    }
+
+    reportType.addEventListener('change', toggleCustomDateFields);
+    toggleCustomDateFields(); // Initial state
+
+    // Initialize with any existing custom date selection
+    if (reportType.value === 'custom') {
+        customDateFields.forEach(field => field.style.display = 'block');
+    }
+});
+
+function resetFilters() {
+    window.location.href = '/admin/reports-sales';
+}
+</script>
+</body>
+</html>

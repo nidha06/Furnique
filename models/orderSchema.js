@@ -28,17 +28,21 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['cod', 'paypal', 'razorpay'], // Add 'razorpay' here
+    enum: ['cod', 'paypal', 'razorpay'],
     required: true,
   },
   status: {
     type: String,
-    enum: ['ordered', 'pending', 'processing', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned'], // Add 'return_requested' and 'returned' here
+    enum: ['ordered', 'pending', 'processing', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned'],
     default: 'ordered',
   },
   totalPrice: {
     type: Number,
     required: true,
+  },
+  appliedCoupon: {
+    code: String,
+    discountAmount: Number, 
   },
   returnRequest: {
     reason: String,

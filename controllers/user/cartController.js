@@ -3,6 +3,7 @@ const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
+const Coupon = require('../../models/couponSchema');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
@@ -77,14 +78,20 @@ exports.getCheckout = async (req, res) => {
     try {
         const user = req.session.user;
 
+        const coupons = await Coupon.find({
+            isActive: true,
+            expiryDate: { $gt: new Date() }
+        }).sort({ createdAt: -1 });
+
         if (!user) {
             res.redirect('/login');
         }
 
         const address = await Address.findOne({ userId: user }).populate('userId');
         const cart = await Cart.findOne({ user }).populate('items.product');
-
-        res.render('checkout', { cart, addresses: address ? address.address : [] });
+        console.log(coupons);
+        
+        res.render('checkout', { cart, coupons, addresses: address ? address.address : [] });
     } catch (error) {
         console.log(error);
         res.redirect('/cart');
@@ -201,3 +208,80 @@ exports.getOrderSuccess = async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 };
+
+// In your user controller file
+exports.applyCoupon = async (req, res) => {
+    try {
+        const { couponCode, subtotal } = req.body;
+        
+        // Find the coupon in the database
+        const coupon = await Coupon.findOne({
+            code: couponCode,
+            isActive: true,
+            expiryDate: { $gt: new Date() }
+        });
+        
+        if (!coupon) {
+            return res.json({
+                success: false,
+                message: 'Invalid or expired coupon code'
+            });
+        }
+        
+        // Check minimum purchase requirement
+        if (subtotal < coupon.minPurchase) {
+            return res.json({
+                success: false,
+                message: `Minimum purchase of ₹${coupon.minPurchase} required for this coupon`
+            });
+        }
+        
+        
+        // Calculate discount
+        let discountAmount;
+        if (coupon.discountType === 'percentage') {
+            discountAmount = (subtotal * coupon.discountAmount) / 100;
+            if(discountAmount >= coupon.maxLimit){
+                discountAmount = coupon.maxLimit;
+            }
+        
+        } else {
+            discountAmount = coupon.discountAmount;
+        }
+
+        
+        res.json({
+            success: true,
+            discountAmount,
+            message: 'Coupon applied successfully'
+        });
+        
+    } catch (error) {
+        console.error('Error applying coupon:', error);
+        res.json({
+            success: false,
+            message: 'An error occurred while applying the coupon'
+        });
+    }
+};
+
+exports.getActiveCoupons = async (req, res) => {
+    try {
+        const coupons = await Coupon.find({
+            isActive: true,
+            expiryDate: { $gt: new Date() }
+        }).sort({ createdAt: -1 });
+        
+        // If this is an API request
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+            return res.json(coupons);
+        }
+        
+        // If rendering the page, pass coupons to the template
+        res.render('checkout', { coupons });
+    } catch (error) {
+        console.error('Error fetching active coupons:', error);
+        res.status(500).send('Error fetching coupons');
+    }
+};
+
