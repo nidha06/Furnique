@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f5f5f5;
+            flex-wrap: wrap;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #fff;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+        }
+        .sidebar h1 {
+            color: #84CBCB;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+        }
+        .sidebar ul li {
+            margin: 15px 0;
+            cursor: pointer;
+            color: #333;
+        }
+        .sidebar ul li:hover {
+            color: #84CBCB;
+        }
+        .sidebar ul li.active {
+            color: #84CBCB;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        /* Top Header */
+        .header {
+            background-color: #ad71a5;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Detail Section */
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        .detail-container {
+            flex: 2;
+            padding: 20px;
+            width: 100%;
+        }
+        .detail-card {
+            background-color: white;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .detail-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .detail-header h2 {
+            color: #570B4F;
+        }
+        .detail-section {
+            margin-bottom: 20px;
+        }
+        .detail-section h3 {
+            color: #570B4F;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .detail-item {
+            margin-bottom: 15px;
+        }
+        .detail-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .detail-value {
+            color: #333;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+        .transaction-success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .transaction-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .transaction-failed {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .btn-back {
+            padding: 8px 16px;
+            background-color: #570B4F;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .btn-back:hover {
+            opacity: 0.8;
+        }
+
+        /* Media Query for Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                box-shadow: none;
+            }
+            .main {
+                width: 100%;
+                margin-top: 20px;
+            }
+            .detail-container {
+                padding: 10px;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                font-size: 16px;
+            }
+            .sidebar ul li {
+                font-size: 14px;
+            }
+            .detail-header h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <%- include('../partials/admin/sidebar') %>
+        
+        <div class="content">
+            <div class="detail-container">
+                <div class="header">
+                    <h2>Transaction Detail</h2>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <h2>Transaction #<%= transaction._id %></h2>
+                        <% if (transaction.orderId) { %>
+                            <button class="btn-back" onclick="viewOrder('<%= transaction.orderId %>')">View Order</button>
+                          <% } else { %>
+                            <p>No associated order for this transaction.</p>
+                          <% } %>
+                        
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>Transaction Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Transaction ID</span>
+                                <div class="detail-value"><%= transaction._id %></div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Transaction Date</span>
+                                <div class="detail-value"><%= transaction.date.toLocaleString() %></div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Transaction Type</span>
+                                <div class="detail-value"><%= transaction.type %></div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Amount</span>
+                                <div class="detail-value"><%=transaction.amount.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})  %></div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Payment Source</span>
+                                <div class="detail-value"><%= transaction.source || 'N/A' %></div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Payment Reference ID</span>
+                                <div class="detail-value"><%= transaction.referenceId || 'N/A' %></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>User Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">User Name</span>
+                                <div class="detail-value"><%= transaction.user.name %></div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">User Email</span>
+                                <div class="detail-value"><%= transaction.user.email %></div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">User ID</span>
+                                <div class="detail-value"><%= transaction.user._id %></div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Current Wallet Balance</span>
+                                <div class="detail-value"><%=wallet.balance.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})  %></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <% if (transaction.notes) { %>
+                    <div class="detail-section">
+                        <h3>Additional Notes</h3>
+                        <div class="detail-value" style="margin-top: 10px;">
+                            <%= transaction.notes %>
+                        </div>
+                    </div>
+                    <% } %>
+                    
+                    <a href="/admin/wallets" class="btn-back">Back to Transactions</a>
+                    
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight the wallet sidebar item as active
+            const walletNavItem = document.querySelector('.sidebar ul li[data-section="wallet"]');
+            if (walletNavItem) {
+                walletNavItem.classList.add('active');
+            }
+        });
+
+        function viewOrder(orderId) {
+      window.location.href = `/admin/order-details/${orderId}`;
+    }
+    </script>
+</body>
+</html>

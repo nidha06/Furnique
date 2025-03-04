@@ -78,18 +78,18 @@
               <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
               <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
               <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Range</option>
-            </select>
+          </select>
           </div>
     
-          <div class="col-md-3 custom-date" style="display: none;">
+          <div class="col-md-3 custom-date"style="display: <%= reportType === 'custom' ? 'block' : 'none' %>;">
             <label class="form-label">Start Date</label>
             <input type="date" class="form-control" id="startDate" name="startDate" value="<%= startDate || '' %>">
-          </div>
-    
-          <div class="col-md-3 custom-date" style="display: none;">
+        </div>
+        
+        <div class="col-md-3 custom-date"style="display: <%= reportType === 'custom' ? 'block' : 'none' %>;">
             <label class="form-label">End Date</label>
             <input type="date" class="form-control" id="endDate" name="endDate" value="<%= endDate || '' %>">
-          </div>
+        </div>
     
       
     
@@ -106,10 +106,10 @@
 
     <!-- Export Buttons -->
     <div class="export-buttons d-flex justify-content-end">
-      <a href="/admin/reports-sales/export?format=excel" class="btn btn-success me-2">
+      <a href="/admin/reports-sales/export?format=excel&reportType=<%= reportType %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="btn btn-success me-2">
         <i class="fas fa-file-excel me-1"></i> Export to Excel
       </a>
-      <a href="/admin/reports-sales/export?format=pdf" class="btn btn-danger">
+      <a href="/admin/reports-sales/export?format=pdf&reportType=<%= reportType %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="btn btn-danger">
         <i class="fas fa-file-pdf me-1"></i> Export to PDF
       </a>
     </div>

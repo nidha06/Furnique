@@ -61,17 +61,22 @@ router.get('/cart',userAuth,cartController.getCart);
 router.post('/cart-remove',userAuth,cartController.removeCart);
 router.post('/cart-update',userAuth,cartController.updateCart);
 
-
-
-//order management 
-router.get('/order-details/:orderId',userAuth,orderController.getOrderDetails);
-router.post('/cancel/:orderId',userAuth,orderController.cancelOrder);
 router.get('/checkout-addAddress',userAuth,profileController.checkoutAddAddress);
 router.post('/checkout-addAddress',userAuth,profileController.checkoutPostAddAddress);
 router.get('/checkout-editAddress',userAuth,profileController.checkoutEditAddress);
 router.post('/checkout-editAddress',userAuth,profileController.checkoutPostEditAddress);
-router.post('/submit-return/:orderId', orderController.submitReturn);
-router.put('/orders/:orderId/approve-return', orderController.approveReturn);
+
+
+//order management 
+router.get('/order-details/:orderId',userAuth,orderController.getOrderDetails);
+router.get('/invoice/:orderId',userAuth,orderController.viewInvoice);
+router.get('/invoice/:orderId/download', orderController.downloadInvoice);
+router.post('/cancel/:orderId',userAuth,orderController.cancelOrder);
+router.post('/cancel-item/:orderId/:itemId', userAuth, orderController.cancelOrderItem);
+router.post('/submit-item-return/:orderId/:itemId', userAuth, orderController.submitItemReturn);
+
+router.post('/submit-entire-order-return/:orderId', userAuth,orderController.submitEntireOrderReturn);
+
 
 //payment management
 router.get('/checkout',userAuth,paymentController.getCheckout);

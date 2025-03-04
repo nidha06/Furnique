@@ -109,9 +109,20 @@
               <label style="color: #570B4F;">
                 <input type="radio" name="payment" value="paypal"> PayPal
               </label><br>
-              <label style="color: #570B4F;">
-                <input type="radio" name="payment" value="cod"> Cash on Delivery
-              </label><br>
+              <% cart.items.forEach(item => { %>
+                <div>
+                  <!-- Access the product's salePrice -->
+                  <% if (cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0) > 10000) { %>
+                    <label style="color: #570B4F;">
+                      <input type="hidden" > <strike>   Cash on Delivery</strike><i style="color: red;">   (COD not available for this order)</i>
+                    </label><br>
+                  <% } else { %>
+                    <label style="color: #570B4F;">
+                      <input type="radio" name="payment" value="cod"> Cash on Delivery
+                    </label><br>
+                  <% } %>
+                </div>
+              <% }); %>
               <label style="color: #570B4F;">
                 <input type="radio" name="payment" value="razorpay"> Pay Online (Razorpay)
               </label>
@@ -251,11 +262,25 @@
                       </div>
                   <% }) %>
                   <hr>
+                  <% if(cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0) < 10000){ %>
                   <div id="priceDetails">
-                      <p style="color: #570B4F;">Subtotal: ₹<span id="subtotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0).toFixed(2) %></span></p>
-                      <p style="color: #570B4F;">Coupon Applied: ₹<span id="discount">0.00</span></p>
-                      <h4 style="color: #570B4F;">Total: ₹<span id="cartTotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0).toFixed(2) %></span></h4>
+                     
+                      <p style="color: #570B4F;">Delivery Charge: ₹<span >149</span></p>
+                      <p style="color: #570B4F;">Subtotal: ₹<span id="subtotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity + 149, 0).toFixed(2) %></span></p>
+                      <p style="color: green;">Coupon Applied: ₹<span id="discount">0.00</span></p>
+                      
+                      <h4 style="color: #570B4F;">Total: ₹<span id="cartTotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity + 149, 0).toFixed(2)%></span></h4>
                   </div>
+                  <% }else{ %>
+                  <div id="priceDetails">
+                   
+                    <p style="color: #570B4F;">Delivery Charge:  <span style="color: green;" >Free Delivery</span></p>
+                    <p style="color: #570B4F;">Subtotal: ₹<span id="subtotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0).toFixed(2) %></span></p>
+                    <p style="color: #570B4F;">Coupon Applied: ₹<span style="color: green;" id="discount">0.00</span></p>
+                   
+                    <h4 style="color: #570B4F;">Total: ₹<span id="cartTotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity , 0).toFixed(2)%></span></h4>
+                </div>
+                <% } %>
               <% } else { %>
                   <p>Your cart is empty.</p>
               <% } %>

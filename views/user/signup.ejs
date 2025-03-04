@@ -16,7 +16,56 @@
       padding: 0;
       box-sizing: border-box;
     }
+ /* Adjust the form-footer to display elements in a row */
+.form-footer {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
 
+.footer-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgot-password {
+  text-decoration: none;
+  color: #570B4F;
+  font-size: 14px;
+}
+
+.referral-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.referral-label {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+#referral-code {
+  width: 200px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 12px;
+  height: 25px;
+}
+
+.referral-code-message {
+  color: #ff0000;
+  font-size: 10px;
+  position: absolute;
+  margin-top: 25px;
+  margin-left: 45px;
+  display: none;
+}
     body {
       font-family: Arial, sans-serif;
       display: flex;
@@ -66,6 +115,12 @@
       border: 1px solid #ddd;
       border-radius: 5px;
     }
+    .form-group-refferal input {
+      width: 30%;
+      padding: 7px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    } 
 
     .form-footer {
       margin-bottom: 20px;
@@ -141,6 +196,19 @@
         display: none;
       }
     }
+    
+    /* Add to your existing CSS */
+.referral-code-message {
+  color: #ff0000;
+  font-size: 12px;
+  margin-top: 5px;
+  display: none;
+}
+
+/* Style for success message */
+.referral-success {
+  color: #28a745;
+}
   </style>
 
   <div class="container">
@@ -172,9 +240,17 @@
           <div id="password-match-warning" class="password-match-warning">Passwords do not match!</div>
         </div>
         <div class="form-footer">
-          <a href="#">Forgot Password?</a>
+          <div class="footer-container">
+            <a href="#" class="forgot-password">Forgot Password?</a>
+            <div class="referral-container">
+              <label for="referral-code" class="referral-label">Referral Code:</label>
+              <input type="text" name="referralCode" id="referral-code" placeholder="Optional">
+              <div id="referral-code-message" class="referral-code-message"></div>
+            </div>
+          </div>
         </div>
         <button type="submit" class="btn">Sign Up</button>
+       
       </form>
       <div style="text-align: center; margin: 20px 0; padding-right: 20px;">
         <a href="/auth/google" style="display: flex; align-items: center; justify-content: center; padding: 4px 15px; border: 1px solid #ddd; border-radius: 30px; background-color: white; cursor: pointer;">
@@ -190,6 +266,7 @@
     </div>
     <div class="signup-image">
       <img src="/images/login.jpg" alt="Sign Up Illustration">
+      
     </div>
   </div>
 
@@ -205,6 +282,23 @@
     const emailWarning = document.getElementById('email-warning');
     const nameWarning = document.getElementById('name-warning');
     const form = document.querySelector('form');
+
+    
+    const referralCodeInput = document.getElementById('referral-code');
+const referralCodeMessage = document.getElementById('referral-code-message');
+
+// Optional: Add validation for referral code format (if needed)
+referralCodeInput.addEventListener('input', () => {
+  const referralCode = referralCodeInput.value.trim();
+  
+  if (referralCode !== '' && referralCode.length !== 8) {
+    referralCodeMessage.textContent = 'Referral code should be 8 characters';
+    referralCodeMessage.style.display = 'block';
+    referralCodeMessage.style.color = '#ff0000';
+  } else {
+    referralCodeMessage.style.display = 'none';
+  }
+});
 
     // Password toggle functionality
     const passwordToggle = document.getElementById('password-toggle');
@@ -277,8 +371,17 @@
         emailWarning.style.display = 'block';
         valid = false;
       }
-
+      
+      const referralCode = referralCodeInput.value.trim();
+  if (referralCode !== '' && referralCode.length !== 8) {
+    event.preventDefault();
+    referralCodeMessage.textContent = 'Referral code should be 8 characters';
+    referralCodeMessage.style.display = 'block';
+    referralCodeMessage.style.color = '#ff0000';
+    valid = false;
+  }
     });
+
   </script>
 </body>
 </html>

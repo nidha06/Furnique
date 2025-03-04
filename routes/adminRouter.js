@@ -8,14 +8,15 @@ const orderController = require('../controllers/admin/orderController');
 const offerController = require('../controllers/admin/offerController');
 const couponController = require('../controllers/admin/couponController');
 const dashboardController = require('../controllers/admin/dashboardController');
+const walletController = require('../controllers/admin/walletController');
 const upload = require('../middlewares/multerConfig');
-const {userAuth,adminAuth}=require("../middlewares/auth");
+const {adminAuth}=require("../middlewares/auth");
 
 
 router.get('/pageerror',adminController.pageerror);
 router.get('/login',adminController.loadLogin);
 router.post('/login',adminController.login);
-router.get('/dashboard',adminAuth,adminController.loadDashboard);
+
 router.get("/logout",adminController.logout);
 //customer management
 router.get("/users",adminAuth,customerContoller.customerInfo);
@@ -43,6 +44,8 @@ router.get('/order-details/:orderId',adminAuth,orderController.getOrderDetails);
 router.put('/orders/:orderId/cancel',adminAuth,orderController.cancelOrder);
 router.put('/orders/:orderId/update-status',adminAuth,orderController.updateOrderStatus);
 router.put('/orders/:orderId/approve-return',adminAuth,orderController.successReturn);
+router.put('/orders/:orderId/items/:itemId/approve-return', adminAuth, orderController.approveItemReturn);
+router.put('/orders/:orderId/items/:itemId/cancel', adminAuth, orderController.cancelOrderItem);
 //offer management
 router.get('/offermanagement',adminAuth,offerController.getOffer);
 router.get('/get-create-offer',adminAuth,offerController.getcreateOffer);
@@ -61,6 +64,12 @@ router.post('/update-coupon-status/:id', adminAuth, couponController.updateCoupo
 //dashboard management
 router.get('/reports-sales/export', adminAuth, dashboardController.generateSalesReport);
 router.get('/reports-sales', adminAuth,dashboardController.getReport);
+router.get('/dashboard',adminAuth, dashboardController.getDashboard);
+router.get('/dashboard/sales-data',adminAuth, dashboardController.getSalesDataByPeriod);
+//wallet management
+router.get('/wallets',adminAuth,walletController.getAllWallets);
+router.get('/wallets/:walletId',adminAuth,walletController.getWalletById);
+router.get('/wallet/transaction/:transactionId', adminAuth,walletController.getTransactionDetail);
 
 
 

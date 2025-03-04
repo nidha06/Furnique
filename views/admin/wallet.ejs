@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Wallet Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f5f5f5;
+            flex-wrap: wrap;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #fff;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+        }
+        .sidebar h1 {
+            color: #84CBCB;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+        }
+        .sidebar ul li {
+            margin: 15px 0;
+            cursor: pointer;
+            color: #333;
+        }
+        .sidebar ul li:hover {
+            color: #84CBCB;
+        }
+        .sidebar ul li.active {
+            color: #84CBCB;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        /* Top Header */
+        .header {
+            background-color: #84CBCB;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Table Section */
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        .table-container {
+            flex: 2;
+            padding: 20px;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #ad71a5;
+            color: #fff;
+        }
+        .btn-view {
+            padding: 5px 10px;
+            background-color: #570B4F;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-view:hover {
+            opacity: 0.8;
+        }
+
+        .pagination {
+            display: flex; /* Arrange the items horizontally */
+            list-style-type: none; /* Remove the bullets */
+            padding: 15px; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+        }
+
+        .pagination .page-item {
+            margin: 0 5px; /* Add some spacing between items */
+        }
+
+        .pagination .page-link {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none; /* Remove underline */
+            color: #570B4F; /* Link color */
+            border: 1px solid #dee2e6; /* Add border */
+            border-radius: 4px; /* Slightly rounded corners */
+            background-color: #fff; /* White background */
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #570B4F; /* Highlight active item */
+            color: white; /* White text for active item */
+            border-color: #570B4F; /* Border same as background */
+        }
+
+        .pagination .page-link:hover {
+            background-color: #d812be; /* Darker pink on hover */
+            color: white;
+            text-decoration: none; /* Keep no underline */
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .search-button {
+            background-color: #570B4F;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-button:hover {
+            opacity: 0.9;
+        }
+
+        /* Media Query for Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                box-shadow: none;
+            }
+
+            .main {
+                width: 100%;
+                margin-top: 20px;
+            }
+
+            .table-container {
+                padding: 10px;
+            }
+
+            table, th, td {
+                font-size: 12px;
+            }
+
+            .pagination {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                font-size: 16px;
+            }
+
+            .sidebar ul li {
+                font-size: 14px;
+            }
+
+            .btn-view {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <%- include('../partials/admin/sidebar') %>
+        
+        <div class="content">
+            <div class="table-container">
+                <div class="header">
+                    <h2>Wallet Management</h2>
+                </div>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search user">
+                    <button class="search-button">Search</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Transaction Type</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% transactions.forEach(transaction => { %>
+                            <tr>
+                                <td><%= transaction._id %></td>
+                                <td><%= transaction.date.toLocaleDateString() %></td>
+                                <td><%= transaction.user.email%></td>
+                                <td><%= transaction.type %></td>
+                                <td><%=transaction.amount.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})  %></td>
+                                <td>
+                                    <a href="/admin/wallet/transaction/<%= transaction._id %>" class="btn-view">View</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+
+                 <div class="pagination-container">
+                    <ul class="pagination">
+                        <% for(let i=1; i<=totalPages; i++) { %>
+                            <li class="page-item <%= (i===currentPage) ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight the wallet sidebar item as active
+            const walletNavItem = document.querySelector('.sidebar ul li[data-section="wallet"]');
+            if (walletNavItem) {
+                walletNavItem.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

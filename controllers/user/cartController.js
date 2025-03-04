@@ -6,6 +6,7 @@ const Order = require('../../models/orderSchema');
 const Coupon = require('../../models/couponSchema');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const { log } = require('console');
 
 
 exports.addToCart = async (req, res) => {
@@ -76,6 +77,7 @@ exports.removeCart = async (req, res) => {
 
 exports.getCheckout = async (req, res) => {
     try {
+      
         const user = req.session.user;
 
         const coupons = await Coupon.find({
@@ -88,10 +90,15 @@ exports.getCheckout = async (req, res) => {
         }
 
         const address = await Address.findOne({ userId: user }).populate('userId');
-        const cart = await Cart.findOne({ user }).populate('items.product');
+        const cart = await Cart.findOne({ user }).populate('items.product' );
+
+       
         console.log(coupons);
+       
         
-        res.render('checkout', { cart, coupons, addresses: address ? address.address : [] });
+       
+        
+        res.render('checkout', { cart, coupons,deliveryCharge:149, addresses: address ? address.address : [] });
     } catch (error) {
         console.log(error);
         res.redirect('/cart');

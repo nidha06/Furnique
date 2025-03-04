@@ -17,7 +17,13 @@ const orderSchema = new mongoose.Schema({
       quantity: Number,
       price: Number,
       image: String,
+       status: {
+        type: String,
+        enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned'],
+        default: 'pending'
+      },
     },
+    
   ],
   shippingAddress: {
     name: String,
@@ -31,10 +37,11 @@ const orderSchema = new mongoose.Schema({
     enum: ['cod', 'paypal', 'razorpay'],
     required: true,
   },
-  status: {
+   status: {
     type: String,
-    enum: ['ordered', 'pending', 'processing', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned'],
-    default: 'ordered',
+    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled',
+       'return_requested', 'returned', 'partially_returned','partially_cancelled'],
+    default: 'pending'
   },
   totalPrice: {
     type: Number,
