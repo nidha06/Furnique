@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Furnique">
+    <link rel="shortcut icon" href="/images/furnique-icon.svg">
+  
+    <meta name="description" content="About Furnique - Premium furniture crafted with excellence" />
+    <meta name="keywords" content="furniture, home decor, quality furniture, about us" />
+  
+    <!-- Bootstrap CSS -->
+    <link href="/css/tiny-slider.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <title>FURNIQUE | Where Luxury Meets Function</title>
+    <style>
+        .about-hero {
+            background-color: #f8f9fa;
+            padding: 80px 0;
+            margin-bottom: 50px;
+        }
+        
+        .about-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .about-section {
+            padding: 60px 0;
+        }
+        
+        .about-img {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+        
+        .timeline:before {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 2px;
+            background-color: #ddd;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .timeline-item {
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .year-badge {
+            background-color: #3b5d50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .team-member {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .team-img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .team-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .values-card {
+            padding: 30px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            height: 100%;
+            transition: all 0.3s;
+        }
+        
+        .values-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .values-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #3b5d50;
+        }
+        
+        @media (max-width: 767px) {
+            .about-hero {
+                padding: 50px 0;
+            }
+            
+            .timeline:before {
+                left: 30px;
+            }
+            
+            .team-img {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Start Header/Navigation -->
+    <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furnique navigation bar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Furnique<span>.</span></a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarsFurni">
+                <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:3001/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:3001/shop">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/get-aboutUs">About us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/get-contactUs">Contact us</a>
+                    </li>
+                    <% if ((typeof user) ==='undefined') {%>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Sign in</a>
+                        </li>
+                    <% }else{ %>
+                        <li class="nav-item" style="font-size: larger; color: #fff;"></li>
+                    <% } %>
+                </ul>
+                
+                <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="images/user.svg" alt="Profile">
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                            <li><a class="dropdown-item" href="/userProfile">Profile</a></li>
+                            <% if ((typeof user) ==='undefined') {%>
+                                <li><a class="dropdown-item" href="/login">Signin</a></li>
+                            <% }else{ %>
+                                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                            <% } %>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart"><img src="images/cart.svg" alt="Cart"></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/wishlist"><img src="images/whishlist.png" alt="Wishlist"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- End Header/Navigation -->
+
+    <!-- Start Hero Section -->
+    <div class="about-hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h1>Our Story</h1>
+                    <p class="lead">Crafting excellence in furniture since 2010</p>
+                    <p>At Furnique, we believe that your home should reflect your unique personality and style. Our mission is to create furniture that combines exceptional craftsmanship, sustainable materials, and timeless design to transform your living spaces.</p>
+                </div>
+                <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                    <img src="images/why-choose-us-img.jpg" alt="About Furnique" class="img-fluid about-img">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Hero Section -->
+
+    <!-- Our Journey Section -->
+    <div class="about-section">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-6 text-center">
+                    <h2 class="section-title">Our Journey</h2>
+                    <p>From a small workshop to becoming one of the leading furniture brands</p>
+                </div>
+            </div>
+            
+            <div class="timeline">
+                <div class="row">
+                    <div class="col-md-6 offset-md-6 timeline-item">
+                        <div class="timeline-content">
+                            <div class="year-badge">2010</div>
+                            <h4>The Beginning</h4>
+                            <p>Furnique was founded with a simple workshop and a passionate team of three craftsmen dedicated to creating handcrafted furniture pieces.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 timeline-item">
+                        <div class="timeline-content">
+                            <div class="year-badge">2013</div>
+                            <h4>First Retail Store</h4>
+                            <p>We opened our first retail showroom, giving customers the opportunity to experience the quality and design of our furniture firsthand.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 offset-md-6 timeline-item">
+                        <div class="timeline-content">
+                            <div class="year-badge">2016</div>
+                            <h4>Sustainable Initiative</h4>
+                            <p>We launched our eco-friendly collection, committing to using sustainable materials and environmentally conscious manufacturing processes.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 timeline-item">
+                        <div class="timeline-content">
+                            <div class="year-badge">2019</div>
+                            <h4>Online Expansion</h4>
+                            <p>Furnique went digital, launching our e-commerce platform to reach customers nationwide and provide a seamless shopping experience.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 offset-md-6 timeline-item">
+                        <div class="timeline-content">
+                            <div class="year-badge">Today</div>
+                            <h4>Growing Strong</h4>
+                            <p>We continue to innovate and expand, but our core values remain the same: exceptional quality, customer satisfaction, and sustainable practices.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Our Journey Section -->
+
+    <!-- Our Values Section -->
+    <div class="about-section bg-light">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-6 text-center">
+                    <h2 class="section-title">Our Values</h2>
+                    <p>The principles that guide everything we do</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="values-card">
+                        <div class="values-icon">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </div>
+                        <h4>Quality Craftsmanship</h4>
+                        <p>We take pride in every piece we create, ensuring meticulous attention to detail and using only the finest materials to guarantee furniture that lasts for generations.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="values-card">
+                        <div class="values-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h4>Sustainability</h4>
+                        <p>Our commitment to the environment drives us to source responsibly harvested wood, use eco-friendly finishes, and implement sustainable practices throughout our production process.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="values-card">
+                        <div class="values-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h4>Innovation</h4>
+                        <p>While respecting traditional craftsmanship, we continuously explore new designs, technologies, and materials to create furniture that meets the evolving needs of modern living.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Our Values Section -->
+
+    <!-- Our Team Section -->
+    <div class="about-section">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-6 text-center">
+                    <h2 class="section-title">Meet Our Team</h2>
+                    <p>The passionate people behind Furnique</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 team-member">
+                    <div class="team-img">
+                        <img src="/images/person-1.jpg" alt="Team Member">
+                    </div>
+                    <h4>Sarah Johnson</h4>
+                    <p class="text-muted">Founder & Creative Director</p>
+                    <p>With over 20 years of experience in furniture design, Sarah leads our creative vision with passion and expertise.</p>
+                </div>
+                
+                <div class="col-md-4 team-member">
+                    <div class="team-img">
+                        <img src="/images/person_2.jpg" alt="Team Member">
+                    </div>
+                    <h4>Michael Chen</h4>
+                    <p class="text-muted">Master Craftsman</p>
+                    <p>Michael's exceptional woodworking skills and attention to detail ensure that every piece meets our high standards.</p>
+                </div>
+                
+                <div class="col-md-4 team-member">
+                    <div class="team-img">
+                        <img src="/images/person_4.jpg" alt="Team Member">
+                    </div>
+                    <h4>Elena Rodriguez</h4>
+                    <p class="text-muted">Sustainability Director</p>
+                    <p>Elena oversees our environmental initiatives, ensuring that our practices align with our commitment to sustainability.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Our Team Section -->
+
+    <!-- Testimonials Section -->
+    <div class="about-section bg-light">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-6 text-center">
+                    <h2 class="section-title">What Our Customers Say</h2>
+                    <p>Hear from those who have transformed their homes with Furnique</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="p-4 bg-white rounded shadow-sm">
+                        <p class="mb-3">"The quality of our dining table is exceptional. Five years later, it still looks as beautiful as the day we bought it. Truly an investment piece."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="ms-3">
+                                <h5 class="mb-0">James & Laura P.</h5>
+                                <small class="text-muted">Loyal customers since 2018</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="p-4 bg-white rounded shadow-sm">
+                        <p class="mb-3">"I was looking for eco-friendly furniture for my new apartment, and Furnique exceeded my expectations. Beautiful designs with a clear conscience!"</p>
+                        <div class="d-flex align-items-center">
+                            <div class="ms-3">
+                                <h5 class="mb-0">Aisha T.</h5>
+                                <small class="text-muted">First-time buyer</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="p-4 bg-white rounded shadow-sm">
+                        <p class="mb-3">"The custom bookshelf Furnique created for our home office is both functional and a work of art. Their attention to detail is unmatched."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="ms-3">
+                                <h5 class="mb-0">Robert & Daniel M.</h5>
+                                <small class="text-muted">Custom order clients</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Testimonials Section -->
+
+    <!-- Call to Action Section -->
+    <div class="about-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="section-title">Ready to Transform Your Space?</h2>
+                    <p class="mb-5">Visit our showroom or explore our collections online to find the perfect pieces for your home.</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/shop" class="btn btn-primary">Shop Now</a>
+                        <a href="/get-contactUs" class="btn btn-outline-dark">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Call to Action Section -->
+
+    <!-- Start Footer Section -->
+    <footer class="footer-section">
+        <div class="container relative">
+            <div class="row g-5 mb-5">
+                <div class="col-lg-4">
+                    <div class="mb-4 footer-logo-wrap">
+                        <a href="#" class="footer-logo">Furnique<span>.</span></a>
+                    </div>
+                    <p class="mb-4">
+                        Crafting premium furniture that brings beauty, comfort, and functionality to your home. Each piece tells a story of quality craftsmanship and thoughtful design.
+                    </p>
+                    <ul class="list-unstyled custom-social">
+                        <li><a href="#"><span class="fa fa-brands fa-facebook-f"></span></a></li>
+                        <li><a href="#"><span class="fa fa-brands fa-twitter"></span></a></li>
+                        <li><a href="#"><span class="fa fa-brands fa-instagram"></span></a></li>
+                        <li><a href="#"><span class="fa fa-brands fa-linkedin"></span></a></li>
+                    </ul>
+                </div>
+    
+                <div class="col-lg-8">
+                    <div class="row links-wrap">
+                        <div class="col-6 col-sm-6 col-md-3">
+                            <ul class="list-unstyled">
+                                <li><a href="#">About us</a></li>
+                                <li><a href="#">Services</a></li>
+                                <li><a href="#">Blog</a></li>
+                                <li><a href="#">Contact us</a></li>
+                            </ul>
+                        </div>
+    
+                        <div class="col-6 col-sm-6 col-md-3">
+                            <ul class="list-unstyled">
+                                <li><a href="#">Support</a></li>
+                                <li><a href="#">Knowledge base</a></li>
+                                <li><a href="#">Live chat</a></li>
+                            </ul>
+                        </div>
+    
+                        <div class="col-6 col-sm-6 col-md-3">
+                            <ul class="list-unstyled">
+                                <li><a href="#">Jobs</a></li>
+                                <li><a href="#">Our team</a></li>
+                                <li><a href="#">Leadership</a></li>
+                                <li><a href="#">Privacy Policy</a></li>
+                            </ul>
+                        </div>
+    
+                        <div class="col-6 col-sm-6 col-md-3">
+                            <ul class="list-unstyled">
+                                <li><a href="#">Nordic Chair</a></li>
+                                <li><a href="#">Kruzo Aero</a></li>
+                                <li><a href="#">Ergonomic Chair</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="border-top copyright">
+                <div class="row pt-4">
+                    <div class="col-lg-6">
+                        <p class="mb-2 text-center text-lg-start">Copyright &copy;<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. &mdash; Designed with love by <a href="#">Furnique</a>
+                        </p>
+                    </div>
+    
+                    <div class="col-lg-6 text-center text-lg-end">
+                        <ul class="list-unstyled d-inline-flex ms-auto">
+                            <li class="me-4"><a href="#">Terms &amp; Conditions</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End Footer Section -->
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/tiny-slider.js"></script>
+    <script src="js/custom.js"></script>
+</body>
+</html>

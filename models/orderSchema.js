@@ -19,7 +19,7 @@ const orderSchema = new mongoose.Schema({
       image: String,
        status: {
         type: String,
-        enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned'],
+        enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned','partially_returned'],
         default: 'pending'
       },
     },
@@ -34,7 +34,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['cod', 'paypal', 'razorpay'],
+    enum: ['cod', 'wallet', 'razorpay'],
     required: true,
   },
    status: {

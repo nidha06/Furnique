@@ -11,6 +11,11 @@ const productDetails = async (req, res) => {
         const userId = req.session.user;
         const userData = await User.findById(userId);
         const productId = req.query.id;
+       
+        const userWishlist = await Wishlist.findOne({ user: userId });
+        const wishlistProductIds = userWishlist?.products.map(p => p.toString()) || [];
+
+        
         
 
         const product = await Product.findById(productId).populate('category');
@@ -18,9 +23,11 @@ const productDetails = async (req, res) => {
         const cart = await Cart.findOne({ user: userId });
 
         const similarProducts = await Product.find({
-            category: findCategory._id,
-            _id: { $ne: productId }
-        }).limit(4);
+          category: findCategory._id,
+          _id: { $ne: productId },
+          isListed: true // Ensure only listed products are retrieved
+      }).limit(4);
+      
 
         
         const catOffer= await Offer.findOne({category:product.category._id})
@@ -28,7 +35,7 @@ const productDetails = async (req, res) => {
         const productDiscount = product.regularPrice > 0 ? 
         Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100) : 0;
         
-        const bestDiscount= Math.max(productDiscount,catOffer.discount_value);
+        const bestDiscount= Math.max(productDiscount,catOffer?.discount_value||0);
       
           if(bestDiscount>productDiscount){
             console.log(Math.floor(product.regularPrice *(1-bestDiscount/100)))
@@ -44,6 +51,7 @@ const productDetails = async (req, res) => {
             category: findCategory,
             cart: cart,
             similarProducts: similarProducts,
+            wishlistProducts: wishlistProductIds,
         });
 
     } catch (error) {
@@ -219,6 +227,7 @@ const removeFromWishlist = async (req, res) => {
         }
     };
 
+   
 module.exports = {
     productDetails,
     wishlistAdd,
@@ -227,4 +236,5 @@ module.exports = {
     toggleWishlistItem,
     removeFromWishlist,
     getWishlistCount, 
+    
 };

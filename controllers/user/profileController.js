@@ -80,6 +80,23 @@ const forgotEmailValid = async (req, res) => {
     }
 };
 
+ const checkEmail=async (req, res) => {
+    try {
+        const { email } = req.body;
+        const findUser = await User.findOne({ email });
+
+        if (findUser) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false });
+        }
+    } catch (error) {
+        console.error('Error checking email:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+
 const securePassword = async (password) => {
     try {
         const passwordHash = await bcrypt.hash(password, 10);
@@ -411,4 +428,5 @@ module.exports = {
     checkoutPostEditAddress,
     initializeWallet,
     getWalletDetails,
+    checkEmail,
 };

@@ -137,7 +137,7 @@
         <% for(let i = 1; i <= 4; i++){ %>
           <div class="form-group">
             <label for="images">Upload Image <%= i %></label>
-            <input type="file" id="image<%= i %>" name="images" accept="image/png,image/jpeg,image.jpg" onchange="viewImage(event, '<%= i %>')">
+            <input type="file" id="image<%= i %>" name="images" accept="image/png,image/jpeg,image.jpg,image.webp" onchange="viewImage(event, '<%= i %>')">
             <div id="imagePreview<%= i %>" style="margin-top: 10px;">
               <img id="imgView<%= i %>" src="" alt="" style="max-width: 100%; display: none;">
             </div>

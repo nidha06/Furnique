@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
+    <title>FURNIQUE | Where Luxury Meets Function</title>
+    <link rel="shortcut icon" href="/images/furnique-icon.svg">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
@@ -12,70 +13,283 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
         }
 
-        .coupon-card:hover {
-    border-color: #570B4F !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(87, 11, 79, 0.1);
-    transition: all 0.3s ease;
-}
-
-.apply-coupon-btn:hover {
-    background-color: #6a1b5f !important;
-}
-
-@media (max-width: 768px) {
-    #couponsContainer {
-        grid-template-columns: 1fr;
-    }
-}
         .checkout-container {
             max-width: 800px;
-            margin: 50px auto;
+            width: 95%;
+            margin: 20px auto;
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px  #570B4F;
+            box-shadow: 0 0 10px #570B4F;
         }
+
         .section {
             margin-bottom: 20px;
         }
+
         .section h3 {
             margin-bottom: 15px;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
         }
+
         .address-container, .payment-container, .order-summary {
             padding: 15px;
             background: #ffffff;
             border-radius: 5px;
             border: 1px solid #ddd;
         }
+
         .checkout-btn {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             background: #0b5a1d;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
         }
+
         .checkout-btn:hover {
             background: #218838;
         }
+
+        .coupon-card {
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .coupon-card:hover {
+            border-color: #570B4F !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(87, 11, 79, 0.1);
+        }
+
+        .apply-coupon-btn:hover {
+            background-color: #6a1b5f !important;
+        }
+
+        /* Card and form styling */
+        .card {
+            margin-bottom: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 10px 15px;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .form-check {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 5px;
+        }
+
+        .form-check:last-child {
+            border-bottom: none;
+        }
+
+        /* Address edit button */
+        .btn-small {
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .btn-small button {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Coupon section */
+        .coupon-container {
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #couponMessage {
+            font-size: 0.9rem;
+        }
+
+        /* Coupons grid */
+        .coupons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        /* Order summary */
+        .order-item {
+            margin-bottom: 15px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-item img {
+            max-width: 80px;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .cart-details p {
+            margin: 5px 0;
+        }
+
+        #priceDetails p {
+            margin: 8px 0;
+        }
+
+        /* Enhanced responsive styles */
+        @media (max-width: 768px) {
+            .checkout-container {
+                width: 90%;
+                padding: 15px;
+                margin: 15px auto;
+            }
+
+            .section h3 {
+                font-size: 1.2rem;
+            }
+
+            .coupons-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-group input, 
+            .input-group div {
+                width: 100%;
+            }
+            
+            .input-group div {
+                display: flex;
+                gap: 5px;
+            }
+            
+            .input-group button {
+                flex: 1;
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cart-item img {
+                max-width: 100px;
+            }
+
+            .form-check label {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .checkout-container {
+                width: 95%;
+                padding: 10px;
+                margin: 10px auto;
+            }
+            
+            .section {
+                margin-bottom: 15px;
+            }
+            
+            .card-header h5 {
+                font-size: 1rem;
+            }
+            
+            .coupon-card {
+                padding: 12px;
+                min-height: auto;
+            }
+            
+            .checkout-btn {
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+            
+            .form-check {
+                padding: 8px;
+            }
+            
+            .btn-small button {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+        }
+        /* Add these styles to your existing CSS */
+.back-to-cart button:hover {
+    background-color: #570B4F;
+    color: white;
+}
+
+/* Make the button responsive */
+@media (max-width: 480px) {
+    .checkout-container > div:first-child {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .checkout-container > div:first-child h2 {
+        font-size: 1.5rem;
+    }
+    
+    .back-to-cart button {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+    }
+}
     </style>
     
-        <!-- Other head content -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+    <!-- Other head content -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="checkout-container">
-        <h2  style="color: #570B4F;" >Checkout</h2>
+     
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="/cart" class="back-to-cart">
+                <button style="display: flex; align-items: center; gap: 8px; background-color:  #570B4F; color: #fff; border: 1px solid #570B4F; border-radius: 5px; padding: 8px 15px; cursor: pointer; font-size: 0.95rem; transition: all 0.3s ease;">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Cart
+                </button>
+            </a>
+            <h2 style="color: #570B4F; font-size: clamp(1.5rem, 5vw, 2rem); margin-bottom: 20px;">Checkout</h2>
+        </div>
+        
         
         <!-- Address Section -->
         <div class="card">
             <div style="background-color: #570B4F;" class="card-header">
-                <h5 style="color: #ffffff;">Select Shipping Address</h5>
+                <h5 style="color: #ffffff; margin: 0; font-size: clamp(1rem, 4vw, 1.25rem);">Select Shipping Address</h5>
             </div>
             <div class="card-body">
                 <% if (addresses.length > 0) { %>
@@ -87,215 +301,306 @@
                                 <%= address.name %>, <%= address.city %>, <%= address.landMark %>, <%= address.state %>, <%= address.pincode %><br>
                                 <small>Phone: <%= address.phone %></small>
                             </label>
-                           
                         </div>
-                        <a href="/checkout-editAddress?id=<%=address._id %>" class="btn-small"> <button style="background-color: #570B4F; color: #ffffff;">Edit Address</button></a>
-                       
+                        <a href="/checkout-editAddress?id=<%=address._id %>" class="btn-small">
+                            <button style="background-color: #570B4F; color: #ffffff;">Edit Address</button>
+                        </a>
                     <% }) %>
                 <% } else { %>
-                    <p>No saved addresses. </p>
+                    <p>No saved addresses.</p>
                 <% } %>
             </div>
-            <a href="/checkout-addAddress"><button style="background-color: #570B4F;" class="checkout-btn" >Add Address</button></a>
+            <a href="/checkout-addAddress">
+                <button style="background-color: #570B4F;" class="checkout-btn">Add Address</button>
+            </a>
         </div>
 
         <!-- Payment Method Section -->
         <div class="section">
             <h3 style="color: #570B4F;">Payment Method</h3>
             <div class="payment-container">
-              <label style="color: #570B4F;">
-                <input type="radio" name="payment" value="credit"> Credit/Debit Card
-              </label><br>
-              <label style="color: #570B4F;">
-                <input type="radio" name="payment" value="paypal"> PayPal
-              </label><br>
-              <% cart.items.forEach(item => { %>
-                <div>
-                  <!-- Access the product's salePrice -->
-                  <% if (cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0) > 10000) { %>
-                    <label style="color: #570B4F;">
-                      <input type="hidden" > <strike>   Cash on Delivery</strike><i style="color: red;">   (COD not available for this order)</i>
-                    </label><br>
-                  <% } else { %>
-                    <label style="color: #570B4F;">
-                      <input type="radio" name="payment" value="cod"> Cash on Delivery
-                    </label><br>
-                  <% } %>
-                </div>
-              <% }); %>
-              <label style="color: #570B4F;">
-                <input type="radio" name="payment" value="razorpay"> Pay Online (Razorpay)
-              </label>
-            </div>
-          </div>
-          <!-- Available Coupons Section -->
-<!-- Available Coupons Section -->
-<div class="section">
-  <h3 style="color: #570B4F;">Apply Coupon</h3>
-  <div class="coupon-container" style="padding: 15px; background: #ffffff; border-radius: 5px; border: 1px solid #ddd;">
-      <div class="input-group" style="display: flex; gap: 10px;">
-          <input type="text" id="couponCode" class="form-control" placeholder="Enter coupon code">
-          <button onclick="applyCoupon()" id="applyCouponBtn" style="background-color: #570B4F; color: #ffffff; border: none; padding: 8px 15px; border-radius: 5px;">Apply</button>
-          <button onclick="removeCoupon()" id="removeCouponBtn" style="display: none; background-color: #dc3545; color: #ffffff; border: none; padding: 8px 15px; border-radius: 5px;">Remove</button>
-      </div>
-      <div id="couponMessage" style="margin-top: 10px; font-size: 14px;"></div>
-  </div>
+                <% if (typeof wallet === 'undefined') { %>
+                    <p style="color:red;">Wallet data is missing!</p>
+                <% } %>
+                
 
-  <!-- Available Coupons Display -->
-  <div class="available-coupons" style="margin-top: 20px;">
-      <div class="coupons-header" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
-          <i class="fas fa-gift" style="color: #570B4F;"></i>
-          <h4 style="color: #570B4F; margin: 0;">Available Coupons</h4>
-      </div>
-      
-      <div id="couponsContainer" class="coupons-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
-        <% if (coupons && coupons.length > 0) { %>
-            <% coupons.slice(0, 3).forEach(function(coupon, index) { %>
-                <div class="coupon-card" style="border: 2px solid #f3e5f5; border-radius: 8px; padding: 15px; background: white; height: 200px; display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                            <i class="fas fa-tag" style="color: #570B4F; font-size: 1.2em;"></i>
-                            <span style="font-family: monospace; font-weight: bold; color: #570B4F; font-size: 1.1em;"><%= coupon.code %></span>
-                        </div>
-                        
-                        <div style="color: #666; margin-bottom: 12px; font-size: 1.2em; font-weight: bold;">
-                            <i class="<%= coupon.discountType === 'percentage' ? 'fas fa-percent' : 'fas fa-dollar-sign' %>" style="margin-right: 5px;"></i>
-                            <span>
-                                <%= coupon.discountType === 'percentage' ? 
-                                    `${coupon.discountAmount}% off` : 
-                                    `₹${coupon.discountAmount} off` %>
+                <!-- Wallet Payment Option -->
+                <% if (typeof wallet !== 'undefined') { %>
+                    <% const cartTotal = cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0); %>
+                    <div class="wallet-container" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="color: #570B4F; display: flex; align-items: center;">
+                                <% if (wallet.balance >= cartTotal) { %>
+                                    <input type="radio" name="payment" value="wallet"> Wallet Payment
+                                <% } else { %>
+                                    <input type="radio" name="payment" value="wallet" disabled> Wallet Payment
+                                <% } %>
+                            </label>
+                            <span style="font-weight: bold; color: #570B4F;">
+                                Balance: ₹<%= wallet.balance.toFixed(2) %>
                             </span>
                         </div>
-    
-                        <% if (coupon.minPurchase > 0) { %>
-                            <div style="font-size: 0.9em; color: #666; margin-bottom: 8px;">
-                                Min. purchase: ₹<%= coupon.minPurchase %>
+                        
+                        <% if (wallet.balance < cartTotal) { %>
+                            <div style="color: red; margin-top: 5px; font-size: 0.9em;">
+                                Insufficient balance. You need ₹<%= (cartTotal - wallet.balance).toFixed(2) %> more.
+                            </div>
+                        <% } else { %>
+                            <div style="color: green; margin-top: 5px; font-size: 0.9em;">
+                                Sufficient balance available.
                             </div>
                         <% } %>
-    
-                        <div style="font-size: 0.9em; color: #666; display: flex; align-items: center; gap: 5px;">
-                            <i class="far fa-clock"></i>
-                            <span>Expires: <%= new Date(coupon.expiryDate).toLocaleDateString() %></span>
-                        </div>
                     </div>
-                    
-                    <button 
-                        onclick="autofillCoupon('<%= coupon.code %>')"
-                        class="apply-coupon-btn"
-                        style="background-color: #570B4F; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; transition: background-color 0.3s ease;"
-                    >
-                        Apply Coupon
-                    </button>
+                <% } %>
+                
+                <!-- COD Option -->
+                <div>
+                    <% if (cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0) > 10000) { %>
+                        <label style="color: #570B4F; display: block; margin-bottom: 10px;">
+                            <input type="hidden"> <strike>Cash on Delivery</strike><i style="color: red; font-size: 0.9em;">(COD not available for this order)</i>
+                        </label>
+                    <% } else { %>
+                        <label style="color: #570B4F; display: block; margin-bottom: 10px;">
+                            <input type="radio" name="payment" value="cod"> Cash on Delivery
+                        </label>
+                    <% } %>
                 </div>
-            <% }); %>
-    
-            <% if (coupons.length > 3) { %>
-                <div id="hiddenCoupons" style="display: none;">
-                    <% coupons.slice(3).forEach(function(coupon) { %>
-                        <div class="coupon-card" style="border: 2px solid #f3e5f5; border-radius: 8px; padding: 15px; background: white; height: 200px; display: flex; flex-direction: column; justify-content: space-between;">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                    <i class="fas fa-tag" style="color: #570B4F; font-size: 1.2em;"></i>
-                                    <span style="font-family: monospace; font-weight: bold; color: #570B4F; font-size: 1.1em;"><%= coupon.code %></span>
+                
+                <!-- Online Payment Option -->
+                <label style="color: #570B4F; display: block;">
+                    <input type="radio" name="payment" value="razorpay"> Pay Online (Razorpay)
+                </label>
+            </div>
+        </div>
+
+        <!-- Available Coupons Section -->
+        <div class="section">
+            <h3 style="color: #570B4F;">Apply Coupon</h3>
+            <div class="coupon-container" style="padding: 15px; background: #ffffff; border-radius: 5px; border: 1px solid #ddd;">
+                <div class="input-group">
+                    <input type="text" id="couponCode" class="form-control" style="flex: 1; min-width: 0; padding: 8px; border: 1px solid #ddd; border-radius: 5px;" placeholder="Enter coupon code">
+                    <div style="display: flex; gap: 5px;">
+                        <button onclick="applyCoupon()" id="applyCouponBtn" style="background-color: #570B4F; color: #ffffff; border: none; padding: 8px 15px; border-radius: 5px; white-space: nowrap;">Apply</button>
+                        <button onclick="removeCoupon()" id="removeCouponBtn" style="display: none; background-color: #dc3545; color: #ffffff; border: none; padding: 8px 15px; border-radius: 5px; white-space: nowrap;">Remove</button>
+                    </div>
+                </div>
+                <div id="couponMessage" style="margin-top: 10px; font-size: 14px;"></div>
+            </div>
+
+            <!-- Available Coupons Display -->
+            <div class="available-coupons" style="margin-top: 20px;">
+                <div class="coupons-header" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                    <i class="fas fa-gift" style="color: #570B4F;"></i>
+                    <h4 style="color: #570B4F; margin: 0; font-size: clamp(1rem, 4vw, 1.2rem);">Available Coupons</h4>
+                </div>
+                
+                <div id="couponsContainer" class="coupons-grid">
+                    <% if (coupons && coupons.length > 0) { %>
+                        <% coupons.slice(0, 3).forEach(function(coupon, index) { %>
+                            <div class="coupon-card" style="border: 2px solid #f3e5f5; border-radius: 8px; padding: 15px; background: white; display: flex; flex-direction: column; justify-content: space-between; height: auto; min-height: 180px;">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                        <i class="fas fa-tag" style="color: #570B4F; font-size: 1.2em;"></i>
+                                        <span style="font-family: monospace; font-weight: bold; color: #570B4F; font-size: 1.1em;"><%= coupon.code %></span>
+                                    </div>
+                                    
+                                    <div style="color: #666; margin-bottom: 12px; font-size: 1.2em; font-weight: bold;">
+                                        <i class="<%= coupon.discountType === 'percentage' ? 'fas fa-percent' : 'fas fa-dollar-sign' %>" style="margin-right: 5px;"></i>
+                                        <span>
+                                            <%= coupon.discountType === 'percentage' ? 
+                                                `${coupon.discountAmount}% off` : 
+                                                `₹${coupon.discountAmount} off` %>
+                                        </span>
+                                    </div>
+
+                                    <% if (coupon.minPurchase > 0) { %>
+                                        <div style="font-size: 0.9em; color: #666; margin-bottom: 8px;">
+                                            Min. purchase: ₹<%= coupon.minPurchase %>
+                                        </div>
+                                    <% } %>
+
+                                    <div style="font-size: 0.9em; color: #666; display: flex; align-items: center; gap: 5px;">
+                                        <i class="far fa-clock"></i>
+                                        <span>Expires: <%= new Date(coupon.expiryDate).toLocaleDateString() %></span>
+                                    </div>
                                 </div>
                                 
-                                <div style="color: #666; margin-bottom: 12px; font-size: 1.2em; font-weight: bold;">
-                                    <i class="<%= coupon.discountType === 'percentage' ? 'fas fa-percent' : 'fas fa-dollar-sign' %>" style="margin-right: 5px;"></i>
-                                    <span>
-                                        <%= coupon.discountType === 'percentage' ? 
-                                            `${coupon.discountAmount}% off` : 
-                                            `₹${coupon.discountAmount} off` %>
-                                    </span>
-                                </div>
-    
-                                <% if (coupon.minPurchase > 0) { %>
-                                    <div style="font-size: 0.9em; color: #666; margin-bottom: 8px;">
-                                        Min. purchase: ₹<%= coupon.minPurchase %>
-                                    </div>
-                                <% } %>
-    
-                                <div style="font-size: 0.9em; color: #666; display: flex; align-items: center; gap: 5px;">
-                                    <i class="far fa-clock"></i>
-                                    <span>Expires: <%= new Date(coupon.expiryDate).toLocaleDateString() %></span>
+                                <div style="margin-top: 15px;">
+                                    <button 
+                                        onclick="autofillCoupon('<%= coupon.code %>')"
+                                        class="apply-coupon-btn"
+                                        style="background-color: #570B4F; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; transition: background-color 0.3s ease;"
+                                    >
+                                        Apply Coupon
+                                    </button>
                                 </div>
                             </div>
-                            
+                        <% }); %>
+
+                        <% if (coupons.length > 3) { %>
+                            <div id="hiddenCoupons" style="display: none;">
+                                <% coupons.slice(3).forEach(function(coupon) { %>
+                                    <div class="coupon-card" style="border: 2px solid #f3e5f5; border-radius: 8px; padding: 15px; background: white; display: flex; flex-direction: column; justify-content: space-between; height: auto; min-height: 180px;">
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                                <i class="fas fa-tag" style="color: #570B4F; font-size: 1.2em;"></i>
+                                                <span style="font-family: monospace; font-weight: bold; color: #570B4F; font-size: 1.1em;"><%= coupon.code %></span>
+                                            </div>
+                                            
+                                            <div style="color: #666; margin-bottom: 12px; font-size: 1.2em; font-weight: bold;">
+                                                <i class="<%= coupon.discountType === 'percentage' ? 'fas fa-percent' : 'fas fa-dollar-sign' %>" style="margin-right: 5px;"></i>
+                                                <span>
+                                                    <%= coupon.discountType === 'percentage' ? 
+                                                        `${coupon.discountAmount}% off` : 
+                                                        `₹${coupon.discountAmount} off` %>
+                                                </span>
+                                            </div>
+
+                                            <% if (coupon.minPurchase > 0) { %>
+                                                <div style="font-size: 0.9em; color: #666; margin-bottom: 8px;">
+                                                    Min. purchase: ₹<%= coupon.minPurchase %>
+                                                </div>
+                                            <% } %>
+
+                                            <div style="font-size: 0.9em; color: #666; display: flex; align-items: center; gap: 5px;">
+                                                <i class="far fa-clock"></i>
+                                                <span>Expires: <%= new Date(coupon.expiryDate).toLocaleDateString() %></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="margin-top: 15px;">
+                                            <button 
+                                                onclick="autofillCoupon('<%= coupon.code %>')"
+                                                class="apply-coupon-btn"
+                                                style="background-color: #570B4F; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; transition: background-color 0.3s ease;"
+                                            >
+                                                Apply Coupon
+                                            </button>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
                             <button 
-                                onclick="autofillCoupon('<%= coupon.code %>')"
-                                class="apply-coupon-btn"
-                                style="background-color: #570B4F; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; transition: background-color 0.3s ease;"
+                                id="toggleCouponsBtn"
+                                onclick="toggleCoupons()"
+                                style="width: 100%; padding: 10px; background: transparent; color: #570B4F; border: 2px solid #570B4F; border-radius: 5px; cursor: pointer; margin-top: 10px; grid-column: 1 / -1;"
                             >
-                                Apply Coupon
+                                Show More Coupons (<%= coupons.length - 3 %> more)
                             </button>
+                        <% } %>
+                    <% } else { %>
+                        <div style="text-align: center; color: #666; padding: 20px;">
+                            No active coupons available
                         </div>
-                    <% }); %>
+                    <% } %>
                 </div>
-                <button 
-                    id="toggleCouponsBtn"
-                    onclick="toggleCoupons()"
-                    style="width: 100%; padding: 10px; background: transparent; color: #570B4F; border: 2px solid #570B4F; border-radius: 5px; cursor: pointer; margin-top: 10px; grid-column: 1 / -1;"
-                >
-                    Show More Coupons (<%= coupons.length - 3 %> more)
-                </button>
-            <% } %>
-        <% } else { %>
-            <div style="text-align: center; color: #666; padding: 20px;">
-                No active coupons available
             </div>
-        <% } %>
-    </div>
+        </div>
 
         <!-- Order Summary Section -->
         <div class="section">
-          <h3 style="color: #570B4F;">Order Summary</h3>
-          <div class="order-summary">
-              <% if (cart.items.length > 0) { %>
-                  <% cart.items.forEach(product => { %>
-                      <div class="order-item">
-                          <div class="cart-item">
-                              <img src="/uploads/<%=product.product.images[0]%>">
-                              <div class="cart-details">
-                                  <p style="color: #570B4F;"><strong><%= product.product.productName %></strong></p>
-                                  <p style="color: #570B4F;">Price: ₹<%= product.product.salePrice %> × Quantity: <%= product.quantity %></p>
-                              </div>
-                          </div>
-                      </div>
-                  <% }) %>
-                  <hr>
-                  <% if(cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0) < 10000){ %>
-                  <div id="priceDetails">
-                     
-                      <p style="color: #570B4F;">Delivery Charge: ₹<span >149</span></p>
-                      <p style="color: #570B4F;">Subtotal: ₹<span id="subtotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity + 149, 0).toFixed(2) %></span></p>
-                      <p style="color: green;">Coupon Applied: ₹<span id="discount">0.00</span></p>
-                      
-                      <h4 style="color: #570B4F;">Total: ₹<span id="cartTotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity + 149, 0).toFixed(2)%></span></h4>
-                  </div>
-                  <% }else{ %>
-                  <div id="priceDetails">
-                   
-                    <p style="color: #570B4F;">Delivery Charge:  <span style="color: green;" >Free Delivery</span></p>
-                    <p style="color: #570B4F;">Subtotal: ₹<span id="subtotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0).toFixed(2) %></span></p>
-                    <p style="color: #570B4F;">Coupon Applied: ₹<span style="color: green;" id="discount">0.00</span></p>
-                   
-                    <h4 style="color: #570B4F;">Total: ₹<span id="cartTotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity , 0).toFixed(2)%></span></h4>
-                </div>
+            <h3 style="color: #570B4F;">Order Summary</h3>
+            <div class="order-summary">
+                <% if (cart.items.length > 0) { %>
+                    <% cart.items.forEach(product => { %>
+                        <div class="order-item">
+                            <div class="cart-item">
+                                <img src="/uploads/<%=product.product.images[0]%>" alt="<%= product.product.productName %>">
+                                <div class="cart-details">
+                                    <p style="color: #570B4F;"><strong><%= product.product.productName %></strong></p>
+                                    <p style="color: #570B4F;">Price: ₹<%= product.product.salePrice %> × Quantity: <%= product.quantity %></p>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                    <hr>
+                    <% if(cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0) < 10000){ %>
+                        <div id="priceDetails">
+                            <p style="color: #570B4F;">Delivery Charge: ₹<span>149</span></p>
+                            <p style="color: #570B4F;">Subtotal: ₹<span id="subtotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity + 149, 0).toFixed(2) %></span></p>
+                            <p style="color: green;">Coupon Applied: ₹<span id="discount">0.00</span></p>
+                            
+                            <h4 style="color: #570B4F;">Total: ₹<span id="cartTotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity + 149, 0).toFixed(2)%></span></h4>
+                        </div>
+                    <% } else { %>
+                        <div id="priceDetails">
+                            <p style="color: #570B4F;">Delivery Charge: <span style="color: green;">Free Delivery</span></p>
+                            <p style="color: #570B4F;">Subtotal: ₹<span id="subtotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0).toFixed(2) %></span></p>
+                            <p style="color: #570B4F;">Coupon Applied: ₹<span style="color: green;" id="discount">0.00</span></p>
+                            
+                            <h4 style="color: #570B4F;">Total: ₹<span id="cartTotal"><%= cart.items.reduce((total, item) => total + item.product.salePrice * item.quantity, 0).toFixed(2)%></span></h4>
+                        </div>
+                    <% } %>
+                <% } else { %>
+                    <p>Your cart is empty.</p>
                 <% } %>
-              <% } else { %>
-                  <p>Your cart is empty.</p>
-              <% } %>
-          </div>
-      </div>
+            </div>
+        </div>
 
         <button class="checkout-btn" onclick="placeOrder()">Place Order</button>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
        
-        
 
-       function placeOrder() {
+       // Add this script to your checkout page
+       document.addEventListener('DOMContentLoaded', function () {
+    const placeOrderBtn = document.getElementById('place-order-btn');
+
+    placeOrderBtn.addEventListener('click', async function (event) {
+        event.preventDefault();
+
+        const selectedPayment = document.querySelector('input[name="payment"]:checked');
+        const selectedAddress = document.querySelector('input[name="addressId"]:checked');
+
+        if (!selectedPayment) {
+            showError('Please select a payment method');
+            return;
+        }
+
+        if (!selectedAddress) {
+            showError('Please select a delivery address');
+            return;
+        }
+
+        if (selectedPayment.value === 'wallet') {
+            const amount = parseFloat(document.getElementById('cart-total').textContent); // Get the cart total
+
+            const confirmPayment = confirm(`Confirm payment using wallet balance of ₹${amount}?`);
+            if (!confirmPayment) return;
+
+            try {
+                const response = await fetch('/wallet-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Payment successful!'); // Redirect to success page
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                console.error('Error processing wallet payment:', error);
+                showError('Error processing wallet payment. Please try again.');
+            }
+        } else {
+            // Proceed with other payment methods
+            document.getElementById('order-form').submit();
+        }
+    });
+
+    function showError(message) {
+        alert(message);
+    }
+});
+
+    function placeOrder() {
   const checkoutBtn = document.querySelector('.checkout-btn');
   checkoutBtn.disabled = true;
   checkoutBtn.textContent = 'Placing Order...';

@@ -2,163 +2,236 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <link href="/css/bootstrap.min.css" rel="stylesheet">
 <link href="/css/style.css" rel="stylesheet">
+<title>FURNIQUE | Where Luxury Meets Function</title>
+<link rel="shortcut icon" href="/images/furnique-icon.svg">
 <!-- Save this as /views/user/wishlist.ejs -->
- 
+ <!-- Make sure Bootstrap JS is included -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 <style>
-  .wishlist-container {
-    padding: 2rem 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  /* Base mobile-first styles */
+.wishlist-container {
+  padding: 1rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.wishlist-container h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.wishlist-products {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.wishlist-item {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+  width: 100%;
+}
+
+.wishlist-item:hover {
+  transform: translateY(-5px);
+}
+
+.wishlist-item img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+}
+
+.wishlist-item h3 {
+  font-size: 1rem;
+  margin: 0.75rem;
+  color: #333;
+}
+
+.wishlist-item p {
+  margin: 0.5rem 0.75rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.wishlist-item-actions {
+  display: flex;
+  padding: 0.75rem;
+}
+
+.wishlist-item-actions button,
+.wishlist-item-actions a {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.remove-btn {
+  background-color: #dc3545;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.remove-btn:hover {
+  background-color: #c82333;
+}
+
+.empty-wishlist {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.empty-wishlist i {
+  font-size: 2.5rem;
+  color: #ddd;
+  margin-bottom: 1rem;
+}
+
+.empty-wishlist p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.continue-shopping {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.continue-shopping:hover {
+  background-color: #0056b3;
+}
+
+/* Custom navbar adjustments for mobile */
+@media (max-width: 767.98px) {
+  .custom-navbar .navbar-collapse {
+    background-color: #212529;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    margin-top: 0.5rem;
+  }
+  
+  .custom-navbar-cta {
+    margin-left: 0 !important;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Small tablet styles */
+@media (min-width: 576px) {
+  .wishlist-products {
+    grid-template-columns: repeat(2, 1fr);
   }
   
   .wishlist-container h2 {
-    color: #333;
-    margin-bottom: 2rem;
-    text-align: center;
-    font-weight: 600;
+    font-size: 1.5rem;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 768px) {
+  .wishlist-container {
+    max-width: 90%;
   }
   
   .wishlist-products {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-    padding: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 992px) {
+  .wishlist-container {
+    max-width: 85%;
   }
   
-  .wishlist-item {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-    overflow: hidden;
-    position: relative;
+  .wishlist-products {
+    grid-template-columns: repeat(4, 1fr);
   }
-  
-  .wishlist-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Large desktop styles */
+@media (min-width: 1200px) {
+  .wishlist-container {
+    max-width: 1200px;
   }
-  
-  .wishlist-item img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-  }
-  
-  .wishlist-item h3 {
-    font-size: 1.1rem;
-    margin: 1rem;
-    color: #333;
-    font-weight: 500;
-    line-height: 1.4;
-  }
-  
-  .wishlist-item p {
-    margin: 0.5rem 1rem;
-    color: #666;
-    font-size: 1rem;
-  }
-  
-  .wishlist-item-actions {
-    display: flex;
-    gap: 0.5rem;
-    padding: 1rem;
-  }
-  
-  .wishlist-item-actions button,
-  .wishlist-item-actions a {
-    flex: 1;
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-  }
-  
-  .remove-btn {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  .remove-btn:hover {
-    background-color: #c82333;
-  }
-  
-  .view-btn {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .view-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  .empty-wishlist {
-    text-align: center;
-    padding: 3rem 1rem;
-  }
-  
-  .empty-wishlist i {
-    font-size: 4rem;
-    color: #ddd;
-    margin-bottom: 1rem;
-  }
-  
-  .empty-wishlist p {
-    color: #666;
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .continue-shopping {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .continue-shopping:hover {
-    background-color: #0056b3;
-  }
-  
-  @media (max-width: 768px) {
-    .wishlist-products {
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-    }
-    
-    .wishlist-item h3 {
-      font-size: 1rem;
-    }
-    
-    .wishlist-item img {
-      height: 180px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .wishlist-container {
-      padding: 1rem 0.5rem;
-    }
-    
-    .wishlist-products {
-      grid-template-columns: 1fr;
-    }
-    
-    .wishlist-item img {
-      height: 220px;
-    }
-  }
-  </style>
-<%- include('../../views/partials/user/header.ejs')%>
+}
+</style>
+  <!-- Start Header/Navigation -->
+  <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furnique navigation bar">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">Furnique<span>.</span></a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarsFurni">
+            <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+                <li class="nav-item ">
+                    <a class="nav-link" href="http://localhost:3001/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://localhost:3001/shop">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/get-aboutUs">About us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/get-contactUs">Contact us</a>
+                </li>
+                <% if ((typeof user) ==='undefined') {%>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Sign in</a>
+                    </li>
+                <% }else{ %>
+                    <li class="nav-item" style="font-size: larger; color: #fff;"></li>
+                <% } %>
+            </ul>
+            
+            <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="images/user.svg" alt="Profile">
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="/userProfile">Profile</a></li>
+                        <% if ((typeof user) ==='undefined') {%>
+                            <li><a class="dropdown-item" href="/login">Signin</a></li>
+                        <% }else{ %>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        <% } %>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart"><img src="images/cart.svg" alt="Cart"></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist"><img src="images/whishlist.png" alt="Wishlist"></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
 <div class="wishlist-container">
   <h2>Your Wishlist</h2>
@@ -168,16 +241,14 @@
       <% wishlist.products.forEach(product => { %>
         <div class="wishlist-item">
           <a href="/productDetails?id=<%= product._id %>">
-          <img src="/uploads/<%= product.images[0] %>" alt="<%= product.productName %>" />
-        </a>
+            <img src="/uploads/<%= product.images[0] %>" alt="<%= product.productName %>" />
+          </a>
           <h3><%= product.productName %></h3>
           <p>Price: ₹<%= product.salePrice.toFixed(2) %></p>
           <div class="wishlist-item-actions" data-product-id="<%= product._id %>">
             <button onclick="removeFromWishlist('<%= product._id %>')" class="remove-btn">
               <i class="fas fa-trash-alt"></i> Remove
             </button>
-           
-           
           </div>
         </div>
       <% }) %>
@@ -190,8 +261,7 @@
     </div>
   <% } %>
 </div>
-
-
+<%-include("../../views/partials/user/footer.ejs")%>
 <script>
 async function removeFromWishlist(productId) {
    
@@ -213,10 +283,7 @@ async function removeFromWishlist(productId) {
             }
 
             item.closest('.wishlist-item').remove();
-
-            // Update wishlist count in header
             
-
             // Check if wishlist is empty after removal
             const remainingItems = document.querySelectorAll('.wishlist-item');
             if (remainingItems.length === 0) {
@@ -228,7 +295,26 @@ async function removeFromWishlist(productId) {
    
 }
 
-
+// Navbar Toggler Fix for Mobile
+document.addEventListener('DOMContentLoaded', function() {
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    if (navbarToggler) {
+        navbarToggler.addEventListener('click', function() {
+            const target = document.querySelector(this.getAttribute('data-bs-target'));
+            if (target) {
+                target.classList.toggle('show');
+                this.classList.toggle('collapsed');
+                const expanded = this.getAttribute('aria-expanded') === 'true' || false;
+                this.setAttribute('aria-expanded', !expanded);
+            }
+        });
+    }
+});
 </script>
 
-<%-include("../../views/partials/user/footer.ejs")%>
+
+
+
+<script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/tiny-slider.js"></script>
+  <script src="js/custom.js"></script>

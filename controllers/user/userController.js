@@ -10,6 +10,23 @@ const bcrypt = require("bcrypt");
 const otpGenerator = require('otp-generator');
 const Offer = require('../../models/offerSchema');
 
+const isUser=async(req, res) => {
+
+    try {
+        const user = req.session.user;
+        console.log('user indoooo',user);
+        
+        if (user) {
+            res.json({ isLoggedIn: true });
+          } else {
+            res.json({ isLoggedIn: false });
+          }
+    } catch (error) {
+        
+    }
+  };
+  
+
 // Load Signup Page
 const loadSignup = async (req, res) => {
     try {
@@ -93,8 +110,6 @@ const signup = async (req, res) => {
 
           }
         }
-
-        
         
         const emailSent = await sendVerificationEmail(email, otp);
 
@@ -112,6 +127,97 @@ const signup = async (req, res) => {
         res.redirect('/pageNotFound');
     }
 };
+
+const googleSignin= async(req,res)=>{
+    try {
+        req.session.user = req.user._id;
+        res.locals.user=req.user
+        // const user = res.session.user;
+
+        return res.redirect('/');
+    } catch (error) {
+        console.log(error);
+        
+    }
+
+}
+
+// Handle Password Change
+const changePassword = async (req, res) => {
+    try {
+        console.log( req.body);
+        
+      const { currentPassword, newPassword, confirmPassword } = req.body;
+      const userId = req.session.user;
+  
+      // Check if user is logged in
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'You must be logged in to change your password' 
+        });
+      }
+  
+      // Validate password inputs
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'All fields are required' 
+        });
+      }
+  
+      if (newPassword.length < 8) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'New password must be at least 8 characters long' 
+        });
+      }
+  
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'New passwords do not match' 
+        });
+      }
+  
+      // Find the user
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'User not found' 
+        });
+      }
+  
+      // Verify current password
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordValid) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Current password is incorrect' 
+        });
+      }
+  
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+  
+      // Update user password
+      user.password = hashedPassword;
+      await user.save();
+  
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Password updated successfully' 
+      });
+    } catch (error) {
+      console.error('Error changing password:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'An error occurred while updating your password' 
+      });
+    }
+  };
+  
 
 // Load Shopping Page
 const loadShoppingPage = async (req, res) => {
@@ -266,7 +372,7 @@ const loadShoppingPage = async (req, res) => {
             });
         } else {
             res.render('shop', {
-                user: null,
+                user: undefined,
                 products,
                 category: categories,
                 totalProducts,
@@ -610,7 +716,43 @@ const logout = async (req, res) => {
     }
 };
 
+const getAboutUs = async(req,res)=>{
+    try {
+        console.log( req.session.user);
+        const userId = req.session.user;
+        if(!userId){
+      return res.render('aboutUs')
+        }
+        else{
+            const user = await User.findOne({userId})
+            return res.render('aboutUs',{user:user})
+        }
+
+    } catch (error) {
+      console.log('cannot load about us page');
+      
+    }
+  }
+
+const getContactUs = async(req,res)=>{
+    try {
+        console.log( req.session.user);
+        const userId = req.session.user;
+        if(!userId){
+      return res.render('contactUs')
+        }
+        else{
+            const user = await User.findOne({userId})
+            return res.render('contactUs',{user:user})
+        }
+    } catch (error) {
+        console.log('cannot load contact us page');
+    }
+}
+
+
 module.exports = {
+    isUser,
     loadHomepage,
     pageNotFound,
     loadSignup,
@@ -622,4 +764,8 @@ module.exports = {
     login,
     logout,
     filterProduct,
+    getAboutUs,
+    getContactUs,
+    changePassword,
+    googleSignin
 };

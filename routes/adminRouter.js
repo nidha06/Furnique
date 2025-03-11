@@ -44,7 +44,7 @@ router.get('/order-details/:orderId',adminAuth,orderController.getOrderDetails);
 router.put('/orders/:orderId/cancel',adminAuth,orderController.cancelOrder);
 router.put('/orders/:orderId/update-status',adminAuth,orderController.updateOrderStatus);
 router.put('/orders/:orderId/approve-return',adminAuth,orderController.successReturn);
-router.put('/orders/:orderId/items/:itemId/approve-return', adminAuth, orderController.approveItemReturn);
+router.put('/orders/:orderId/:itemId/approve-return', adminAuth, orderController.approveItemReturn);
 router.put('/orders/:orderId/items/:itemId/cancel', adminAuth, orderController.cancelOrderItem);
 //offer management
 router.get('/offermanagement',adminAuth,offerController.getOffer);

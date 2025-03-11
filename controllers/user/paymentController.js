@@ -5,6 +5,7 @@ const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
 const Payment = require('../../models/paymentSchema');
 const Coupon = require('../../models/couponSchema');
+const Wallet = require('../../models/walletSchema')
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const razorpay = new Razorpay({
@@ -28,64 +29,107 @@ const razorpay = new Razorpay({
   
       const address = await Address.findOne({ userId: user }).populate('userId');
       const cart = await Cart.findOne({ user }).populate('items.product');
+      const wallet = await Wallet.findOne({ user });
   
-      res.render('checkout', { cart, coupons, addresses: address ? address.address : [],razorpayId:process.env.RAZORPAY_KEY_ID });
+      res.render('checkout', { cart, coupons,wallet: wallet || { balance: 0 }  , addresses: address ? address.address : [],razorpayId:process.env.RAZORPAY_KEY_ID });
     } catch (error) {
       console.log(error);
       res.redirect('/cart');
     }
   };
 
-const getOrderSuccess = async (req, res) => {
+  const processWalletPayment = async (req,res) => {
     try {
-        const { selectedAddressId, paymentMethod } = req.body;
-        const userId = req.session.user;
+      const userId = req.session.user;
+      const { amount } = req.body; // Get amount from request body
 
-        if (!userId || !selectedAddressId || !paymentMethod) {
-            return res.status(400).json({ success: false, message: 'Missing required fields.' });
-        }
+      if (!amount || amount <= 0) {
+          return res.status(400).json({ success: false, message: 'Invalid payment amount.' });
+      }
 
-        const userCart = await Cart.findOne({ user: userId }).populate('items.product');
-        if (!userCart || userCart.items.length === 0) {
-            return res.status(400).json({ success: false, message: 'Cart is empty.' });
-        }
+      const result = await paymentController.processWalletPayment(userId, amount);
 
-        const addressDetails = await Address.findOne({ userId });
-        let selectedAddress;
-        if (addressDetails) {
-            selectedAddress = addressDetails.address.id(selectedAddressId);
-        }
-        if (!selectedAddress) {
-            return res.status(404).json({ success: false, message: 'Selected address not found.' });
-        }
+      if (result.success) {
+          return res.status(200).json(result);
+      } else {
+          return res.status(400).json(result);
+      }
+  } catch (error) {
+      console.error('Error in wallet payment route:', error);
+      res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
 
-        const items = userCart.items.map(item => ({
-            product: item.product._id,
-            productName: item.product.productName,
-            quantity: item.quantity,
-            price: item.product.salePrice,
-            images: item.product.images[0]
-        }));
 
-        for (const item of userCart.items) {
-            const product = await Product.findById(item.product._id);
-            if (!product) {
-                return res.status(404).json({ success: false, message: `Product not found: ${item.product._id}` });
-            }
-            if (item.quantity > product.quantity) {
-                return res.status(400).json({ success: false, message: `Not enough stock available for ${product.productName}` });
-            }
-        }
+const getOrderSuccess = async (req, res) => {
+  try {
+      const { selectedAddressId, paymentMethod } = req.body;
+      
+      const userId = req.session.user;
 
-        for (const item of userCart.items) {
-            const product = await Product.findById(item.product._id);
-            product.quantity -= item.quantity;
-            await product.save();
-        }
+      if (!userId || !selectedAddressId || !paymentMethod) {
+          return res.status(400).json({ success: false, message: 'Missing required fields.' });
+      }
 
-        const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
+      const userCart = await Cart.findOne({ user: userId }).populate('items.product');
+     
+      if (!userCart || userCart.items.length === 0) {
+          return res.status(400).json({ success: false, message: 'Cart is empty.' });
+      }
+     
+      const addressDetails = await Address.findOne({ userId });
+      let selectedAddress;
+      if (addressDetails) {
+          selectedAddress = addressDetails.address.id(selectedAddressId);
+      }
+      if (!selectedAddress) {
+          return res.status(404).json({ success: false, message: 'Selected address not found.' });
+      }
 
-        const order = new Order({
+      const items = userCart.items.map(item => ({
+          product: item.product._id,
+          productName: item.product.productName,
+          quantity: item.quantity,
+          price: item.product.salePrice,
+          images: item.product.images[0]
+      }));
+
+      // Check product stock availability
+      for (const item of userCart.items) {
+          const product = await Product.findById(item.product._id);
+          if (!product) {
+              return res.status(404).json({ success: false, message: `Product not found: ${item.product._id}` });
+          }
+          if (item.quantity > product.quantity) {
+              return res.status(400).json({ success: false, message: `Not enough stock available for ${product.productName}` });
+          }
+      }
+
+      // Deduct stock
+      for (const item of userCart.items) {
+          const product = await Product.findById(item.product._id);
+          product.quantity -= item.quantity;
+          await product.save();
+      }
+
+      const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
+
+      // **Handle Wallet Payment**
+      if (paymentMethod === 'wallet') {
+          let wallet = await Wallet.findOne({ user: userId });
+          if (!wallet) {
+              wallet = await walletController.initializeWallet(userId); // Initialize wallet if not found
+          }
+
+          if (wallet.balance < totalPrice) {
+              return res.status(400).json({ success: false, message: 'Insufficient wallet balance.' });
+          }
+
+          wallet.balance -= totalPrice; // Deduct balance
+
+          
+
+          const order = new Order({
             user: userId,
             shippingAddress: {
                 addressType: selectedAddress.addressType,
@@ -103,16 +147,27 @@ const getOrderSuccess = async (req, res) => {
 
         await order.save();
 
-        userCart.items = [];
-        await userCart.save();
+    
+      // **Clear the cart after order placement**
+      userCart.items = [];
+      await userCart.save();
+      
+      wallet.transactions.push({
+              amount: -totalPrice,
+              type: 'debit',
+              orderId: order._id, // Store order ID
+              description: `Payment for order`
+          });
 
-        res.status(201).json({ success: true, message: 'Order placed successfully.', orderId: order._id });
-    } catch (error) {
-        console.error('Error placing order:', error);
-        res.status(500).json({ success: false, message: 'Internal server error.' });
-    }
+          await wallet.save(); // Save updated balance
+      }
+
+      res.status(201).json({ success: true, message: 'Order placed successfully.', orderId: Order._id });
+  } catch (error) {
+      console.error('Error placing order:', error);
+      res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
 };
-
 
 
 const createRazorpayOrder = async (req, res) => {
@@ -296,4 +351,5 @@ module.exports={
     getCheckout,
     createRazorpayOrder,
     verifyPayment,
+    processWalletPayment
 }

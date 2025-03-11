@@ -73,7 +73,7 @@ const getOrderDetails = async (req, res) => {
                     productName: item.productName,
                     quantity: item.quantity,
                     price: item.price,
-                    status: item.status || order.status, // Use item status if available, else use order status
+                    status: item.status || order.status, 
                     image: product?.images?.[0] || 'default-image.jpg',
                     returnRequest: item.returnRequest || null
                 };
@@ -240,16 +240,16 @@ const downloadInvoice = async (req, res) => {
             invoiceDate: new Date().toISOString().split('T')[0],
         };
 
-        // Set response headers for PDF
+        
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${simplifiedOrder.invoiceNumber}.pdf`);
 
-        // Create PDF document
+        
         const PDFDocument = require('pdfkit');
         const doc = new PDFDocument({ margin: 50 });
         doc.pipe(res);
 
-        // Generate PDF content
+        
         generateInvoicePDF(doc, simplifiedOrder);
 
         doc.end();
@@ -259,7 +259,7 @@ const downloadInvoice = async (req, res) => {
     }
 };
 
-// Helper function to generate PDF invoice
+
 function generateInvoicePDF(doc, order) {
     // Add company logo and information
     doc.fontSize(20).text('FURNIQUE', { align: 'center' });
@@ -271,7 +271,7 @@ function generateInvoicePDF(doc, order) {
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown();
 
-    // Add invoice information
+    
     doc.fontSize(16).text('INVOICE', { align: 'center', color:'green' });
     doc.moveDown();
 
@@ -281,7 +281,7 @@ function generateInvoicePDF(doc, order) {
     doc.text(`Payment Method: ${order.paymentMethod}`, { align: 'right' });
     doc.moveDown();
 
-    // Add customer information
+    
     doc.fontSize(12).text('Bill To:', { underline: true });
     doc.fontSize(10).text(`Name: ${order.user.name}`);
     doc.text(`Email: ${order.user.email}`);
@@ -347,7 +347,7 @@ function generateInvoicePDF(doc, order) {
 
     // Add footer
     doc.fontSize(10).text('Thank you for your purchase!', 50, 700, { align: 'center' });
-    doc.text('For questions or concerns, please contact support@yourcompany.com', { align: 'center' });
+    doc.text('For questions or concerns, please contact support@furnique.com', { align: 'center' });
 }
 
 function drawTableRow(doc, y, product, quantity, price, total) {
@@ -370,14 +370,14 @@ const cancelOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Order is already cancelled.' });
         }
         
-        // Update all items to cancelled
+        
         order.items.forEach(item => {
             if (item.status !== 'delivered' && item.status !== 'cancelled') {
                 item.status = 'cancelled';
             }
         });
         
-        // Check if all items are now cancelled
+        
         const allCancelled = order.items.every(item => item.status === 'cancelled');
         if (allCancelled) {
             order.status = 'cancelled';
@@ -385,7 +385,7 @@ const cancelOrder = async (req, res) => {
             order.status = 'partially_cancelled';
         }
         
-        // Process refund if payment method is razorpay
+        
         if (order.paymentMethod === 'razorpay') {
             const userId = order.user;
             let wallet = await Wallet.findOne({ user: userId });
@@ -398,18 +398,14 @@ const cancelOrder = async (req, res) => {
                 });
             }
             
-             // Calculate refund amount for cancelled items only
-             const cancelledItemsTotalPrice = order.items
-             .filter(item => item.status === 'cancelled')
-             .reduce((total, item) => total + (item.price * item.quantity), 0);
-         
-         // Calculate proportional discount
-         const orderTotalPrice = order.items.reduce((total, item) => total + (item.price * item.quantity), 0);
-         const discountAmount = order.appliedCoupon?.discountAmount || 0;
-         const proportionalDiscount = (cancelledItemsTotalPrice / orderTotalPrice) * discountAmount;
-         
-         // Adjust refund amount by deducting proportional discount
-         const refundAmount = cancelledItemsTotalPrice - proportionalDiscount;
+            let discountAmount=0;
+            if(order.appliedCoupon){
+                discountAmount = order.appliedCoupon.discountAmount 
+            }
+
+            
+            const refundAmount = item.price * item.quantity - discountAmount ;
+            
             
             if (refundAmount > 0) {
                 wallet.balance += refundAmount;
@@ -438,7 +434,7 @@ const cancelOrder = async (req, res) => {
     }
 };
 
-// Cancel individual item
+
 const cancelOrderItem = async (req, res) => {
     try {
         const { orderId, itemId } = req.params;
@@ -448,7 +444,7 @@ const cancelOrderItem = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
         
-        // Find the specific item in the order
+        
         const itemIndex = order.items.findIndex(item => item._id.toString() === itemId);
         if (itemIndex === -1) {
             return res.status(404).json({ success: false, message: 'Item not found in this order' });
@@ -456,15 +452,15 @@ const cancelOrderItem = async (req, res) => {
         
         const item = order.items[itemIndex];
         
-        // Check if this item can be cancelled
+        
         if (item.status === 'delivered' || item.status === 'cancelled') {
             return res.status(400).json({ success: false, message: 'This item cannot be cancelled' });
         }
         
-        // Update the item status
+        
         order.items[itemIndex].status = 'cancelled';
         
-        // Check if all items are cancelled to update the overall order status
+        
         const allItemsCancelled = order.items.every(item => item.status === 'cancelled');
         if (allItemsCancelled) {
             order.status = 'cancelled';
@@ -474,7 +470,7 @@ const cancelOrderItem = async (req, res) => {
         
         await order.save();
         
-        // Process refund if payment was made through Razorpay
+       
         if (order.paymentMethod === 'razorpay') {
             const userId = order.user;
             let wallet = await Wallet.findOne({ user: userId });
@@ -488,16 +484,16 @@ const cancelOrderItem = async (req, res) => {
             }
             
             
-            // Calculate total price of the item being cancelled
+            
             const itemTotalPrice = item.price * item.quantity;
 
-            // Calculate the proportional discount
+            
             const orderTotalPrice = order.items.reduce((total, currentItem) => total + (currentItem.price * currentItem.quantity), 0);
             const discountAmount = order.appliedCoupon?.discountAmount || 0;
             const proportionalDiscount = (itemTotalPrice / orderTotalPrice) * discountAmount;
 
-            // Adjust refund amount by deducting proportional discount
-            const refundAmount = itemTotalPrice - proportionalDiscount;
+            
+            const refundAmount = Math.round(itemTotalPrice - proportionalDiscount);
             
             wallet.balance += refundAmount;
             
@@ -568,7 +564,7 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-// Update individual item status
+
 const updateItemStatus = async (req, res) => {
     try {
         const { orderId, itemId } = req.params;
@@ -616,10 +612,10 @@ const updateItemStatus = async (req, res) => {
     }
 };
 
-// Approve individual item return
 
 
-// Helper function to update order status based on item statuses
+
+
 function updateOrderStatusBasedOnItems(order) {
     const statuses = order.items.map(item => item.status);
     
@@ -648,7 +644,7 @@ function updateOrderStatusBasedOnItems(order) {
 
 
 
-// Submit Return Request for Entire Order
+
 const submitEntireOrderReturn = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -656,20 +652,20 @@ const submitEntireOrderReturn = async (req, res) => {
 
         console.log('Received request:', { orderId, reason, additionalDetails });
 
-        // Validate input
+        
         if (!reason) {
             console.error('Reason for return is missing');
             return res.status(400).json({ success: false, message: 'Reason for return is required' });
         }
 
-        // Find the order
+        
         const order = await Order.findById(orderId);
         if (!order) {
             console.error('Order not found:', orderId);
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Check if any item is ineligible for return
+       
         const ineligibleItems = order.items.filter(
             (item) => item.status === 'returned' || item.status === 'canceled'
         );
@@ -681,7 +677,7 @@ const submitEntireOrderReturn = async (req, res) => {
             });
         }
 
-        // Update all items to "return_requested"
+        
         order.items.forEach((item) => {
             item.status = 'return_requested';
             item.returnRequest = {
@@ -691,10 +687,10 @@ const submitEntireOrderReturn = async (req, res) => {
             };
         });
 
-        // Update the overall order status
+        
         order.status = 'return_requested';
 
-        // Save the updated order
+        
         try {
             await order.save();
             console.log('Order saved successfully:', order._id);
@@ -715,42 +711,44 @@ const submitEntireOrderReturn = async (req, res) => {
     }
 };
 
-// Existing submitItemReturn function
+
 const submitItemReturn = async (req, res) => {
     try {
         const { orderId, itemId } = req.params;
         const { reason, additionalDetails } = req.body;
 
-        // Validate input
+        
         if (!reason) {
             return res.status(400).json({ success: false, message: 'Reason for return is required' });
         }
 
-        // Find the order
+        
         const order = await Order.findById(orderId);
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Find the specific item in the order
-        const item = order.items.id(itemId); // Use Mongoose's .id() method to find the item by its ID
+       
+        const item = order.items.id(itemId); 
         if (!item) {
             return res.status(404).json({ success: false, message: 'Item not found in the order' });
         }
 
-        // Check if the item is eligible for return (e.g., not already returned or canceled)
+        
         if (item.status === 'returned' || item.status === 'canceled') {
             return res.status(400).json({ success: false, message: 'This item cannot be returned' });
         }
 
-        // Update the item's status and add return request details
-        item.status = 'returned';
+        
+        item.status = 'return_requested';
         item.returnRequest = {
             reason,
             additionalDetails: additionalDetails || '',
             requestedAt: new Date(),
         };
+        const allReturned = order.items.every(item => item.status === 'return_requested');
 
+        order.status = allReturned ? 'return_requested' : 'partially_returned';
         // Save the updated order
         await order.save();
 

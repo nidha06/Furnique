@@ -9,7 +9,7 @@
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
-        /* General Styles */
+        /* General Styles - Mobile First */
         * {
             margin: 0;
             padding: 0;
@@ -18,6 +18,7 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
+            font-size: 14px;
         }
         a {
             text-decoration: none;
@@ -26,48 +27,77 @@
         /* Navbar */
         .navbar {
             background-color: #570B4F;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .navbar-brand {
             color: #fff;
             font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .menu-toggle {
+            color: white;
+            font-size: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: block;
         }
 
-        /* Sidebar */
+        /* Sidebar - Mobile First */
         .sidebar {
-            height: 100vh;
             background-color: #570B4F;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100vh;
+            transition: 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+            padding: 60px 0 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+        }
+        .sidebar.active {
+            left: 0;
+        }
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
         }
         .sidebar ul {
             list-style-type: none;
             padding: 0;
         }
         .sidebar ul li {
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
         .sidebar ul li a {
             color: #fff;
-            font-size: 16px;
+            font-size: 14px;
             display: block;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
         .sidebar ul li a:hover {
-            color: #d1d1d1;
-            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
         }
 
         /* Main Content */
         .content {
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .card-custom {
-            background-color: #ad71a5;
-            color: #fff;
-            border: none;
-        }
-        .form-custom label {
-            font-weight: bold;
+            padding: 15px;
+            width: 100%;
+            transition: margin-left 0.3s;
         }
 
         /* Cards Section */
@@ -75,249 +105,351 @@
             background-color: #ad71a5;
             color: white;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             border-radius: 5px;
             height: 100%;
+            margin-bottom: 15px;
         }
         .stats-card h3 {
-            font-size: 24px;
+            font-size: 18px;
             margin-bottom: 5px;
+        }
+        .stats-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .stats-card h5 {
+            font-size: 14px;
+            margin-bottom: 8px;
         }
         .stats-card p {
-            font-size: 14px;
+            font-size: 12px;
+            margin-bottom: 0;
         }
         .small-text {
-            font-size: 12px;
+            font-size: 10px;
         }
         .underline-purple {
-    border-bottom: 2px solid #570B4F;
-    padding-bottom: 8px;
-    display: inline-block;
-}
+            border-bottom: 2px solid #570B4F;
+            padding-bottom: 5px;
+            display: inline-block;
+        }
 
-.category-table {
-    color: white;
-    margin-top: 10px;
-}
-
-.category-table thead th {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    font-size: 14px;
-}
-
-.category-table tbody td {
-    padding: 8px 4px;
-    vertical-align: middle;
-}
-
-/* To ensure the table doesn't overflow the card */
-.stats-card .table-responsive {
-    max-height: 250px;
-    overflow-y: auto;
-}
-
-        /* Product Cards */
-        .product-card {
-            background-color: #ad71a5;
+        /* Tables */
+        .category-table {
             color: white;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
+            margin-top: 10px;
+            font-size: 11px;
         }
-        .product-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 5px;
-            margin-right: 15px;
+        .category-table thead th {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 5px 3px;
         }
-        .product-info {
-            flex-grow: 1;
+        .category-table tbody td {
+            padding: 5px 3px;
+            vertical-align: middle;
         }
-        .product-name {
-            font-weight: bold;
-            margin-bottom: 5px;
+        .stats-card .table-responsive {
+            max-height: 180px;
+            overflow-y: auto;
         }
-        .product-sold {
-            font-size: 12px;
+        .table {
+            font-size: 11px;
+        }
+        .table th, .table td {
+            padding: 6px 4px;
+            vertical-align: middle;
         }
 
         /* Chart Container */
         .chart-container {
             background-color: white;
             border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 12px;
+            margin-bottom: 15px;
+            overflow-x: auto;
         }
         .chart-filters {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
         }
         .chart-filters button {
-            margin-right: 10px;
+            margin-right: 5px;
             background-color: #570B4F;
             border: none;
+            font-size: 11px;
+            padding: 4px 6px;
         }
         .chart-filters button.active {
             background-color: #ad71a5;
         }
 
-        /* Responsive Sidebar */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                padding: 10px;
+        /* Tablet Styles */
+        @media (min-width: 576px) {
+            body {
+                font-size: 15px;
+            }
+            .navbar-brand {
+                font-size: 1.3rem;
             }
             .content {
-                padding: 10px;
+                padding: 18px;
+            }
+            .stats-card {
+                padding: 18px;
+            }
+            .stats-card h3 {
+                font-size: 20px;
+            }
+            .stats-card h5 {
+                font-size: 16px;
+            }
+            .small-text {
+                font-size: 11px;
+            }
+            .chart-filters button {
+                font-size: 12px;
+                padding: 5px 8px;
+            }
+            .table, .category-table {
+                font-size: 12px;
+            }
+            .table th, .table td, .category-table thead th, .category-table tbody td {
+                padding: 7px 5px;
+            }
+            .chart-container {
+                padding: 15px;
             }
         }
-        .underline-purple {
-    border-bottom: 2px solid #570B4F; /* Purple underline */
-    display: inline-block; /* Ensures the underline only spans the width of the text */
-    padding-bottom: 5px; /* Adds spacing between the text and the underline */
-}
+
+        /* Desktop Styles */
+        @media (min-width: 992px) {
+            body {
+                font-size: 16px;
+            }
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            .menu-toggle, .sidebar-close {
+                display: none;
+            }
+            .sidebar {
+                position: static;
+                width: 250px;
+                left: 0;
+                padding-top: 20px;
+                height: calc(100vh - 56px);
+            }
+            .sidebar ul li a {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+            .d-flex {
+                display: flex;
+            }
+            .content {
+                flex: 1;
+                padding: 20px;
+                margin-left: 0;
+            }
+            .stats-card {
+                padding: 20px;
+            }
+            .stats-card h3 {
+                font-size: 22px;
+            }
+            .stats-card h4 {
+                font-size: 18px;
+            }
+            .stats-card h5 {
+                font-size: 16px;
+            }
+            .small-text {
+                font-size: 12px;
+            }
+            .stats-card .table-responsive {
+                max-height: 220px;
+            }
+            .category-table, .table {
+                font-size: 14px;
+            }
+            .category-table thead th, .category-table tbody td, .table th, .table td {
+                padding: 8px 6px;
+            }
+            .chart-container {
+                padding: 20px;
+            }
+            .chart-filters button {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <%- include('../../views/partials/admin/sidebar') %>
+    <nav class="navbar">
+        <a class="navbar-brand" href="#"><i>Furnique</i></a>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+    </nav>
 
-    <!-- Main Content -->
-    <div class="content">
-        <!-- Stats Section -->
-        <div class="row mb-4">
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stats-card">
-                    <h3><%= stats.totalUsers %></h3>
-                    <p>Total Users</p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stats-card">
-                    <h3><%= stats.totalProducts %></h3>
-                    <p>Total Products</p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stats-card">
-                    <h3><%= stats.totalOrders %></h3>
-                    <p>Total Orders</p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stats-card">
-                    <h3><%= stats.weeklySales %></h3>
-                    <p>Weekly Sales</p>
-                </div>
-            </div>
+    <!-- Sidebar & Content -->
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+            <ul>
+                <li><a href="http://localhost:3001/admin/dashboard">Dashboard</a></li>
+                <li><a href="http://localhost:3001/admin/reports-sales">Sales Report</a></li>
+                <li><a href="http://localhost:3001/admin/users">Customers</a></li>
+                <li><a href="http://localhost:3001/admin/category">Category</a></li>
+                <li><a href="http://localhost:3001/admin/addProducts">Add Products</a></li>
+                <li><a href="http://localhost:3001/admin/products">Products</a></li>
+                <li><a href="/admin/orders">Order</a></li>
+                <li><a href="/admin/coupons">Coupon</a></li>
+                <li><a href="http://localhost:3001/admin/offermanagement">Offers</a></li>
+                <li><a href="http://localhost:3001/admin/wallets">Wallets</a></li>
+                <li><a href="http://localhost:3001/admin/logout" style="background-color: #ad71a5; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Log Out</a></li>
+            </ul>
         </div>
 
-        <!-- Revenue, Sales, Purchase Section -->
-        <div class="row mb-4">
-            <div class="col-lg-4 col-md-6 mb-3">
-                <div class="stats-card">
-                    <h5>Revenue</h5>
-                    <h3> &#8377;<%= financials.revenue.amount.toFixed(2) %> 
-                        <span class="text-<%= financials.revenue.isPositive ? 'success' : 'danger' %> small-text">
-                            <%= financials.revenue.isPositive ? '+' : '' %><%= financials.revenue.percentChange %>%
-                        </span>
-                    </h3>
-                    <p class="small-text"><%= Math.abs(financials.revenue.percentChange) %>% Since last month</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-3">
-                <div class="stats-card">
-                    <h5>Sales</h5>
-                    <h3> &#8377;<%= financials.sales.amount.toFixed(2) %> 
-                        <span class="text-<%= financials.sales.isPositive ? 'success' : 'danger' %> small-text">
-                            <%= financials.sales.isPositive ? '+' : '' %><%= financials.sales.percentChange %>%
-                        </span>
-                    </h3>
-                    <p class="small-text"><%= Math.abs(financials.sales.percentChange) %>% Since last month</p>
-                </div>
-            </div>
-            
-        </div>
-
-        <!-- Chart and Top Products Section -->
-        <div class="row">
-            <!-- Sales Chart -->
-            <div class="col-lg-8 mb-4">
-                <div class="chart-container">
-                    <h5 class="mb-3">Sales Performance</h5>
-                    <div class="chart-filters">
-                        <button class="btn btn-sm btn-primary filter-btn active" data-period="monthly">Monthly</button>
-                        <button class="btn btn-sm btn-primary filter-btn" data-period="weekly">Weekly</button>
-                        <button class="btn btn-sm btn-primary filter-btn" data-period="daily">Daily</button>
-                        <button class="btn btn-sm btn-primary filter-btn" data-period="yearly">Yearly</button>
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Stats Section -->
+            <div class="row g-3 mb-3">
+                <div class="col-6 col-md-6 col-lg-3">
+                    <div class="stats-card">
+                        <h3><%= stats.totalUsers %></h3>
+                        <p>Total Users</p>
                     </div>
-                    <canvas id="salesChart"></canvas>
                 </div>
-            </div>
-
-            <!-- Top Products -->
-            <div class="col-lg-4 mb-4">
-                <div class="stats-card">
-                    <h4 class="underline-purple mb-3">Top Selling Categories</h4>
-                    <div class="table-responsive">
-                        <table class="table table-borderless category-table">
-                            <thead>
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Sold</th>
-                                    <th>Revenue</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% topCategories.forEach(category => { %>
-                                    <tr>
-                                        <td><strong><%= category.name %></strong></td>
-                                        <td><%= category.totalSold %></td>
-                                        <td style="color: #570B4F;"> &#8377;<%= category.revenue.toFixed(2) %></td>
-                                    </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
+                <div class="col-6 col-md-6 col-lg-3">
+                    <div class="stats-card">
+                        <h3><%= stats.totalProducts %></h3>
+                        <p>Total Products</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-6 col-lg-3">
+                    <div class="stats-card">
+                        <h3><%= stats.totalOrders %></h3>
+                        <p>Total Orders</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-6 col-lg-3">
+                    <div class="stats-card">
+                        <h3><%= stats.weeklySales %></h3>
+                        <p>Weekly Sales</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Best Selling Products List -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="chart-container">
-                    <h5 class="mb-3">Top 5 Best Selling Products</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Product</th>
-                                    <th>Image</th>
-                                    <th>Quantity Sold</th>
-                                    <th>Revenue</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% topProducts.forEach((product, index) => { %>
+            <!-- Revenue, Sales, Purchase Section -->
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="stats-card">
+                        <h5>Revenue</h5>
+                        <h3> &#8377;<%= financials.revenue.amount.toFixed(2) %> 
+                            <span class="text-<%= financials.revenue.isPositive ? 'success' : 'danger' %> small-text">
+                                <%= financials.revenue.isPositive ? '+' : '' %><%= financials.revenue.percentChange %>%
+                            </span>
+                        </h3>
+                        <p class="small-text"><%= Math.abs(financials.revenue.percentChange) %>% Since last month</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="stats-card">
+                        <h5>Sales</h5>
+                        <h3> &#8377;<%= financials.sales.amount.toFixed(2) %> 
+                            <span class="text-<%= financials.sales.isPositive ? 'success' : 'danger' %> small-text">
+                                <%= financials.sales.isPositive ? '+' : '' %><%= financials.sales.percentChange %>%
+                            </span>
+                        </h3>
+                        <p class="small-text"><%= Math.abs(financials.sales.percentChange) %>% Since last month</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart and Top Products Section -->
+            <div class="row g-3">
+                <!-- Sales Chart -->
+                <div class="col-12 col-lg-8">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Sales Performance</h5>
+                        <div class="chart-filters">
+                            <button class="btn btn-sm btn-primary filter-btn active" data-period="monthly">Monthly</button>
+                            <button class="btn btn-sm btn-primary filter-btn" data-period="weekly">Weekly</button>
+                            <button class="btn btn-sm btn-primary filter-btn" data-period="daily">Daily</button>
+                            <button class="btn btn-sm btn-primary filter-btn" data-period="yearly">Yearly</button>
+                        </div>
+                        <div style="height: 250px; min-height: 200px;">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Products -->
+                <div class="col-12 col-lg-4">
+                    <div class="stats-card">
+                        <h4 class="underline-purple mb-3">Top Selling Categories</h4>
+                        <div class="table-responsive">
+                            <table class="table table-borderless category-table">
+                                <thead>
                                     <tr>
-                                        <td><%= index + 1 %></td>
-                                        <td><%= product.name %></td>
-                                        <td>
-                                            <img src="/uploads/<%= product.image %>" 
-                                                 alt="<%= product.name %>" 
-                                                 style="width: 50px; height: 50px; object-fit: cover;">
-                                        </td>
-                                        <td><%= product.totalSold %></td>
-                                        <td>$<%= product.revenue.toFixed(2) %></td>
+                                        <th>Category</th>
+                                        <th>Sold</th>
+                                        <th>Revenue</th>
                                     </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <% topCategories.forEach(category => { %>
+                                        <tr>
+                                            <td><strong><%= category.name %></strong></td>
+                                            <td><%= category.totalSold %></td>
+                                            <td style="color: #570B4F;"> &#8377;<%= category.revenue.toFixed(2) %></td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Selling Products List -->
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Top 5 Best Selling Products</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product</th>
+                                        <th>Image</th>
+                                        <th>Qty Sold</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% topProducts.forEach((product, index) => { %>
+                                        <tr>
+                                            <td><%= index + 1 %></td>
+                                            <td><%= product.name %></td>
+                                            <td>
+                                                <img src="/uploads/<%= product.image %>" 
+                                                    alt="<%= product.name %>" 
+                                                    style="width: 40px; height: 40px; object-fit: cover;">
+                                            </td>
+                                            <td><%= product.totalSold %></td>
+                                            <td>$<%= product.revenue.toFixed(2) %></td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -330,6 +462,26 @@
     <!-- Charts & Dashboard JS -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle functionality
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebar = document.getElementById('sidebar');
+            
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.add('active');
+            });
+            
+            sidebarClose.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+            });
+            
+            // Close sidebar when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!sidebar.contains(event.target) && event.target !== menuToggle) {
+                    sidebar.classList.remove('active');
+                }
+            });
+
             // Initialize chart
             const ctx = document.getElementById('salesChart').getContext('2d');
             let salesChart = new Chart(ctx, {
@@ -358,6 +510,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -383,8 +536,19 @@
                                 text: 'Time Period'
                             }
                         }
+                    },
+                    plugins: {
+                        legend: {
+                            position: window.innerWidth < 768 ? 'bottom' : 'top'
+                        }
                     }
                 }
+            });
+
+            // Handle responsive chart legend
+            window.addEventListener('resize', function() {
+                salesChart.options.plugins.legend.position = window.innerWidth < 768 ? 'bottom' : 'top';
+                salesChart.update();
             });
 
             // Load initial chart data (monthly by default)

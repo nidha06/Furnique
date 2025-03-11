@@ -6,12 +6,34 @@ const Wallet = require('../../models/walletSchema');
 
 const getOrderList = async (req, res) => {
     try {
-        const orders = await Order.find()
+        const orders = await Order.find().sort({createdAt:-1})
             .populate('user', 'name email')
             .select('shippingAddress paymentMethod items totalPrice status createdAt returnRequest');
         if (!orders || orders.length === 0) {
             return res.json({ success: false, message: "No orders found." });
         }
+        let search = req.query.search || ""; 
+        let page = parseInt(req.query.page) || 1;
+        const limit = 4;
+        const orderData = await Order.find({
+            isAdmin: false,
+            $or: [
+                { name: { $regex: ".*" + search + ".*", $options: "i" } },
+                { email: { $regex: ".*" + search + ".*", $options: "i" } },
+            ],
+        })
+            .limit(limit)
+            .skip((page - 1) * limit)
+            .exec();
+        const count = await Order.find({
+            isAdmin: false,
+            $or: [
+                { name: { $regex: ".*" + search + ".*", $options: "i" } },
+                { email: { $regex: ".*" + search + ".*", $options: "i" } },
+            ],
+        }).countDocuments();
+        const totalPages = Math.ceil(count / limit); 
+
 
         const simplifiedOrders = await Promise.all(
             orders.map(async (order) => {
@@ -48,7 +70,7 @@ const getOrderList = async (req, res) => {
             })
         );
 
-        res.render('orders', { orders: simplifiedOrders });
+        res.render('orders', { orders: simplifiedOrders , totalPages });
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).json({ success: false, message: "Internal server error." });
@@ -129,7 +151,15 @@ const cancelOrder = async (req, res) => {
               })
               await wallet.save()
             }
-            wallet.balance += order.totalPrice
+
+            let discountAmount=0;
+            if(order.appliedCoupon){
+                discountAmount = order.appliedCoupon.discountAmount 
+            }
+
+            // Calculate refund amount for this specific item
+            const refundAmount = item.price * item.quantity - discountAmount ;
+            wallet.balance += refundAmount
         
             wallet.transactions.push({
               amount:order.totalPrice,
@@ -191,19 +221,19 @@ const successReturn= async (req, res) => {
         return res.status(404).json({ success: false, message: 'Order not found.' });
       }
   
-      // Check if the order has a pending return request
+      
       if (!order.returnRequest || order.returnRequest.status !== 'pending') {
         return res.status(400).json({ success: false, message: 'No pending return request for this order.' });
       }
   
-      // Update the return request status to "approved"
+     
       order.returnRequest.status = 'approved';
       order.returnRequest.approvalDate = new Date();
   
-      // Update the order status to "returned"
+      
       order.status = 'returned';
   
-      // Save the updated order
+      
       await order.save();
   
       res.status(200).json({ success: true, message: 'Return request approved successfully.' });
@@ -215,7 +245,10 @@ const successReturn= async (req, res) => {
 
   const approveItemReturn = async (req, res) => {
     try {
+        console.log('params,,,,,,,',req.params);
+        
         const { orderId, itemId } = req.params;
+        
         
         // Find the order
         const order = await Order.findById(orderId);
@@ -223,7 +256,7 @@ const successReturn= async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found.' });
         }
         
-        // Find the specific item in the order
+        
         const itemIndex = order.items.findIndex(item => item._id.toString() === itemId);
         if (itemIndex === -1) {
             return res.status(404).json({ success: false, message: 'Item not found in this order' });
@@ -231,26 +264,22 @@ const successReturn= async (req, res) => {
         
         const item = order.items[itemIndex];
         
-        // Check if the item has a pending return request
-        if (!item.returnRequest || item.returnRequest.status !== 'pending') {
+        
+        if (item.status !== 'return_requested') {
             return res.status(400).json({ success: false, message: 'No pending return request for this item.' });
         }
+                
         
-        // Update the return request status to "approved"
-        order.items[itemIndex].returnRequest.status = 'approved';
-        order.items[itemIndex].returnRequest.approvalDate = new Date();
-        
-        // Update the item status to "returned"
         order.items[itemIndex].status = 'returned';
         
-        // Check order status - if all items are returned, change order status to "returned"
+        
         if (order.items.every(item => item.status === 'returned')) {
             order.status = 'returned';
         } else {
             order.status = 'partially_returned';
         }
         
-        // Process refund for the returned item
+        
         if (order.paymentMethod === 'razorpay') {
             const userId = order.user;
             let wallet = await Wallet.findOne({ user: userId });
@@ -263,8 +292,16 @@ const successReturn= async (req, res) => {
                 });
             }
             
-            // Calculate refund amount for this specific item
-            const refundAmount = item.price * item.quantity;
+           
+            const itemTotalPrice = item.price * item.quantity;
+
+            
+            const orderTotalPrice = order.items.reduce((total, currentItem) => total + (currentItem.price * currentItem.quantity), 0);
+            const discountAmount = order.appliedCoupon?.discountAmount || 0;
+            const proportionalDiscount = (itemTotalPrice / orderTotalPrice) * discountAmount;
+
+           
+            const refundAmount = Math.round(itemTotalPrice - proportionalDiscount);
             
             wallet.balance += refundAmount;
             
@@ -280,7 +317,9 @@ const successReturn= async (req, res) => {
         }
         
         // Save the updated order
-        await order.save();
+         await order.save();
+        
+        
         
         res.status(200).json({
             success: true,
@@ -304,7 +343,7 @@ const cancelOrderItem = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
         
-        // Find the specific item in the order
+        
         const itemIndex = order.items.findIndex(item => item._id.toString() === itemId);
         if (itemIndex === -1) {
             return res.status(404).json({ success: false, message: 'Item not found in this order' });
@@ -312,15 +351,15 @@ const cancelOrderItem = async (req, res) => {
         
         const item = order.items[itemIndex];
         
-        // Check if this item can be cancelled
+        
         if (item.status === 'delivered' || item.status === 'cancelled') {
             return res.status(400).json({ success: false, message: 'This item cannot be cancelled' });
         }
         
-        // Update the item status
+        
         order.items[itemIndex].status = 'cancelled';
         
-        // Check if all items are cancelled to update the overall order status
+       
         const allItemsCancelled = order.items.every(item => item.status === 'cancelled');
         if (allItemsCancelled) {
             order.status = 'cancelled';
@@ -330,7 +369,7 @@ const cancelOrderItem = async (req, res) => {
         
         await order.save();
         
-        // Process refund if payment was made through Razorpay
+        
         if (order.paymentMethod === 'razorpay') {
             const userId = order.user;
             let wallet = await Wallet.findOne({ user: userId });
@@ -343,8 +382,16 @@ const cancelOrderItem = async (req, res) => {
                 });
             }
             
-            // Calculate refund amount for this specific item
-            const refundAmount = item.price * item.quantity;
+            
+            const itemTotalPrice = item.price * item.quantity;
+
+            
+            const orderTotalPrice = order.items.reduce((total, currentItem) => total + (currentItem.price * currentItem.quantity), 0);
+            const discountAmount = order.appliedCoupon?.discountAmount || 0;
+            const proportionalDiscount = (itemTotalPrice / orderTotalPrice) * discountAmount;
+
+            
+            const refundAmount = Math.round(itemTotalPrice - proportionalDiscount);
             
             wallet.balance += refundAmount;
             

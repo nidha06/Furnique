@@ -11,7 +11,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="author" content="Untree.co">
-  <link rel="shortcut icon" href="favicon.png">
+  <title>FURNIQUE | Where Luxury Meets Function</title>
+  <link rel="shortcut icon" href="/images/furnique-icon.svg">
 
   <meta name="description" content="" />
   <meta name="keywords" content="bootstrap, bootstrap4" />
@@ -24,7 +25,7 @@
   <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <title>Furni - Modern Furniture Store</title>
+  
   <style>
 	/* General Styles */
 body {
@@ -182,8 +183,61 @@ body {
 <body data-user-logged-in="<%= user ? 'true' : 'false' %>">
 
   <!-- Start Header/Navigation -->
-  <%- include('../../views/partials/user/header.ejs')%>
-
+  <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furnique navigation bar">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">Furnique<span>.</span></a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarsFurni">
+            <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+                <li class="nav-item ">
+                    <a class="nav-link" href="http://localhost:3001/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://localhost:3001/shop">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/get-aboutUs">About us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/get-contactUs">Contact us</a>
+                </li>
+                <% if ((typeof user) ==='undefined') {%>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Sign in</a>
+                    </li>
+                <% }else{ %>
+                    <li class="nav-item" style="font-size: larger; color: #fff;"></li>
+                <% } %>
+            </ul>
+            
+            <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="images/user.svg" alt="Profile">
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="/userProfile">Profile</a></li>
+                        <% if ((typeof user) ==='undefined') {%>
+                            <li><a class="dropdown-item" href="/login">Signin</a></li>
+                        <% }else{ %>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        <% } %>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart"><img src="images/cart.svg" alt="Cart"></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist"><img src="images/whishlist.png" alt="Wishlist"></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
   <!-- End Header/Navigation -->
   <div class="container mt-4">
 	<form action="/shop" method="GET" class="d-flex justify-content-center">
@@ -210,8 +264,7 @@ body {
         <h4 style="color: #570B4F;" class="">Sort By</h4>
         <select class="form-select" id="sortDropdown">
           <option style="color: #570B4F;" value="new-arrival" <%= selectedSort === 'new-arrival' ? 'selected' : '' %>>New Arrival</option>
-          <option style="color: #570B4F;" value="a-to-z" <%= selectedSort === 'a-to-z' ? 'selected' : '' %>>A to Z</option>
-          <option style="color: #570B4F;" value="z-to-a" <%= selectedSort === 'z-to-a' ? 'selected' : '' %>>Z to A</option>
+          
           <option style="color: #570B4F;" value="high-to-low" <%= selectedSort === 'high-to-low' ? 'selected' : '' %>>Price: High to Low</option>
           <option style="color: #570B4F;" value="low-to-high" <%= selectedSort === 'low-to-high' ? 'selected' : '' %>>Price: Low to High</option>
       </select>
@@ -286,14 +339,16 @@ body {
               </div>
             </a>
         
-            <!-- Wishlist Button -->
             <button 
-            class="wishlist-icon" style= '<%= userWhishlist.includes(products[i]._id.toString()) ? 'color: #c213b0;' : '' %>'
-             
-            data-product-id= "<%= products[i]._id %>" 
-            title="Add to Wishlist">
-            <i class="far fa-heart"></i>
-        </button>
+            class="wishlist-icon" 
+            data-product-id="<%= products[i]._id %>" 
+            title="<%= userWhishlist.includes(products[i]._id.toString()) ? 'Remove from Wishlist' : 'Add to Wishlist' %>"
+          >
+            <i 
+              class="<%= userWhishlist.includes(products[i]._id.toString()) ? 'fas' : 'far' %> fa-heart"
+              style="color: '<%= userWhishlist.includes(products[i]._id.toString()) ? '#c213b0' : '#888' %>;"
+            ></i>
+          </button>
         
             <div class="card-body">
               <h5 class="card-title"><%=products[i].productName %></h5>
@@ -302,7 +357,7 @@ body {
               <div class="price-section">
                 <% if (products[i].hasOffer) { %>
                   <p class="card-text mb-0">
-                    <span class="fw-bold" style="color: #570B4F;">₹<%= products[i].bestPrice %></span>
+                    <span class="fw-bold"style='color: #570B4F;'>₹<%= products[i].bestPrice %></span>
                     <span class="text-muted text-decoration-line-through ms-2">₹<%= products[i].regularPrice %></span>
                   </p>
                 <% } else { %>
@@ -318,17 +373,16 @@ body {
                 <% } %>
         
                 <% if(isInCart){ %>
-                  <a href="/cart" class="btn w-100 mt-3" style="background-color:black; color: white;">
+                  <a href="/cart" class="btn w-100 mt-3"style="background-color:black; color: white;">
                     Go to Cart
                   </a>
                 <% } else { %>
-                  <a href="#" class="btn w-100 mt-3 add-to-cart" data-id="<%= products[i]._id %>" 
-                     style="background-color: #570B4F; color: white;">
+                  <a href="#" class="btn w-100 mt-3 add-to-cart" data-id="<%= products[i]._id %>"style="background-color: #570B4F; color: white;">
                     Add to Cart
                   </a>
                 <% } %>
               <% } else { %>
-                <a href="/login" class="btn w-100 mt-3" style="background-color: #570B4F; color: white;">
+                <a href="/login" class="btn w-100 mt-3"style="background-color: #570B4F; color: white;">
                   Add to Cart
                 </a>
               <% } %>

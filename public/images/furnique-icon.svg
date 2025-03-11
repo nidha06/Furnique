@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="white" stroke="#570B4F" stroke-width="4"/>
+  
+  <!-- Stylized "F" for Furnique -->
+  <path d="M60 50 L140 50 L140 70 L80 70 L80 90 L130 90 L130 110 L80 110 L80 150 L60 150 Z" fill="#570B4F"/>
+  
+  <!-- Furniture element - minimalist chair/sofa -->
+  <rect x="105" y="115" width="40" height="8" rx="2" fill="#570B4F"/>
+  <rect x="105" y="123" width="8" height="25" rx="2" fill="#570B4F"/>
+  <rect x="137" y="123" width="8" height="25" rx="2" fill="#570B4F"/>
+  <rect x="100" y="150" width="50" height="4" rx="2" fill="#570B4F"/>
+</svg>

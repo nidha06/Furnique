@@ -3,34 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart</title>
+    <title>FURNIQUE | Where Luxury Meets Function</title>
+    <link rel="shortcut icon" href="/images/furnique-icon.svg">
     <link href="/css/tiny-slider.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
     <link href="/css/cart.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 </head>
 <body>
-    <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furni navigation bar">
+    <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furnique navigation bar">
         <div class="container">
             <a class="navbar-brand" href="index.html">Furnique<span>.</span></a>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarsFurni">
                 <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
-                    <li class="nav-item active">
+                    <li class="nav-item ">
                         <a class="nav-link" href="http://localhost:3001/">Home</a>
                     </li>
-                    <li><a class="nav-link" href="http://localhost:3001/shop">Shop</a></li>
-                    <li><a class="nav-link" href="about.html">About us</a></li>
-                    <li><a class="nav-link" href="contact.html">Contact us</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:3001/shop">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/get-aboutUs">About us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/get-contactUs">Contact us</a>
+                    </li>
                     <% if ((typeof user) ==='undefined') {%>
-                        <li><a class="nav-link" href="/login">Sign in</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Sign in</a>
+                        </li>
                     <% }else{ %>
-                        <li></li>
+                        <li class="nav-item" style="font-size: larger; color: #fff;"></li>
                     <% } %>
                 </ul>
+                
                 <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -45,8 +59,12 @@
                             <% } %>
                         </ul>
                     </li>
-                    <li><a class="nav-link" href="/cart"><img src="images/cart.svg" alt="Cart"></a></li>
-                    <li><a class="nav-link" href="/wishlist"><img src="images/whishlist.png" alt="Wishlist"></a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart"><img src="images/cart.svg" alt="Cart"></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/wishlist"><img src="images/whishlist.png" alt="Wishlist"></a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -55,14 +73,14 @@
     <div class="cart-container">
         <h2>Your Shopping Cart</h2>
         <div class="cart-items">
-            <% if (cart.items.length > 0) { %>
+            <% if (cart?.items?.length) { %>
                 <% cart.items.forEach(product => { %>
                     <div class="cart-item">
                         <img src="/uploads/<%=product.product.images[0]%>">
                         <div class="cart-details">
                             <h4><%= product.product.productName %></h4>
                             <p>Price: ₹<%= product.product.salePrice %></p>
-                            <input type="number" value="<%= product.quantity %>" min="1" max="4" class="quantity-input"
+                            <input type="number"  value="<%= product.quantity %>" min="1"  max="<%= parseInt(product.product.quantity) < 4 ? product.product.quantity : '4' %>" class="quantity-input"
                                 onchange="updateQuantity('<%= product.product._id %>', this.value)">
                         </div>
                         <button class="remove-btn" onclick="removeItem('<%= product.product._id %>')">Remove</button>
@@ -72,9 +90,16 @@
                 <p class="empty-cart">Your cart is empty.</p>
             <% } %>
         </div>
+        <% if (cart?.items.length) { %>
         <div class="cart-summary">
             <h3>Total: ₹<span id="cartTotal">0</span></h3>
             <a href="/checkout"><button class="checkout-btn">Proceed to Checkout</button></a>
+       
+        <% }else{ %>
+            
+            <a href="/shop"><button class="checkout-btn">Continue Shopping</button></a>
+            
+            <% } %>
         </div>
     </div>
 
@@ -87,6 +112,7 @@ function calculateTotalPrice() {
         const price = parseFloat(item.querySelector('.cart-details p').textContent.replace('Price: ₹', ''));
         const quantity = parseInt(item.querySelector('.quantity-input').value);
         total += price * quantity;
+        console.log(total   )
     });
     document.getElementById('cartTotal').textContent = total.toFixed(2);
 }
@@ -95,33 +121,81 @@ function calculateTotalPrice() {
 document.addEventListener('DOMContentLoaded', calculateTotalPrice);
 
 // Function to update quantity
-function updateQuantity(productId, newQuantity) {
+async function updateQuantity(productId, newQuantity) {
     // Ensure the quantity is a valid number
     const parsedQuantity = parseInt(newQuantity);
-    if (isNaN(parsedQuantity) || parsedQuantity < 1 || parsedQuantity > 4 ) {
-        alert('maximum quantity limit reached.');
+    if (parsedQuantity > 4 ) {
+        Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Maximum qaunitity limit reached',
+                position: 'centre',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+            });
+        return;
+    }
+    if (isNaN(parsedQuantity) ||parsedQuantity < 1 ) {
+        Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Enter Valid Qauntity',
+                position: 'centre',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+            });
         return;
     }
 
+    try {
+
     // Send request to update quantity on the server
-    fetch('/cart-update', {
+   const response = await fetch('/cart-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId, quantity: parsedQuantity })
     })
-    .then(response => response.json())
-    .then(data => {
+
+    const data= await  response.json();
+    console.log(data.availableStock);
+    
         if (data.success) {
             // Recalculate total price immediately
             calculateTotalPrice();
         } else {
-            alert('Failed to update quantity. Please try again.');
+            if(response.status===400){
+                Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Not enough stock available.',
+                position: 'center',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                footer:
+                    `Available stock: ${data.availableStock}` 
+            });
+
+
+            }
         }
-    })
-    .catch(error => {
+
+    } catch (error) {
         console.error('Error updating quantity:', error);
-        alert('An error occurred while updating the quantity.');
-    });
+        Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+    }
+
 }
 
 // Function to remove item

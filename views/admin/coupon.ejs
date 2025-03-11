@@ -5,32 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Furnique - Coupon Management</title>
     <style>
-        /* Same styles as your original design */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
+        
         body {
-            display: flex;
-            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            overflow-x: hidden;
+            min-height: 100vh;
         }
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        
+        a {
+            text-decoration: none;
         }
-        .content {
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-        }
-        .header-container {
+        
+        /* Navbar */
+        .navbar {
+            background-color: #570B4F;
+            padding: 15px;
             display: flex;
             justify-content: space-between;
-            padding: 20px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
         }
+        
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        
+        .menu-toggle {
+            color: white;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: block;
+        }
+        
+        .nav-wrapper {
+            display: flex;
+            height: calc(100vh - 56px); /* Adjust based on navbar height */
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background-color: #570B4F;
+            position: fixed;
+            top: 56px; /* Height of navbar */
+            left: -100%;
+            width: 85%;
+            max-width: 300px;
+            height: calc(100vh - 56px); /* Full height minus navbar */
+            transition: left 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .sidebar ul {
+            list-style-type: none;
+            padding: 15px 0;
+        }
+        
+        .sidebar ul li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar ul li a {
+            color: #fff;
+            font-size: 16px;
+            display: block;
+            padding: 12px 20px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar ul li a:hover {
+            background-color: #d812be;
+            transform: translateX(5px);
+        }
+        
+        /* Overlay for mobile when sidebar is open */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 56px; /* Start below navbar */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Main content area */
+        .main {
+            width: 100%;
+            padding: 15px;
+            margin-top: 0; /* No need for margin as navbar is fixed */
+        }
+        
+        /* Header container with search and create button */
+        .header-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar {
+            width: 100%;
+            position: relative;
+        }
+        
+        .search-bar input {
+            padding: 12px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .search-bar button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #570B4F;
+        }
+        
         .create-btn {
             background-color: #570B4F;
             color: white;
@@ -42,121 +175,309 @@
             transition: background-color 0.3s ease, transform 0.2s ease;
             text-decoration: none;
             display: inline-block;
+            text-align: center;
+            width: 100%;
         }
+        
         .create-btn:hover {
             background-color: #d812be;
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
-        .search-bar input {
-            padding: 10px;
-            width: 250px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+        
+        /* Table styling */
         .table-container {
-            flex: 1;
-            padding: 0 20px 20px 20px;
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+        
         table {
             width: 100%;
+            min-width: 800px;
             border-collapse: collapse;
             background-color: white;
-            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
         }
+        
         th, td {
-            padding-top: 12px;
-            padding-bottom: 12px;
-            padding-left: 8px;
-            padding-right: 8px;
-            border-bottom: 1px solid #ccc;
-            text-align: center;
+            padding: 12px 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            font-size: 14px;
         }
+        
         th {
             background-color: #ad71a5;
             color: #fff;
             font-weight: bold;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
         }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: flex-start;
+        }
+        
+        .btn-update, .btn-delete {
+            padding: 6px 12px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+            display: inline-block;
+            white-space: nowrap;
+            text-align: center;
+            min-width: 70px;
+        }
+        
         .btn-update {
-            padding: 6px 12px;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            margin: 0 4px;
-            background-color: green;
+            background-color: #28a745;
         }
-        .btn-update:hover {
-            opacity: 0.8;
-        }
+        
         .btn-delete {
-            padding: 6px 12px;
-            color: white;
+            background-color: #dc3545;
+        }
+        
+        .btn-update:hover, .btn-delete:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        /* Status button styling */
+        .status-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .status-text {
+            font-weight: 500;
+        }
+        
+        .btn-status {
+            padding: 6px 10px;
             border: none;
-            cursor: pointer;
             border-radius: 4px;
-            margin: 0 4px;
-            background-color: red;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            color: white;
+            width: 100%;
         }
-        .btn-delete:hover {
-            opacity: 0.8;
+        
+        .btn-status.active {
+            background-color: #dc3545;
         }
+        
+        .btn-status.inactive {
+            background-color: #28a745;
+        }
+        
+        .btn-status:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+        
+        /* Pagination styling */
+        .pagination-container {
+            margin-top: 20px;
+            width: 100%;
+            overflow-x: auto;
+        }
+        
         .pagination {
             display: flex;
             list-style-type: none;
-            padding: 15px;
+            padding: 15px 0;
             justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
         }
+        
         .pagination .page-item {
-            margin: 0 5px;
+            margin: 0 2px;
         }
+        
         .pagination .page-link {
-            display: block;
-            padding: 8px 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
             text-decoration: none;
             color: #570B4F;
             border: 1px solid #dee2e6;
             border-radius: 4px;
             background-color: #fff;
+            font-size: 14px;
         }
+        
         .pagination .page-item.active .page-link {
             background-color: #570B4F;
             color: white;
             border-color: #570B4F;
         }
-
-        .btn-status {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    color: white;
-}
-.btn-status.active {
-    background-color: red; /* Green for Active */
-}
-.btn-status.inactive {
-    background-color: green; /* Red for Inactive */
-}
-.btn-status:hover {
-    opacity: 0.8;
-    transform: scale(1.05);
-}
+        
+        .pagination .page-link:hover {
+            background-color: #f0f0f0;
+        }
+        
+        /* Small tablet and up */
+        @media (min-width: 576px) {
+            .main {
+                padding: 20px;
+            }
+            
+            .create-btn {
+                width: auto;
+            }
+            
+            .btn-status {
+                width: auto;
+                max-width: 100px;
+            }
+        }
+        
+        /* Medium tablet and up */
+        @media (min-width: 768px) {
+            .header-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .search-bar {
+                width: auto;
+                min-width: 250px;
+            }
+            
+            .status-cell {
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .status-text {
+                min-width: 60px;
+            }
+            
+            th, td {
+                padding: 14px 12px;
+            }
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 992px) {
+            body {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+            
+            .menu-toggle, 
+            .sidebar-close,
+            .overlay {
+                display: none;
+            }
+            
+            .nav-wrapper {
+                display: flex;
+                flex: 1;
+            }
+            
+            .sidebar {
+                position: static;
+                width: 250px;
+                left: 0;
+                top: 0;
+                height: auto;
+                box-shadow: none;
+            }
+            
+            .main {
+                width: calc(100% - 250px);
+                min-height: 100%;
+                overflow-y: auto;
+                padding: 25px;
+            }
+            
+            table {
+                min-width: auto;
+            }
+            
+            td, th {
+                font-size: 15px;
+            }
+            
+            .btn-update, .btn-delete, .btn-status {
+                font-size: 14px;
+            }
+        }
+        
+        /* Larger desktop and up */
+        @media (min-width: 1200px) {
+            .main {
+                padding: 30px;
+            }
+            
+            .pagination .page-link {
+                width: 40px;
+                height: 40px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="main">
-        <%- include('../../views/partials/admin/sidebar') %>
-        <div class="content">
+    <!-- Fixed Top Navbar -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="#"><i>Furnique</i></a>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+    </nav>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="nav-wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+            <ul>
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/reports-sales">Sales Report</a></li>
+                <li><a href="/admin/users">Customers</a></li>
+                <li><a href="/admin/category">Category</a></li>
+                <li><a href="/admin/addProducts">Add Products</a></li>
+                <li><a href="/admin/products">Products</a></li>
+                <li><a href="/admin/orders">Order</a></li>
+                <li><a href="/admin/coupons">Coupon</a></li>
+                <li><a href="/admin/offermanagement">Offers</a></li>
+                <li><a href="/admin/wallets">Wallets</a></li>
+                <li><a href="/admin/logout" style="background-color: #ad71a5; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Log Out</a></li>
+            </ul>
+        </div>
+            
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Header with Search and Create Button -->
             <div class="header-container">
                 <form action="/admin/coupons" method="GET" class="search-bar">
                     <input type="text" name="search" placeholder="Search by coupon code" value="<%= search %>">
-                    <button type="submit" style="display: none;"></button>
+                    <button type="submit">🔍</button>
                 </form>
                 <a href="/admin/getCreateCoupon" class="create-btn">Create New Coupon</a>
             </div>
-            
+                
+            <!-- Table Container -->
             <div class="table-container">
                 <table>
                     <thead>
@@ -164,13 +485,11 @@
                             <th>Coupon Code</th>
                             <th>Discount Type</th>
                             <th>Discount Value</th>
-                            <th>Minimum Purchase</th>
-                            <th>Maximum Limit</th>
+                            <th>Min Purchase</th>
+                            <th>Max Limit</th>
                             <th>Expiry Date</th>
                             <th>Status</th>
-                            <th>Update</th>
-                            <th>Delete</th>
-                            
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -182,54 +501,84 @@
                             <td>₹<%= coupon.minPurchase %></td>
                             <td>₹<%= coupon.maxLimit %></td>
                             <td><%= new Date(coupon.expiryDate).toLocaleDateString() %></td>
-                            <td class="status-cell" data-id="<%= coupon._id %>"><%= coupon.isActive ? 'Active' : 'Inactive' %>
-                                <button 
-                                class="btn-status <%= coupon.isActive ? 'active' : 'inactive' %>" 
-                                data-id="<%= coupon._id %>" 
-                                data-status="<%= coupon.isActive ? 'inactive' : 'active' %>"
-                            >
-                                <%= coupon.isActive ? 'Deactivate' : 'Activate' %>
-                            </button></td>
                             <td>
-                                <a href="/admin/editCoupon/<%= coupon._id %>" class="btn-update">Edit</a>
-                                
-                               
-                           
-                                
-                            
-                            
-                               
+                                <div class="status-cell" data-id="<%= coupon._id %>">
+                                    <span class="status-text"><%= coupon.isActive ? 'Active' : 'Inactive' %></span>
+                                    <button 
+                                        class="btn-status <%= coupon.isActive ? 'active' : 'inactive' %>" 
+                                        data-id="<%= coupon._id %>" 
+                                        data-status="<%= coupon.isActive ? 'inactive' : 'active' %>"
+                                    >
+                                        <%= coupon.isActive ? 'Deactivate' : 'Activate' %>
+                                    </button>
+                                </div>
                             </td>
-                            <td> <a href="/admin/deleteCoupon/<%= coupon._id %>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this coupon?')">Delete</a></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/admin/editCoupon/<%= coupon._id %>" class="btn-update">Edit</a>
+                                    <a href="/admin/deleteCoupon/<%= coupon._id %>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this coupon?')">Delete</a>
+                                </div>
+                            </td>
                         </tr>
                         <% }); %>
                     </tbody>
                 </table>
-                <div class="pagination-container">
-                    <ul class="pagination">
-                        <% for(let i = 1; i <= totalPages; i++) { %>
-                            <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
-                                <a class="page-link" href="?page=<%= i %>&search=<%= search %>"><%= i %></a>
-                            </li>
-                        <% } %>
-                    </ul>
-                </div>
+            </div>
+                
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <ul class="pagination">
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>&search=<%= search %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                </ul>
             </div>
         </div>
     </div>
 
     <script>
+        // Toggle sidebar on mobile
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            closeSidebar();
+        });
+        
+        document.getElementById('overlay').addEventListener('click', function() {
+            closeSidebar();
+        });
+        
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Handle resize events
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('overlay').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             // Activate/Deactivate Coupon
             const statusButtons = document.querySelectorAll('.btn-status');
             statusButtons.forEach(button => {
                 button.addEventListener('click', async function () {
                     const couponId = this.getAttribute('data-id');
-                    const newStatus = this.getAttribute('data-status'); // Get the new status (active/inactive)
+                    const newStatus = this.getAttribute('data-status');
                     try {
-                        // Send a POST request to update the status
                         const response = await fetch(`/admin/update-coupon-status/${couponId}`, {
-                            method: 'POST', // Changed from PATCH to POST
+                            method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
@@ -237,9 +586,10 @@
                         });
                         const data = await response.json();
                         if (data.success) {
-                            // Update the button text dynamically
+                            // Update the button text
                             this.textContent = newStatus === 'active' ? 'Deactivate' : 'Activate';
-                            // Update the button class dynamically
+                            
+                            // Update the button class
                             if (newStatus === 'active') {
                                 this.classList.remove('inactive');
                                 this.classList.add('active');
@@ -247,12 +597,15 @@
                                 this.classList.remove('active');
                                 this.classList.add('inactive');
                             }
-                            // Update the data-status attribute for the next click
+                            
+                            // Update the data-status attribute
                             this.setAttribute('data-status', newStatus === 'active' ? 'inactive' : 'active');
-                            // Update the status in the table cell
-                            const statusCell = document.querySelector(`.status-cell[data-id="${couponId}"]`);
-                            if (statusCell) {
-                                statusCell.textContent = newStatus === 'active' ? 'Active' : 'Inactive'; // Update the status text
+                            
+                            // Update the status text
+                            const statusCell = this.parentElement;
+                            const statusText = statusCell.querySelector('.status-text');
+                            if (statusText) {
+                                statusText.textContent = newStatus === 'active' ? 'Active' : 'Inactive';
                             }
                         } else {
                             alert('Failed to update status. Please try again.');
@@ -261,15 +614,6 @@
                         console.error('Error:', error);
                         alert('An unexpected error occurred.');
                     }
-                });
-            });
-    
-            // Edit Coupon
-            const editButtons = document.querySelectorAll('.btn-update');
-            editButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const couponId = this.getAttribute('data-id');
-                    window.location.href = `/admin/editCoupon/${couponId}`;
                 });
             });
         });

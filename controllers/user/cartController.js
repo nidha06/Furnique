@@ -4,6 +4,7 @@ const User = require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
 const Coupon = require('../../models/couponSchema');
+const Wallet = require('../../models/walletSchema')
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { log } = require('console');
@@ -26,6 +27,7 @@ exports.addToCart = async (req, res) => {
         cart.items.push({
             product,
             quantity: 1,
+            
         });
 
         await cart.save();
@@ -39,13 +41,23 @@ exports.addToCart = async (req, res) => {
 
 exports.getCart = async (req, res) => {
     try {
+        console.log(req.session)
         const user = req.session.user;
+        
+        const { productId } = req.body;
+        const products = await Product.find({productId});
+    
+        const userData = await User.findOne({ _id: user });
+        console.log(userData);
+        
 
         if (!user) {
             return res.redirect('/login');
         }
-        const cart = await Cart.findOne({ user }).populate('items.product');
-        res.render('cart', { cart });
+        const cart = await Cart.findOne({ user }).populate('items.product') ||[];
+       
+        
+        res.render('cart', { cart ,products, user:userData});
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Server error" });
@@ -75,64 +87,137 @@ exports.removeCart = async (req, res) => {
     }
 };
 
-exports.getCheckout = async (req, res) => {
+
+
+// New function to process wallet payments
+exports.processWalletPayment = async (userId, amount) => {
     try {
-      
-        const user = req.session.user;
-
-        const coupons = await Coupon.find({
-            isActive: true,
-            expiryDate: { $gt: new Date() }
-        }).sort({ createdAt: -1 });
-
-        if (!user) {
-            res.redirect('/login');
+        const wallet = await Wallet.findOne({ user: userId });
+        
+        if (!wallet) {
+            return { 
+                success: false, 
+                message: 'Wallet not found for this user.' 
+            };
         }
-
-        const address = await Address.findOne({ userId: user }).populate('userId');
-        const cart = await Cart.findOne({ user }).populate('items.product' );
-
-       
-        console.log(coupons);
-       
         
-       
+        if (wallet.balance < amount) {
+            return {
+                success: false,
+                message: 'Insufficient wallet balance.',
+                currentBalance: wallet.balance,
+                requiredAmount: amount
+            };
+        }
         
-        res.render('checkout', { cart, coupons,deliveryCharge:149, addresses: address ? address.address : [] });
+        // Deduct the amount from wallet balance
+        wallet.balance -= amount;
+        await wallet.save();
+        
+        return {
+            success: true,
+            message: 'Payment processed successfully.',
+            newBalance: wallet.balance
+        };
     } catch (error) {
-        console.log(error);
-        res.redirect('/cart');
+        console.error('Error processing wallet payment:', error);
+        return {
+            success: false,
+            message: 'Error processing wallet payment.'
+        };
+    }
+};
+
+// Update getCheckout to include wallet information
+
+// Add this function to check wallet balance before checkout (optional but useful)
+exports.checkWalletBalance = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        
+        if (!userId) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'User not authenticated.' 
+            });
+        }
+        
+        const wallet = await Wallet.findOne({ user: userId });
+        
+        if (!wallet) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Wallet not found for this user.' 
+            });
+        }
+        
+        res.json({
+            success: true,
+            balance: wallet.balance
+        });
+    } catch (error) {
+        console.error('Error checking wallet balance:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error checking wallet balance.' 
+        });
     }
 };
 
 exports.updateCart = async (req, res) => {
     const { productId, quantity } = req.body;
-
+    
     try {
+        // Validate input
         if (!productId || !quantity || isNaN(quantity) || quantity < 1) {
             return res.status(400).json({ success: false, message: 'Invalid product ID or quantity.' });
         }
-
+        
+        // Check user authentication
         const userId = req.session.user;
-
+        
         if (!userId) {
             return res.status(401).json({ success: false, message: 'User not authenticated.' });
         }
-
+        
+        // Find user's cart
         const userCart = await Cart.findOne({ user: userId });
         if (!userCart) {
             return res.status(404).json({ success: false, message: 'Cart not found.' });
         }
-
+        
+        // Find item in cart
         const itemIndex = userCart.items.findIndex(item => item.product.toString() === productId);
         if (itemIndex === -1) {
             return res.status(404).json({ success: false, message: 'Product not found in cart.' });
         }
+        
+        // Check stock availability
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found.' });
+        }
+        
+        let availableStock;
 
+        if (product.quantity < quantity) { 
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Not enough stock available.',
+                availableStock: product.quantity
+            });
+        }
+        
+        // Update cart with new quantity
         userCart.items[itemIndex].quantity = parseInt(quantity);
         await userCart.save();
-
-        return res.json({ success: true, message: 'Cart updated successfully.' });
+        
+        return res.json({ 
+            success: true, 
+            message: 'Cart updated successfully.',
+            cart: userCart,
+            availableStock,
+        });
     } catch (error) {
         console.error('Error updating cart:', error);
         return res.status(500).json({ success: false, message: 'Internal server error.' });
@@ -203,12 +288,9 @@ exports.getOrderSuccess = async (req, res) => {
             items,
             totalPrice
         });
-
         await order.save();
-
         userCart.items = [];
         await userCart.save();
-
         res.status(201).json({ success: true, message: 'Order placed successfully.', orderId: order._id });
     } catch (error) {
         console.error('Error placing order:', error);
@@ -282,8 +364,7 @@ exports.getActiveCoupons = async (req, res) => {
         // If this is an API request
         if (req.xhr || req.headers.accept.indexOf('json') > -1) {
             return res.json(coupons);
-        }
-        
+        }      
         // If rendering the page, pass coupons to the template
         res.render('checkout', { coupons });
     } catch (error) {

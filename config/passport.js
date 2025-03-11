@@ -18,20 +18,25 @@ async (accessToken,refreshToken,profile,done)=>{
     try {
         const email= profile.emails[0].value;
         const googleId= profile.id
-       let user = await User.findOne({email});
-       if(user){
-        if(!user.googleId){
-            user.googleId=googleId
-            await user.save()
-        }else{
-            user=await User.create({
-                name:profile.displayName,
-                googleId,
-                email
-            })
+        let user = await User.findOne({ email });
+
+        if (user) {
+          // Existing user: Update googleId if missing
+          if (!user.googleId) {
+            user.googleId = googleId;
+            await user.save();
+          }
+        } else {
+          // New user: Create with Google credentials
+          user = await User.create({
+            name: profile.displayName,
+            googleId,
+            email
+          });
         }
-        return done(null,user);
-       }
+    
+        return done(null, user);
+       
 
     } catch (error) {
         console.log(error)

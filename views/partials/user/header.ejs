@@ -1,47 +1,54 @@
-<!-- Start Header/Navigation -->
-<nav class="custom-navbar navbar navbar-expand-md  " arial-label="Furni navigation bar">
+<nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furnique navigation bar">
     <div class="container">
-        <a style="color: white;" class="navbar-brand" href="index.html">Furnique<span>.</span></a>
-
+        <a class="navbar-brand" href="index.html">Furnique<span>.</span></a>
+        
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-
+        
         <div class="collapse navbar-collapse" id="navbarsFurni">
             <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
-                <li class="nav-item active">
+                <li class="nav-item ">
                     <a class="nav-link" href="http://localhost:3001/">Home</a>
                 </li>
-                <li><a class="nav-link" href="http://localhost:3001/shop">Shop</a></li>
-                <li><a class="nav-link" href="about.html">About us</a></li>
-                <li><a class="nav-link" href="contact.html">Contact us</a></li>
-                <!-- <li><a class="nav-link" href="http://localhost:3001/login">Sign in</a></li> -->
-                <% if ((typeof user) ==='undefined') {%>	
-                    <li><a class="nav-link" href="/login">Sign in</a></li>
-                    <% }else{ %> 
-                        <li style="font-size: larger; color: #fff;"></li>
-                        
-                        <% } %> 
+                <li class="nav-item">
+                    <a class="nav-link" href="http://localhost:3001/shop">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/get-aboutUs">About us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/get-contactUs">Contact us</a>
+                </li>
+                <% if ((typeof user) ==='undefined') {%>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Sign in</a>
+                    </li>
+                <% }else{ %>
+                    <li class="nav-item" style="font-size: larger; color: #fff;"></li>
+                <% } %>
             </ul>
-
+            
             <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="/images/user.svg" alt="Profile">
+                        <img src="images/user.svg" alt="Profile">
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="profileDropdown">
                         <li><a class="dropdown-item" href="/userProfile">Profile</a></li>
-                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        <% if ((typeof user) ==='undefined') {%>
+                            <li><a class="dropdown-item" href="/login">Signin</a></li>
+                        <% }else{ %>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        <% } %>
                     </ul>
                 </li>
-                <li><a class="nav-link" href="/cart"><img src="/images/cart.svg" alt="Cart"></a></li>
-                
-                    <li><a class="nav-link" href="/wishlist"><img src="images/whishlist.png" alt="Wishlist"></a></li>
-                      <!-- <span id="wishlist-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        0
-                        <span class="visually-hidden">wishlist items</span> -->
-                     
-                 
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart"><img src="images/cart.svg" alt="Cart"></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist"><img src="images/whishlist.png" alt="Wishlist"></a>
+                </li>
             </ul>
         </div>
     </div>

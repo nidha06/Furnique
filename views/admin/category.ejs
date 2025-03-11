@@ -11,79 +11,156 @@
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
+        
         body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            overflow-x: hidden;
+        }
+        
+        a {
+            text-decoration: none;
+        }
+        
+        /* Navbar - Mobile First */
+        .navbar {
+            background-color: #570B4F;
+            padding: 15px;
             display: flex;
-            background-color: #f5f5f5;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 100;
         }
-
-        /* Sidebar */
-        .sidebar {
-            width: 220px;
-            background-color: #fff;
-            height: 100vh;
-            padding: 20px;
-            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
-        }
-        .sidebar h1 {
-            color: #84CBCB;
-            margin-bottom: 20px;
+        
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
             font-size: 24px;
         }
+        
+        .menu-toggle {
+            color: white;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: block;
+        }
+        
+        /* Sidebar - Mobile First */
+        .sidebar {
+            background-color: #570B4F;
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 250px;
+            height: 100vh;
+            transition: left 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+            padding: 60px 0 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
         .sidebar ul {
             list-style-type: none;
+            padding: 0;
         }
+        
         .sidebar ul li {
-            margin: 15px 0;
-            cursor: pointer;
-            color: #333;
+            margin-bottom: 5px;
         }
-        .sidebar ul li:hover {
-            color: #84CBCB;
+        
+        .sidebar ul li a {
+            color: #fff;
+            font-size: 16px;
+            display: block;
+            padding: 12px 20px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
-
-        /* Main Content */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        
+        .sidebar ul li a:hover {
+            background-color: #d812be;
+            transform: translateX(5px);
         }
-        /* Top Header */
-        .header {
-            background-color: #84CBCB;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            padding-left: 20px;
-            color: white;
-            font-size: 18px;
-        }
-
-        /* Table Section */
+        
+        /* Content - Mobile First */
         .content {
-            display: flex;
-            flex: 1;
+            padding: 15px;
+            width: 100%;
+            transition: margin-left 0.3s;
         }
+        
+        /* Table Styles - Mobile First */
         .table-container {
-            flex: 2;
-            padding: 20px;
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 20px;
         }
+        
         table {
             width: 100%;
             border-collapse: collapse;
             background-color: white;
-            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            min-width: 600px; /* Ensures table doesn't get too small */
         }
+        
         th, td {
             padding: 10px;
             border-bottom: 1px solid #ccc;
             text-align: center;
+            font-size: 14px;
         }
+        
         th {
             background-color: #ad71a5;
             color: #fff;
         }
-
-
+        
+        /* Search box - Mobile First */
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .search-container input {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+        
+        .search-container button {
+            padding: 10px;
+            background-color: #570B4F;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        /* Button Styles */
         .btn-list {
             padding: 5px 10px;
             background-color: green;
@@ -91,8 +168,9 @@
             border: none;
             cursor: pointer;
             border-radius: 4px;
+            display: inline-block;
         }
-
+        
         .btn-unlist {
             padding: 5px 20px;
             background-color: #ff0202;
@@ -100,8 +178,9 @@
             border: none;
             cursor: pointer;
             border-radius: 4px;
+            display: inline-block;
         }
-
+        
         .btn-update {
             padding: 5px 10px;
             background-color: green;
@@ -110,210 +189,304 @@
             cursor: pointer;
             border-radius: 4px;
         }
-      
         
-        .btn-update:hover, .btn-ban:hover {
+        .btn-update:hover, .btn-unlist:hover, .btn-list:hover {
             opacity: 0.8;
         }
-
-       
-
+        
+        /* Pagination - Mobile First */
         .pagination {
-    display: flex; /* Arrange the items horizontally */
-    list-style-type: none; /* Remove the bullets */
-    padding: 15px; /* Remove default padding */
-    margin: 0; /* Remove default margin */
-}
-
-.pagination .page-item {
-    margin: 0 5px; /* Add some spacing between items */
-}
-
-.pagination .page-link {
-    display: block;
-    padding: 8px 12px;
-    text-decoration: none; /* Remove underline */
-    color: #570B4F; /* Link color */
-    border: 1px solid #dee2e6; /* Add border */
-    border-radius: 4px; /* Slightly rounded corners */
-    background-color: #fff; /* White background */
-}
-
-.pagination .page-item.active .page-link {
-    background-color: #570B4F; /* Highlight active item */
-    color: white; /* White text for active item */
-    border-color: #570B4F; /* Border same as background */
-}
-
-.pagination .page-link:hover {
-    background-color: #d812be; /* Darker blue on hover */
-    color: white;
-    text-decoration: none; /* Keep no underline */
-}
-
-
-
-
-.btn-blue:hover {
-  background-color: #d812be; /* Darker blue when hovering */
-}
-
-
-        /* Form Section */
-        .form-container {
-            background-color: #84CBCB;
-            padding: 20px;
-            width: 300px;
+            display: flex;
+            flex-wrap: wrap;
+            list-style-type: none;
+            padding: 15px 0;
+            justify-content: center;
         }
+        
+        .pagination .page-item {
+            margin: 5px;
+        }
+        
+        .pagination .page-link {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #570B4F;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: #570B4F;
+            color: white;
+            border-color: #570B4F;
+        }
+        
+        .pagination .page-link:hover {
+            background-color: #d812be;
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Add Category Button */
+        .add-category-btn {
+            width: 100%;
+            background-color: #1e7e34;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        /* Category Form - Mobile First */
+        .form-container {
+            background-color: #570B4F;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
         .form-container h3 {
             color: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            text-align: center;
         }
+        
         .form-container input {
             width: 100%;
             margin: 10px 0;
-            padding: 8px;
+            padding: 12px;
             border: none;
             border-radius: 4px;
         }
+        
         .form-container .create-btn {
             width: 100%;
-            padding: 10px;
-            background-color: #007BFF;
+            padding: 12px;
+            background-color: #d812be;
             color: white;
             border: none;
             cursor: pointer;
             border-radius: 4px;
             text-align: center;
+            margin-top: 10px;
         }
+        
         .form-container .create-btn:hover {
+            background-color: #b30da5;
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+        
+        /* Modal styling - Mobile First */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+            padding-top: 60px;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .modal-content h2 {
+            text-align: center;
+            font-size: 1.5em;
+            color: #570B4F;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #570B4F;
+            font-weight: bold;
+        }
+        
+        .modal input {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            width: 100%;
+            background-color: #f9f9f9;
+        }
+        
+        .modal input:focus {
+            outline: none;
+            border-color: #570B4F;
+            background-color: #fff;
+        }
+        
+        .modal button[type="submit"] {
+            background-color: #570B4F;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            width: 100%;
+            max-width: 200px;
+        }
+        
+        .modal button[type="submit"]:hover {
             background-color: #d812be;
         }
-
-        /* Modal styling */
-        .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    background-color: rgba(0, 0, 0, 0.5); /* Black with transparency */
-    overflow: auto; /* Enable scroll if needed */
-    padding-top: 60px;
-}
-
-.modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px; /* Optional: max width for large screens */
-    display: flex;
-    flex-direction: column; /* Stack content vertically */
-    gap: 10px; /* Adds spacing between the elements */
-}
-
-.modal-content h2 {
-    text-align: center; /* Center the title */
-    font-size: 1.5em;
-    color: #333; /* Darker text for readability */
-    margin-bottom: 20px;
-}
-
-input {
-    padding: 10px;
-    font-size: 1em;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    width: 100%; /* Full width of the modal */
-    box-sizing: border-box; /* Include padding in the width calculation */
-    background-color: #f9f9f9; /* Light background for inputs */
-}
-
-input:focus {
-    outline: none;
-    border-color: #007BFF; /* Blue outline on focus */
-    background-color: #fff;
-}
-
-button.update-btn {
-    background-color: #28a745; /* Green color for the update button */
-    color: rgb(255, 255, 255);
-    padding: 12px 20px;
-    font-size: 1.1em;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    align-self: center; /* Center the button */
-}
-.form-group label {
-    padding-bottom: 10px;
-}
-
-button.update-btn:hover {
-    background-color: #218838; /* Darker green on hover */
-}
-
-button.updatebtn:active {
-    background-color: #1e7e34; /* Even darker green on click */
-}
-
-.close {
-    color: #aaa;
-    font-size: 1.5em;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    top: 15px;
-    right: 20px;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-}
-
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+        
+        /* Overlay for mobile when sidebar is open */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 768px) {
+            .search-container {
+                flex-direction: row;
+            }
+            
+            .search-container button {
+                width: auto;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            th, td {
+                font-size: 16px;
+            }
+            
+            .add-category-btn {
+                width: auto;
+                padding: 10px 15px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .d-flex {
+                display: flex;
+            }
+            
+            .menu-toggle, 
+            .sidebar-close,
+            .overlay {
+                display: none;
+            }
+            
+            .sidebar {
+                position: static;
+                width: 250px;
+                left: 0;
+                padding-top: 20px;
+                height: calc(100vh - 56px);
+                box-shadow: none;
+            }
+            
+            .content {
+                flex: 1;
+                margin-left: 0;
+                background-color: #f9f9f9;
+            }
+            
+            .form-container {
+                width: 400px;
+                margin: 20px auto;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <!-- <div class="sidebar">
-        <h1>CosmiX</h1>
-        <ul>
-            <li>Dashboard</li>
-            <li>User Management</li>
-            <li>Products Management</li>
-            <li>Order Management</li>
-            <li>Category Management</li>
-            <li>Coupon Management</li>
-            <li>Offers Management</li>
-        </ul>
-    </div> -->
-
-    <!-- Main Section -->
-    <div class="main">
-        <%- include('../../views/partials/admin/sidebar') %>
-
-        <!-- Header -->
-        <!-- <div class="header">Products Management</div> -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="#"><i>Furnique</i></a>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+    </nav>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Sidebar & Content -->
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+            <ul>
+                <li><a href="http://localhost:3001/admin/dashboard">Dashboard</a></li>
+                <li><a href="http://localhost:3001/admin/reports-sales">Sales Report</a></li>
+                <li><a href="http://localhost:3001/admin/users">Customers</a></li>
+                <li><a href="http://localhost:3001/admin/category">Category</a></li>
+                <li><a href="http://localhost:3001/admin/addProducts">Add Products</a></li>
+                <li><a href="http://localhost:3001/admin/products">Products</a></li>
+                <li><a href="/admin/orders">Order</a></li>
+                <li><a href="/admin/coupons">Coupon</a></li>
+                <li><a href="http://localhost:3001/admin/offermanagement">Offers</a></li>
+                <li><a href="http://localhost:3001/admin/wallets">Wallets</a></li>
+                <li><a href="http://localhost:3001/admin/logout" style="background-color: #ad71a5; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Log Out</a></li>
+            </ul>
+        </div>
 
         <!-- Table and Form Content -->
         <div class="content">
             <!-- Table -->
             <div class="table-container">
-                <!-- <input type="text" placeholder="Search products" style="width: 100%; margin-bottom: 10px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"> -->
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                  <input type="text" placeholder="Search products" 
-                      style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                  <button style="background-color: #570B4F; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">
-                      Search
-                  </button>
-              </div>
+                <div class="search-container">
+                    <input type="text" placeholder="Search products">
+                    <button>Search</button>
+                </div>
+                
                 <table>
                     <thead>
                         <tr>
@@ -322,327 +495,303 @@ button.updatebtn:active {
                             <th>Status</th>
                             <th>List/Unlist</th>
                             <th>Update</th>
-                            
-                            
-
-                            
-                            
                         </tr>
                     </thead>
                     <tbody>
                         <% cat.reverse().forEach((category, index) => { %>
-                          <tr>
+                        <tr>
                             <td><%= category.name %></td>
                             <td><%= category.description %></td>
-                      
+                    
                             <% if (category.isListed) { %>
-                              <td>Listed</td>
+                            <td>Listed</td>
                             <% } else { %>
-                              <td>Unlisted</td>
+                            <td>Unlisted</td>
                             <% } %>
-                      
+                    
                             <% if (category.isListed) { %>
-                              <td>
-                                <button class="unlistButton" data-id="<%= category._id %>" style="padding: 5px 20px;
-                                    background-color: #ff0202;
-                                    color: white;
-                                    border: none;
-                                    cursor: pointer;
-                                    border-radius: 4px;">
-                                <!-- <a href="/admin/listCategory?id=<%= category._id %>" class="btn-unlist"> -->
-                                    Unlist
-                                <!-- </a> -->
-                                </button>
-
-                              </td>
-                            <% } else { %>
-                              <td>
-                                <button>
-                                <a href="/admin/unlistCategory?id=<%= category._id %>" class="btn-list">List</a>
-                            </button>
-                              </td>
-                            <% } %>
-                      
                             <td>
-                                <a href="/admin/editCategory?id=<%=category._id%>"><button style="background-color: green; color: #fff;" class="btn-update" >Update</button></a> 
-                              </td>                            
-                          </tr>
+                                <button class="unlistButton btn-unlist" data-id="<%= category._id %>">
+                                    Unlist
+                                </button>
+                            </td>
+                            <% } else { %>
+                            <td>
+                                <a href="/admin/unlistCategory?id=<%= category._id %>" class="btn-list">List</a>
+                            </td>
+                            <% } %>
+                    
+                            <td>
+                                <a href="/admin/editCategory?id=<%=category._id%>"><button class="btn-update">Update</button></a> 
+                            </td>                            
+                        </tr>
                         <% }) %>
-                      </tbody>
-                      
+                    </tbody>
                 </table>
-                <div class="container mt-3">
+                
+                <div class="container">
                     <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content center mb-20" >
+                        <ul class="pagination">
                             <%for(let i=1;i<=totalPages;i++){%>
-                                <li class="page-item <%=(i===currentPage) ? 'active' : ''%>">
-                                    <a class="page-link" href="?page=<%=i%>"><%= i %></a>
-                                </li>
+                            <li class="page-item <%=(i===currentPage) ? 'active' : ''%>">
+                                <a class="page-link" href="?page=<%=i%>"><%= i %></a>
+                            </li>
                             <%}%>
                         </ul>
                     </nav>
                 </div>
             </div>
+            
             <div>
-              <button id="addCategorybtn" style="background-color: #1e7e34; border-radius: 5px; border: none; color: white; padding: 8px; margin-top: 20px;">Add Category</button>
+                <button id="addCategorybtn" class="add-category-btn">Add Category</button>
             </div>
+            
             <!-- Form -->
-             <form method="POST" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)" id="addCategoryform" style="display: none;">
-            <div style="background-color: #570B4F;" class="form-container">
-                <h3>Add new category</h3>
-                <input type="text" placeholder="name" name="name">
-                <span id="name.error" class="error.message" style="color: red; display: none;"></span>
-                
-                <input type="text" placeholder="description" name="description" id="descriptionId">
-                <span id="description.error" class="error.message" style="color: red; display: none;"></span>
-                
-                
-
-                <button style="background-color: #d812be;" class="create-btn">Create</button>
-            </div>
-        </form>
-       
+            <form method="POST" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)" id="addCategoryform" style="display: none;">
+                <div class="form-container">
+                    <h3>Add new category</h3>
+                    <input type="text" placeholder="Name" name="name">
+                    <span id="name.error" class="error-message" style="display: none;"></span>
+                    
+                    <input type="text" placeholder="Description" name="description" id="descriptionId">
+                    <span id="description.error" class="error-message" style="display: none;"></span>
+                    
+                    <button class="create-btn">Create</button>
+                </div>
+            </form>
         </div>
 
-
-        
-        
-
-        
-
-
- 
-
-<!-- Modal for Updating Category  -->
-<div class="modal" id="updateCategoryModal">
-    <div style="padding: 23px;" class="modal-content">
-        <span class="close" id="closeModal">&times;</span>
-        <h2 style="color: #570B4F;">Update Category</h2>
-        <form id="updateCategoryForm" method="POST" action="/admin/updateCategory">
-            <input type="hidden" name="categoryId" id="categoryId"> <!-- Hidden field for the category ID -->
-            
-            <div style="padding: 23px;" class="form-group">
-                <label for="categoryName" style="color: #570B4F;" >Category Name:</label>
-                <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
+        <!-- Modal for Updating Category -->
+        <div class="modal" id="updateCategoryModal">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <h2>Update Category</h2>
+                <form id="updateCategoryForm" method="POST" action="/admin/updateCategory">
+                    <input type="hidden" name="categoryId" id="categoryId">
+                    
+                    <div class="form-group">
+                        <label for="categoryName">Category Name:</label>
+                        <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoryDescription">Category Description:</label>
+                        <input type="text" id="categoryDescription" name="description" placeholder="Enter category description" required>
+                    </div>
+                    
+                    <button type="submit" id="updateCategoryBtn">Update</button>
+                </form>
             </div>
-            
-            <div style="padding: 23px;" class="form-group">
-                <label for="categoryDescription" style="color: #570B4F;">Category Description:</label>
-                <input id="categoryDescription" name="description" placeholder="Enter category description" required></input>
-            </div>
-            
-            <button style="padding: 4px; margin-left: 200px; background-color: #570B4F; color:#fff;" type="submit" id="updateCategoryBtn">Update</button>
-        </form>
+        </div>
     </div>
-</div>
-
- 
-
-    </div>
+    
     <!-- SweetAlert CDN -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    document.getElementById("addCategorybtn").addEventListener("click", function() {
-        var form = document.getElementById("addCategoryform");
-        if (form.style.display === "none" || form.style.display === "") {
-            form.style.display = "block";
-            document.getElementById("addCategorybtn").style.display = "none"
-        } 
-    });
-
-    function handleFormSubmit(event) {
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        });
         
-        event.preventDefault();  
-        alert("Form submitted!");
-        return false;  
-    }
-</script>
-
-<script>
-
-    function handleFormSubmit(event){
-        event.preventDefault();
-
-        if(!validateForm()){
-
-            return 
-
-        }
-        const name = document.getElementsByName("name")[0].value;
-        const description = document.getElementById("descriptionId").value;
-
-        fetch('/admin/addCategory',{
-            method:'POST',
-            headers:{
-                'content-type':'application/json'
-            },
-            body:JSON.stringify({name,description})
-        })
-        .then(response=>{
-            if(!response.ok){
-                return response.json().then(err=>{
-                    throw new Error(err.error);
-                })
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        });
+        
+        document.getElementById('overlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        });
+        
+        // Handle resize events
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('overlay').classList.remove('active');
             }
-            return response.json();
-        })
-        .then(data=>{
-            Swal.fire({
-                icon:"success",
-                title:"success",
-                text:"Category Added successfully",
-                showConfirmButton: false,
-                timer:"1500"
-
+        });
+    
+        document.getElementById("addCategorybtn").addEventListener("click", function() {
+            var form = document.getElementById("addCategoryform");
+            if (form.style.display === "none" || form.style.display === "") {
+                form.style.display = "block";
+                document.getElementById("addCategorybtn").style.display = "none";
+            } 
+        });
+    
+        function handleFormSubmit(event) {
+            event.preventDefault();
+    
+            if(!validateForm()){
+                return;
+            }
+            
+            const name = document.getElementsByName("name")[0].value;
+            const description = document.getElementById("descriptionId").value;
+    
+            fetch('/admin/addCategory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({name, description})
             })
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        })
-        .catch(error=>{
-            if(error.message === "Category already exists"){
+            .then(response => {
+                if(!response.ok){
+                    return response.json().then(err => {
+                        throw new Error(err.error);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
                 Swal.fire({
-                    icon:"error",
-                    title:"Oops",
-                    text:"Category already exists"
-                })
-            }else{
-                Swal.fire({
-                    icon:"error",
-                    title:"oops",
-                    text:"AN error occured while adding the category"
-                })
+                    icon: "success",
+                    title: "Success",
+                    text: "Category Added successfully",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            })
+            .catch(error => {
+                if(error.message === "Category already exists"){
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops",
+                        text: "Category already exists"
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops",
+                        text: "An error occurred while adding the category"
+                    });
+                }
+            });
+        }
+    
+        function validateForm(){
+            clearErrorMessages();
+            const name = document.getElementsByName("name")[0].value.trim();
+            const description = document.getElementById('descriptionId').value.trim();
+            let isValid = true;
+    
+            if(name === ""){
+                displayErrorMessage("name.error", "Please enter a name");
+                isValid = false;
+            } else if(!/^[a-zA-Z\s]+$/.test(name)){
+                displayErrorMessage(
+                    "name.error",
+                    "Category name should contain only alphabetic characters"
+                );
+                isValid = false;
             }
-        })
-    }
-
-    function validateForm(){
-        clearErrorMessages();
-        const name = document.getElementsByName("name")[0].value.trim();
-        const description = document.getElementById('descriptionId').value.trim();
-        isValid = true;
-
-        if(name === ""){
-            displayErrorMessage("name.error", "Please enter a name");
-            isValid = false;
-        }else if(!/^[a-zA-Z\s]+$/.test(name)){
-            displayErrorMessage(
-                "name.error",
-                "category name should contain only alphabetics characters"
-            );
-            isValid = false;
+            
+            if(description === ""){
+                displayErrorMessage("description.error", "Please enter a description");
+                isValid = false;
+            }
+            
+            return isValid;
         }
-        if(description === ""){
-            displayErrorMessage("description.error","Please enter a description")
-            isValid = false;
+    
+        function displayErrorMessage(elementId, message){
+            var errorElement = document.getElementById(elementId);
+            errorElement.innerText = message;
+            errorElement.style.display = "block";
         }
-        return isValid;
-    }
-
-
-    function displayErrorMessage(elementId,message){
-        var errorElement = document.getElementById(elementId);
-        errorElement.innerText = message;
-        errorElement.style.display = "block";
-    }
-
-    function clearErrorMessages(){
-        const errorElements = document.getElementsByClassName("error.message");
-
-        Array.from(errorElements).forEach((element)=>{
-            element.innerText="";
-            element.style.display="none";
-
-        })
-    }
-
-
-
-    const modal = document.getElementById('updateCategoryModal');
-  const closeModalButton = document.getElementById('closeModal');
-  const updateCategoryForm = document.getElementById('updateCategoryForm');
-  
-  // Function to open the modal and pre-fill the fields
-  function openUpdateCategoryModal(categoryId, name, description) {
-    // Set values in the modal form
-    document.getElementById('categoryId').value = categoryId;
-    document.getElementById('categoryName').value = name;
-    document.getElementById('categoryDescription').value = description;
-
-    // Show the modal
-    modal.style.display = 'block';
-  }
-
-  // Close the modal when the user clicks the close button
-  closeModalButton.onclick = function() {
-    modal.style.display = 'none';
-  }
-
-  // Close the modal if the user clicks outside of the modal content
-  window.onclick = function(event) {
-    if (event.target === modal) {
-      modal.style.display = 'none';
-    }
-  }
-
-  // Handle form submission (optional, if using AJAX)
-  updateCategoryForm.onsubmit = function(event) {
-    event.preventDefault();
-
-    const categoryId = document.getElementById('categoryId').value;
-    const name = document.getElementById('categoryName').value;
-    const description = document.getElementById('categoryDescription').value;
-
-    // Use fetch or XMLHttpRequest to send data to the server for updating the category
-    fetch('/admin/updateCategory', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        categoryId,
-        name,
-        description
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Category updated successfully');
-      modal.style.display = 'none';
-      location.reload(); // Reload the page after update
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-  }
-
-  const unlistBtn= document.querySelectorAll('.unlistButton');
-
-  unlistBtn.forEach(btn=>{
-    btn.addEventListener('click',async()=>{
-        const categoryId=btn.getAttribute('data-id')
-        try {
-            const response= fetch('/admin/listCategory',{
-            method:'POST',
-            headers:{ 'Content-Type': 'application/json'},
-            body:JSON.stringify({categoryId})
-        })
-        const data= await response;
+    
+        function clearErrorMessages(){
+            const errorElements = document.getElementsByClassName("error-message");
+    
+            Array.from(errorElements).forEach((element) => {
+                element.innerText = "";
+                element.style.display = "none";
+            });
+        }
+    
+        const modal = document.getElementById('updateCategoryModal');
+        const closeModalButton = document.getElementById('closeModal');
+        const updateCategoryForm = document.getElementById('updateCategoryForm');
         
-        if(data.ok){
-            window.location.reload();
-        }    
-        } catch (error) {
-        console.log(error)
+        // Function to open the modal and pre-fill the fields
+        function openUpdateCategoryModal(categoryId, name, description) {
+            // Set values in the modal form
+            document.getElementById('categoryId').value = categoryId;
+            document.getElementById('categoryName').value = name;
+            document.getElementById('categoryDescription').value = description;
+    
+            // Show the modal
+            modal.style.display = 'block';
         }
-      
-    })
-  })
-
-</script>
-
-
-
+    
+        // Close the modal when the user clicks the close button
+        closeModalButton.onclick = function() {
+            modal.style.display = 'none';
+        }
+    
+        // Close the modal if the user clicks outside of the modal content
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    
+        // Handle form submission
+        updateCategoryForm.onsubmit = function(event) {
+            event.preventDefault();
+    
+            const categoryId = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value;
+            const description = document.getElementById('categoryDescription').value;
+    
+            fetch('/admin/updateCategory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    categoryId,
+                    name,
+                    description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Category updated successfully');
+                modal.style.display = 'none';
+                location.reload(); // Reload the page after update
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    
+        const unlistBtn = document.querySelectorAll('.unlistButton');
+    
+        unlistBtn.forEach(btn => {
+            btn.addEventListener('click', async() => {
+                const categoryId = btn.getAttribute('data-id');
+                try {
+                    const response = await fetch('/admin/listCategory', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json'},
+                        body: JSON.stringify({categoryId})
+                    });
+                    
+                    if(response.ok) {
+                        window.location.reload();
+                    }    
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -12,12 +12,14 @@ const walletController = require('../controllers/user/walletController');
 const passport = require('passport');
 const { userAuth } = require('../middlewares/auth');
 
-
+router.get('/is-logged-in',userController.isUser);
 router.get('/pageNotFound',userController.pageNotFound);
 router.get('/',userController.loadHomepage);
 router.get('/signup',userController.loadSignup);
 router.post('/signup',userController.signup)
+router.post('/change-password',userAuth,userController.changePassword);
 router.get('/shop',userController.loadShoppingPage);
+router.get('/get-aboutUs',userController.getAboutUs);
 router.post('/verify-otp',userController.verifyOtp);
 router.post('/resend-otp',userController.resendOtp);
 router.get('/filter',userController.filterProduct);
@@ -30,18 +32,21 @@ router.post('/wishlist-remove/:productId', userAuth,productController.removeFrom
 router.get('/wishlist-count',userAuth,productController.getWishlistCount);
 
 
+
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
 
-router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),(req,res)=>{
-userAuth, res.redirect('/');
-});
+router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),
+userController.googleSignin
+);
 
 router.get('/login',userController.loadLogin);
 router.post("/login",userController.login);
 router.get('/logout',userController.logout);
+router.get('/get-contactUs',userController.getContactUs);
 //profile management
 router.get('/forgot-password',profileController.getForgotPassPage);
 router.post('/forgot-email-valid',profileController.forgotEmailValid);
+router.post('/check-email',profileController.checkEmail)
 router.post('/verify-passForgot-otp',profileController.verifyForgotPassOtp);
 router.get('/reset-password',profileController.getResetPassPage);
 router.post('/resend-forgot-otp',profileController.resendOtp);
@@ -80,6 +85,7 @@ router.post('/submit-entire-order-return/:orderId', userAuth,orderController.sub
 
 //payment management
 router.get('/checkout',userAuth,paymentController.getCheckout);
+router.post('/wallet-payment', userAuth,paymentController.processWalletPayment);
 router.post('/order-success',userAuth,paymentController.getOrderSuccess);
 // razorpay
 router.post('/create-razorpay-order',userAuth,paymentController.createRazorpayOrder);
