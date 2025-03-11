@@ -4,7 +4,7 @@ const env = require('dotenv').config();
 
 const connectDB = async() =>{
     try{
-       await mongoose.connect('mongodb://localhost:27017/furnique');
+       await mongoose.connect(process.env.MONGODB_URI);
        console.log('database connected');
     }catch (error)
     {
