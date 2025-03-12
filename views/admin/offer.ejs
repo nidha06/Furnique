@@ -367,8 +367,8 @@
                                 <td><%= offer.category.name %></td>
                                 <td><%= offer.discount_type %></td>
                                 <td><%= offer.discount_value %><%= offer.discount_type === 'percentage' ? '%' : '₹' %></td>
-                                <td><%= new Date(offer.start_date).toLocaleDateString() %></td>
-                                <td><%= new Date(offer.end_date).toLocaleDateString() %></td>
+                                <td><%= new Date(offer.start_date).toLocaleDateString('en-IN') %></td>
+                                <td><%= new Date(offer.end_date).toLocaleDateString('en-IN') %></td>
                                 <td>₹<%= offer.minimum_purchase %></td>
                                 <td class="status-cell" data-id="<%= offer._id %>"><%= offer.status %></td>
                                 <td>

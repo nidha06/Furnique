@@ -132,13 +132,6 @@ const googleSignin= async(req,res)=>{
     try {
         req.session.user = req.user._id;
         res.locals.user=req.user
-        const user = await User.findById(req.user._id)
-        
-        const newReferralCode = await generateReferralCode();
-
-        user.referralCode=newReferralCode;
-        await user.save()
-
         return res.redirect('/');
     } catch (error) {
         console.log(error);
@@ -527,27 +520,6 @@ const loadHomepage = async (req, res) => {
     }
 };
 
-// Generate unique referral code function
-const generateReferralCode = async () => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    let isUnique = false;
-    
-    // Keep generating until we find a unique code
-    while (!isUnique) {
-        result = '';
-        for (let i = 0; i < 8; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        
-        // Check if this code already exists in the database
-        const existingUser = await User.findOne({ referralCode: result });
-        isUnique = !existingUser; // If no user found with this code, it's unique
-    }
-    
-    return result;
-};
-
 // Verify OTP function with referral system
 const verifyOtp = async (req, res) => {
     try {
@@ -556,15 +528,12 @@ const verifyOtp = async (req, res) => {
         if (otp === req.session.userOtp) {
             const userData = req.session.userData;
             
-            // Generate unique referral code for new user
-            const newReferralCode = await generateReferralCode();
             
             // Create new user with referral code
             const saveUserData = new User({
                 name: userData.name,
                 email: userData.email,
                 password: userData.hashedPassword,
-                referralCode: newReferralCode,
                 wallet: 0
             });
             

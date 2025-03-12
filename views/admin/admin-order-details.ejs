@@ -272,7 +272,7 @@
       <div class="order-header">
         <h2>Order Details</h2>
         <p><strong>Order ID:</strong> <%= order._id %></p>
-        <p><strong>Order Date:</strong> <%= new Date(order.createdAt).toLocaleDateString() %></p>
+        <p><strong>Order Date:</strong> <%= new Date(order.createdAt).toLocaleDateString('en-IN') %></p>
       </div>
       
       <!-- Customer Info -->
@@ -364,7 +364,7 @@
                     <td colspan="6">
                       <div class="alert alert-info mb-0">
                         <h5>Return Request Details</h5>
-                        <p><strong>Request Date:</strong> <%= new Date(item.returnRequest.requestDate).toLocaleDateString() %></p>
+                        <p><strong>Request Date:</strong> <%= new Date(item.returnRequest.requestDate).toLocaleDateString('en-IN') %></p>
                         <p><strong>Reason:</strong> <%= item.returnRequest.reason %></p>
                         <p><strong>Additional Details:</strong> <%= item.returnRequest.details || 'None' %></p>
                       </div>

@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+
+// Helper function to generate a random referral code
+function generateReferralCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) { // Generate an 8-character code
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+}
+
 const userSchema = new Schema({
     name: {
         type: String,
@@ -74,6 +85,27 @@ const userSchema = new Schema({
         }
     }]
 });
+
+// Middleware to generate a unique referral code before saving
+userSchema.pre('save', async function (next) {
+    if (!this.referralCode) { // Only generate if referralCode is not already set
+        let isUnique = false;
+        let referralCode;
+
+        // Keep generating codes until a unique one is found
+        while (!isUnique) {
+            referralCode = generateReferralCode();
+            const existingUser = await mongoose.model('User').findOne({ referralCode });
+            if (!existingUser) {
+                isUnique = true;
+            }
+        }
+
+        this.referralCode = referralCode.toUpperCase(); 
+    }
+    next(); 
+});
+
 
 const User = mongoose.model("User", userSchema);
 

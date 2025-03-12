@@ -484,7 +484,7 @@
                                 <% transactions.forEach(transaction => { %>
                                     <tr>
                                         <td><%= transaction._id %></td>
-                                        <td><%= transaction.date.toLocaleDateString() %></td>
+                                        <td><%= transaction.date.toLocaleDateString('en-IN') %></td>
                                         <td><%= transaction.user.email %></td>
                                         <td><%= transaction.type %></td>
                                         <td><%=transaction.amount.toLocaleString('en-IN', {style: 'currency', currency: 'INR'}) %></td>

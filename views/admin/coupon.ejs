@@ -500,7 +500,7 @@
                             <td><%= coupon.discountAmount %><%= coupon.discountType === 'percentage' ? '%' : '₹' %></td>
                             <td>₹<%= coupon.minPurchase %></td>
                             <td>₹<%= coupon.maxLimit %></td>
-                            <td><%= new Date(coupon.expiryDate).toLocaleDateString() %></td>
+                            <td><%= new Date(coupon.expiryDate).toLocaleDateString('en-IN') %></td>
                             <td>
                                 <div class="status-cell" data-id="<%= coupon._id %>">
                                     <span class="status-text"><%= coupon.isActive ? 'Active' : 'Inactive' %></span>
