@@ -10,7 +10,10 @@ const User = require('../../models/userSchema');
 const generateSalesReportData = async (req) => {
     try {
         const { startDate, endDate, reportType } = req.query;
-        let query = {};
+        let query = {
+            status: 'delivered' // Add filter for delivered orders
+        };
+
 
         // Apply filters based on the provided parameters
         if (startDate && endDate && reportType === 'custom') {
@@ -101,6 +104,10 @@ const getReport = async (req, res) => {
             startDate: startDate || '',   // Pass startDate or default to an empty string
             endDate: endDate || ''// Spread the filters to make them available in the view
         });
+        console.log(summary);
+        console.log(orders);
+        
+        
     } catch (error) {
         console.error('Error rendering sales report:', error);
         res.status(500).send('Internal Server Error');
@@ -112,7 +119,7 @@ const generateSalesReport = async (req, res) => {
     try {
         // Extract filter parameters from the request query
         const { format, startDate, endDate, reportType } = req.query;
-
+        
         // Fetch filtered sales report data
         const { success, summary, orders } = await generateSalesReportData(req);
 

@@ -20,7 +20,7 @@ const orderSchema = new mongoose.Schema({
        status: {
         type: String,
         enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned','partially_returned'],
-        default: 'pending'
+        default: 'processing'
       },
     },
     
@@ -41,7 +41,7 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled',
        'return_requested', 'returned', 'partially_returned','partially_cancelled'],
-    default: 'pending'
+    default: 'processing'
   },
   totalPrice: {
     type: Number,
@@ -61,6 +61,10 @@ const orderSchema = new mongoose.Schema({
     requestDate: Date,
     approvalDate: Date,
   },
+  paymentStatus:{
+    type:String,
+    enum:['cod','failed','success'],
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

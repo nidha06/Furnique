@@ -6,151 +6,157 @@
   <link rel="shortcut icon" href="/images/furnique-icon.svg">
   <title>FURNIQUE | Admin</title>
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #fdf3d2;
+    }
+
+    .container {
+      display: flex;
+      max-width: 1000px;
+      width: 90%;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-form {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .login-form h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #570B4F;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative; /* Ensure positioning context for error messages */
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block; /* Ensure visibility */
+    }
+
+    .form-footer {
+      margin-bottom: 20px;
+    }
+
+    .form-footer a {
+      text-decoration: none;
+      color: #570B4F;
+      font-size: 14px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #570B4F;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #d812be;
+    }
+
+    .signup-link {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .signup-link a {
+      text-decoration: none;
+      color: #570B4F;
+    }
+
+    .login-image {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
+    }
+
+    .login-image img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .login-image {
+        display: none; /* Hide image on small screens */
+      }
+    }
+  </style>
 </head>
 <body>
-    <style>
-        * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #fdf3d2;
-}
-
-.container {
-  display: flex;
-  max-width: 1000px;
-  width: 90%;
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.login-form {
-  flex: 1;
-  padding: 40px;
-}
-
-.login-form h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-  color: #333;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.form-footer {
-  margin-bottom: 20px;
-}
-
-.form-footer a {
-  text-decoration: none;
-  color: #570B4F;
-  font-size: 14px;
-}
-
-.btn {
-  width: 100%;
-  padding: 10px;
-  background-color: #570B4F;
-  border: none;
-  color: #fff;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn:hover {
-  background-color: #d812be;
-}
-
-.signup-link {
-  margin-top: 20px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.signup-link a {
-  text-decoration: none;
-  color: #570B4F;
-}
-
-.login-image {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f0f0f0;
-}
-
-.login-image img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-}
-
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .login-image {
-    display: none; /* Hide image on small screens */
-  }
-}
-
-    </style>
   <div class="container">
     <div class="login-form">
-      <h2 style="color: #570B4F;">Admin Sign in</h2>
+      <h2>Admin Sign in</h2>
 
       <form action="/admin/login" method="post">
         <div class="form-group">
           <label for="email-phone">Email</label>
-          <input name="email"  type="text" id="email-phone" placeholder="Enter your email or phone">
+          <input name="email" type="text" id="email-phone" placeholder="Enter your email">
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input name="password"  type="password" id="password" placeholder="Enter your password">
+          <input name="password" type="password" id="password" placeholder="Enter your password">
         </div>
-        <% if(typeof message!=='undefined') {%>
-          <p style="color: red ;"><%=message%></p>
-          <% } %>
+        <% if (typeof message !== 'undefined') { %>
+          <p style="color: red;"><%= message %></p>
+        <% } %>
         <div class="form-footer">
-          <a href="#">Forgot Password?</a>
+         
         </div>
         <button type="submit" class="btn">Login</button>
       </form>
-      
     </div>
     <div class="login-image">
       <img src="/images/admin.jpg" alt="Login Illustration">
-
     </div>
   </div>
 
@@ -159,59 +165,56 @@ body {
       const form = document.querySelector("form");
       const emailInput = document.getElementById("email-phone");
       const passwordInput = document.getElementById("password");
-  
+
       form.addEventListener("submit", (e) => {
         // Clear any previous validation messages
         clearValidationMessages();
-  
+
         let isValid = true;
-  
-        // Validate Email or Phone
+
+        // Validate Email
         const emailValue = emailInput.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format regex
-  
+        const emailRegex = /^[^\s@]+@([a-zA-Z0-9-]+\.)*(yahoo\.com|gmail\.com|hotmail\.com|outlook\.com)$/; // Restrict to specific domains
+
         if (emailValue === "") {
-          showError(emailInput, "Email or phone is required.");
+          showError(emailInput, "Email is required.");
           isValid = false;
         } else if (!emailRegex.test(emailValue)) {
-          showError(emailInput, "Please enter a valid email address.");
+          showError(emailInput, "Please enter a valid email ");
           isValid = false;
         }
-  
+
         // Validate Password
         const passwordValue = passwordInput.value.trim();
-  
+
         if (passwordValue === "") {
           showError(passwordInput, "Password is required.");
           isValid = false;
-        } else if (passwordValue.length < 6) {
-          showError(passwordInput, "Password must be at least 6 characters long.");
+        } else if (passwordValue.length < 8) {
+          showError(passwordInput, "Password must be at least 8 characters long.");
           isValid = false;
         }
-  
+
         // Prevent form submission if validation fails
         if (!isValid) {
           e.preventDefault();
         }
       });
-  
+
       // Function to show error messages
       function showError(input, message) {
-        const errorElement = document.createElement("p");
+        const errorElement = document.createElement("div");
+        errorElement.className = "error-message";
         errorElement.textContent = message;
-        errorElement.style.color = "red";
-        errorElement.style.fontSize = "12px";
-        errorElement.style.marginTop = "5px";
         input.parentElement.appendChild(errorElement);
       }
-  
+
       // Function to clear all validation messages
       function clearValidationMessages() {
-        const errors = document.querySelectorAll("form p");
+        const errors = document.querySelectorAll(".error-message");
         errors.forEach((error) => error.remove());
       }
     });
   </script>
-  
 </body>
 </html>

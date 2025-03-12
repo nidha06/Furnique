@@ -3,6 +3,12 @@ const mongoose = require('mongoose');
 const Order = require('../../models/orderSchema');
 const Product = require('../../models/productSchema');
 const Wallet = require('../../models/walletSchema');
+const Razorpay = require('razorpay');
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 const getOrderList = async (req, res) => {
     try {
@@ -60,7 +66,7 @@ const getOrderDetails = async (req, res) => {
         const orderId = req.params.orderId;
         const order = await Order.findById(orderId)
             .populate('user', 'name email')
-            .select('shippingAddress paymentMethod items totalPrice status createdAt cancellationReason returnRequest appliedCoupon');
+            .select('shippingAddress paymentMethod items totalPrice status createdAt cancellationReason returnRequest appliedCoupon paymentStatus');
         if (!order) {
             return res.status(404).send('Order not found');
         }
@@ -84,6 +90,7 @@ const getOrderDetails = async (req, res) => {
        
 
         const simplifiedOrder = {
+           
             _id: order._id,
             user: {
                 _id: order.user?._id || '',
@@ -97,6 +104,7 @@ const getOrderDetails = async (req, res) => {
                 pincode: order.shippingAddress.pincode,
             },
             paymentMethod: order.paymentMethod,
+            paymentStatus:order.paymentStatus,
             items: itemsWithImages,
             totalPrice: order.totalPrice,
             status: order.status,
@@ -111,7 +119,7 @@ const getOrderDetails = async (req, res) => {
                 : null,
         };
         console.log('simplified:', simplifiedOrder);
-        res.render('order-details', { order: simplifiedOrder });
+        res.render('order-details', { order: simplifiedOrder , razorpayId: process.env.RAZORPAY_KEY_ID,});
     } catch (error) {
         console.error("Error fetching order details:", error);
         res.status(500).send('Internal Server Error');

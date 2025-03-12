@@ -650,20 +650,28 @@ const loadLogin = async (req, res) => {
 // Handle Login
 const login = async (req, res) => {
     try {
+        console.log(req.body);
+        
         const { email, password } = req.body;
         const findUser = await User.findOne({ email });
 
         if (!findUser) {
             return res.render("login", { message: "user not found" });
         }
+        // if (findUser.isAdmin !== "true") {
+        //     return res.render("login", { message: "Only admins can access this page" });
+        //   }
         if (findUser.isBlocked) {
             return res.render("login", { message: "user is blocked by admin" });
         }
-
+        if(!findUser.password){
+            return res.render("login", { message: "Create a new password using forgot password" });
+        }
         const passwordMatch = await bcrypt.compare(password, findUser.password);
         if (!passwordMatch) {
             return res.render("login", { message: "Incorrect email or password" });
         }
+       
 
         const categories = await Category.find({ isListed: true });
         let products = await Product.find({

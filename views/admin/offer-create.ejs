@@ -15,79 +15,119 @@
         
         body {
             background-color: #f4f4f4;
+            overflow-x: hidden;
         }
 
         a {
             text-decoration: none;
         }
 
-        /* Navbar */
+        /* Navbar - Mobile First */
         .navbar {
             background-color: #570B4F;
-            padding: 10px 20px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: fixed;
-            width: 100%;
             top: 0;
+            width: 100%;
             z-index: 1000;
         }
-
+        
         .navbar-brand {
             color: #fff;
             font-weight: bold;
-            font-size: 30px;
+            font-size: 24px;
         }
-
-        /* Main Layout */
-        .d-flex {
-            display: flex;
-            min-height: 100vh;
-            padding-top: 56px; /* Account for fixed navbar */
+        
+        .menu-toggle {
+            color: white;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: block;
         }
-
-        /* Sidebar */
+        
+        /* Sidebar - Mobile First */
         .sidebar {
-            width: 250px;
             background-color: #570B4F;
             position: fixed;
-            height: 100%;
-            left: 0;
-            top: 54px;
-            padding: 20px;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 250px;
+            height: 100vh;
+            transition: left 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+            padding: 60px 0 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
-
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
         .sidebar ul {
             list-style-type: none;
             padding: 0;
         }
-
+        
         .sidebar ul li {
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
-
+        
         .sidebar ul li a {
             color: #fff;
             font-size: 16px;
             display: block;
-            padding: 12px 15px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 4px;
             transition: all 0.3s ease;
         }
-
+        
         .sidebar ul li a:hover {
-            background-color: #f8a7ed;
-            color: #570B4F;
+            background-color: #d812be;
             transform: translateX(5px);
         }
-
-        /* Content Area */
-        .content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 40px;
-            background-color: #f9f9f9;
+        
+        /* Overlay for mobile when sidebar is open */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
         }
-
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Content - Mobile First */
+        .content {
+            padding: 20px;
+            width: 100%;
+            transition: margin-left 0.3s;
+            padding-top: 56px; /* Account for fixed navbar */
+        }
+        
         /* Form Container */
         .form-container {
             background-color: #ad71a5;
@@ -167,24 +207,6 @@
             padding: 8px;
         }
 
-        .offer-type-selector {
-            display: flex;
-            gap: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-
-        .offer-type-selector label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            color: #333;
-            font-weight: 500;
-        }
-
         .button-group {
             display: flex;
             gap: 15px;
@@ -226,10 +248,6 @@
             box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
         }
 
-        .hidden {
-            display: none;
-        }
-
         /* Error styles */
         .error-message {
             color: #dc3545;
@@ -257,37 +275,88 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
         }
+
         .back-to-list:hover {
             background-color: #d812be;
+        }
+
+        /* Desktop styles */
+        @media (min-width: 992px) {
+            .d-flex {
+                display: flex;
+            }
+            
+            .menu-toggle,
+            .sidebar-close,
+            .overlay {
+                display: none;
+            }
+            
+            .sidebar {
+                position: fixed;
+                width: 250px;
+                left: 0;
+                top: 56px;
+                padding-top: 20px;
+                height: calc(100vh - 56px);
+                box-shadow: none;
+            }
+            
+            .content {
+                flex: 1;
+                margin-left: 250px;
+                background-color: #f9f9f9;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <%- include('../../views/partials/admin/sidebar') %>
+    <nav class="navbar">
+        <a class="navbar-brand" href="#"><i>Furnique</i></a>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+    </nav>
+    <div class="overlay" id="overlay"></div>
+    <!-- Sidebar & Content -->
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+            <ul>
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/reports-sales">Sales Report</a></li>
+                <li><a href="/admin/users">Customers</a></li>
+                <li><a href="/admin/category">Category</a></li>
+                <li><a href="/admin/addProducts">Add Products</a></li>
+                <li><a href="/admin/products">Products</a></li>
+                <li><a href="/admin/orders">Order</a></li>
+                <li><a href="/admin/coupons">Coupon</a></li>
+                <li><a href="/admin/offermanagement" class="active">Offers</a></li>
+                <li><a href="/admin/wallets">Wallets</a></li>
+                <li><a href="/admin/logout" style="background-color: #ad71a5; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Log Out</a></li>
+            </ul>
+        </div>
+        
         <!-- Content Area -->
         <div class="content">
             <div class="form-container">
                 <h2>Create New Offer</h2>
-                <form action="/admin/submit-offer" method="POST">
+                <form id="offerForm" action="/admin/submit-offer" method="POST" onsubmit="return validateForm(event)">
                     <div class="form-group">
                         <label for="title">Offer Name</label>
                         <input type="text" id="title" name="title" required>
+                        <div id="title-error" class="error-message">Please enter an offer name</div>
                     </div>
-
 
                     <div class="form-group" id="categorySelection">
                         <label for="category">Select Category</label>
                         <select id="category" name="category" required>
-                          <!-- In the category select options -->
-<% for(let i = 0; i < categories.length; i++){ %>
-    <option value="<%= categories[i]._id %>"><%= categories[i].name %></option>
-<% } %>
+                            <% for(let i = 0; i < categories.length; i++) { %>
+                                <option value="<%= categories[i]._id %>"><%= categories[i].name %></option>
+                            <% } %>
                         </select>
-                        <div class="error-message">Please select at least one category</div>
+                        <div id="category-error" class="error-message">Please select a category</div>
                     </div>
-
-                    
 
                     <div class="form-group">
                         <label for="discount_type">Discount Type</label>
@@ -295,26 +364,31 @@
                             <option value="percentage">Percentage</option>
                             <option value="fixed">Fixed Amount</option>
                         </select>
+                        <div id="discount_type-error" class="error-message">Please select a discount type</div>
                     </div>
 
                     <div class="form-group">
                         <label for="discount_value">Discount Value</label>
                         <input type="number" id="discount_value" name="discount_value" min="0" required>
+                        <div id="discount_value-error" class="error-message"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="start_date">Start Date</label>
                         <input type="date" id="start_date" name="start_date" required>
+                        <div id="start_date-error" class="error-message"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="end_date">End Date</label>
                         <input type="date" id="end_date" name="end_date" required>
+                        <div id="end_date-error" class="error-message"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="minimum_purchase">Minimum Purchase Amount (₹)</label>
                         <input type="number" id="minimum_purchase" name="minimum_purchase" min="0" required>
+                        <div id="minimum_purchase-error" class="error-message"></div>
                     </div>
 
                     <div class="button-group">
@@ -330,93 +404,174 @@
     </div>
 
     <script>
-        // Date validation
+        // Toggle sidebar on mobile
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        });
+        
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        });
+        
+        document.getElementById('overlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+        
+        // Handle resize events
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('overlay').classList.remove('active');
+            }
+        });
+
+        // Date validation setup
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('start_date').min = today;
         document.getElementById('end_date').min = today;
 
         document.getElementById('start_date').addEventListener('change', function() {
-            document.getElementById('end_date').min = this.value;
+            const startDate = this.value;
+            document.getElementById('end_date').min = startDate;
+            clearError('end_date-error');
         });
 
+        // Validation function
+        function validateForm(event) {
+            event.preventDefault();
+            clearAllErrors();
+            let isValid = true;
 
+            // Required fields validation
+            const requiredFields = [
+                
+                { id: 'category', errorId: 'category-error', message: 'Please select a category' },
+                { id: 'discount_type', errorId: 'discount_type-error', message: 'Please select a discount type' },
+                { id: 'discount_value', errorId: 'discount_value-error', message: 'Please enter a discount value' },
+                { id: 'start_date', errorId: 'start_date-error', message: 'Please select a start date' },
+                { id: 'end_date', errorId: 'end_date-error', message: 'Please select an end date' },
+                { id: 'minimum_purchase', errorId: 'minimum_purchase-error', message: 'Please enter a minimum purchase amount' }
+            ];
 
-
-    // Handle form submission via AJAX
-    document.querySelector('form').addEventListener('submit', async function(e) {
-        e.preventDefault(); // Prevent default form submission
-
-        // Perform client-side validation
-        let hasError = false;
-
-        // Date validation
-        const startDate = new Date(document.getElementById('start_date').value);
-        const endDate = new Date(document.getElementById('end_date').value);
-
-        if (endDate < startDate) {
-            alert('End date cannot be before start date');
-            return;
-        }
-
-        // Category/Product validation
-
-        const categorySelected = document.getElementById('category').value;
-if (!categorySelected) {
-    document.getElementById('categorySelection').classList.add('error');
-    hasError = true;
-} else {
-    document.getElementById('categorySelection').classList.remove('error');
-}
-        if (hasError) {
-            return;
-        }
-
-        // Collect form data
-        const formData = {};
-        new FormData(document.querySelector('form')).forEach((value, key) => {
-        formData[key] = value;
-    });
-    
-        try {
-            // Send POST request to the server
-            const response = await fetch('/admin/submit-offer', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (!input.value.trim()) {
+                    displayError(field.errorId, field.message);
+                    isValid = false;
+                }
             });
 
-            const result = await response.json();
+            // Numeric validation
+            const discountValue = parseFloat(document.getElementById('discount_value').value);
+            if (discountValue < 0) {
+                displayError('discount_value-error', 'Discount value cannot be negative');
+                isValid = false;
+            }
+            const discountType = document.getElementById('discount_type').value;
+            if (discountType === 'percentage' && (discountValue > 100 || discountValue < 0)) {
+                displayError('discount_value-error', 'Percentage discount must be between 0 and 100');
+                isValid = false;
+            }
 
-            if (result.success) {
-                // Show success alert using SweetAlert
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: result.message,
-                }).then(() => {
-                    // Redirect to the offer listing page
-                    window.location.href = '/admin/offermanagement';
+            const minimumPurchase = parseFloat(document.getElementById('minimum_purchase').value);
+            if (minimumPurchase < 0) {
+                displayError('minimum_purchase-error', 'Minimum purchase amount cannot be negative');
+                isValid = false;
+            }
+
+            // Date validation (no past dates)
+            const startDate = new Date(document.getElementById('start_date').value);
+            const endDate = new Date(document.getElementById('end_date').value);
+            const currentDate = new Date(today);
+            if (startDate < currentDate) {
+                displayError('start_date-error', 'Start date cannot be in the past');
+                isValid = false;
+            }
+            if (endDate < currentDate) {
+                displayError('end_date-error', 'End date cannot be in the past');
+                isValid = false;
+            }
+            if (endDate < startDate) {
+                displayError('end_date-error', 'End date cannot be before start date');
+                isValid = false;
+            }
+
+            if (isValid) {
+                submitForm();
+            }
+            return isValid;
+        }
+
+        // Error handling functions
+        function displayError(errorId, message) {
+            const errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            document.getElementById(errorId.replace('-error', '')).parentElement.classList.add('error');
+        }
+
+        function clearError(errorId) {
+            const errorElement = document.getElementById(errorId);
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+            document.getElementById(errorId.replace('-error', '')).parentElement.classList.remove('error');
+        }
+
+        function clearAllErrors() {
+            const errorElements = document.getElementsByClassName('error-message');
+            Array.from(errorElements).forEach(element => {
+                element.textContent = '';
+                element.style.display = 'none';
+                const fieldId = element.id.replace('-error', '');
+                document.getElementById(fieldId).parentElement.classList.remove('error');
+            });
+        }
+
+        // Form submission with AJAX
+        async function submitForm() {
+            const formData = {};
+            new FormData(document.getElementById('offerForm')).forEach((value, key) => {
+                formData[key] = value;
+            });
+
+            try {
+                const response = await fetch('/admin/submit-offer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
                 });
-            } else {
-                // Show error alert if creation fails
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: result.message,
+                    }).then(() => {
+                        window.location.href = '/admin/offermanagement';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: result.message || 'Something went wrong!',
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: result.message || 'Something went wrong!',
+                    text: 'An unexpected error occurred!',
                 });
             }
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'An unexpected error occurred!',
-            });
         }
-    });
     </script>
-
 </body>
 </html>

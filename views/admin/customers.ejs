@@ -157,6 +157,22 @@
         .search-container button:hover {
             background-color: #7b0e6f;
         }
+
+        .search-container .cancel-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .search-container .cancel-btn:hover {
+            background-color: #c82333;
+        }
         
         /* Table Container */
         .table-container {
@@ -266,6 +282,10 @@
             .search-container button {
                 width: auto;
             }
+
+            .search-container .cancel-btn {
+                width: auto;
+            }
         }
         
         @media (min-width: 992px) {
@@ -325,7 +345,7 @@
             <ul>
                 <li><a href="/admin/dashboard">Dashboard</a></li>
                 <li><a href="/admin/reports-sales">Sales Report</a></li>
-                <li><a href="/admin/users">Customers</a></li>
+                <li><a href="/admin/users" class="active">Customers</a></li>
                 <li><a href="/admin/category">Category</a></li>
                 <li><a href="/admin/addProducts">Add Products</a></li>
                 <li><a href="/admin/products">Products</a></li>
@@ -339,14 +359,17 @@
         
         <!-- Content wrapper -->
         <div class="content-wrapper">
+            
             <div class="content">
-                <div class="search-container">
-                    <input type="text" placeholder="Search user">
-                    <button>Search</button>
-                </div>
+                <h2 style="color: #570B4F;">User Management</h2>
+                <form id="searchForm" action="/admin/users" method="GET" class="search-container">
+                    <input type="text" id="searchInput" name="search" placeholder="Search user by name or email" value="<%= search || '' %>">
+                    <button type="submit">Search</button>
+                    <a href="/admin/users" class="cancel-btn">Cancel</a>
+                </form>
                 
                 <div class="table-container">
-                    <table>
+                    <table id="userTable">
                         <thead>
                             <tr>
                                 <th>Username</th>
@@ -354,29 +377,37 @@
                                 <th>Block</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <%for(let i=0;i<data.length;i++){%>
-                            <tr>
-                                <td><%=data[i].name%></td>
-                                <td><%=data[i].email%></td>
-                                <% if(data[i].isBlocked === false) { %>
-                                    <td><a href="/admin/blockCustomer?id=<%=data[i]._id%>" class="btn-update">Block</a></td>
-                                <% } else { %>
-                                    <td><a href="/admin/unblockCustomer?id=<%=data[i]._id%>" class="btn-update green">UnBlock</a></td>
+                        <tbody id="userTableBody">
+                            <% if (data.length === 0) { %>
+                                <tr>
+                                    <td colspan="3">No users found.</td>
+                                </tr>
+                            <% } else { %>
+                                <% for(let i = 0; i < data.length; i++) { %>
+                                    <tr>
+                                        <td><%= data[i].name %></td>
+                                        <td><%= data[i].email %></td>
+                                        <% if (data[i].isBlocked === false) { %>
+                                            <td><a href="/admin/blockCustomer?id=<%= data[i]._id %>" class="btn-update">Block</a></td>
+                                        <% } else { %>
+                                            <td><a href="/admin/unblockCustomer?id=<%= data[i]._id %>" class="btn-update green">UnBlock</a></td>
+                                        <% } %>
+                                    </tr>
                                 <% } %>
-                            </tr>
-                            <%}%>
+                            <% } %>
                         </tbody>
                     </table>
                 </div>
                 
                 <div class="pagination-container">
-                    <ul class="pagination">
-                        <%for(let i=1;i<=totalPage;i++){%>
-                            <li class="page-item <%=(i===currentPage) ? 'active' : ''%>">
-                                <a class="page-link" href="?page=<%=i%>"><%=i%></a>
-                            </li>
-                        <%}%>
+                    <ul class="pagination" id="pagination">
+                        <% if (totalPage > 1) { %>
+                            <% for(let i = 1; i <= totalPage; i++) { %>
+                                <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %>&search=<%= encodeURIComponent(search || '') %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                        <% } %>
                     </ul>
                 </div>
             </div>
@@ -405,6 +436,13 @@
             if (window.innerWidth >= 992) {
                 document.getElementById('sidebar').classList.remove('active');
                 document.getElementById('overlay').classList.remove('active');
+            }
+        });
+
+        // Optional: Add Enter key support for search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchForm').submit();
             }
         });
     </script>

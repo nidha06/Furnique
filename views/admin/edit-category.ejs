@@ -6,10 +6,14 @@
     <title>Furnique</title>
     <style>
         :root {
-           
             --border-radius: 8px;
             --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s ease;
+            --primary-color: #570B4F;
+            --light-color: #f9f9f9;
+            --dark-color: #333;
+            --secondary-color: #6b8cae;
+            --danger-color: #dc3545;
         }
 
         * {
@@ -59,6 +63,7 @@
 
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
 
         .form-group label {
@@ -91,6 +96,13 @@
             min-height: 120px;
         }
 
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+        }
+
         .btn-container {
             display: flex;
             flex-direction: column;
@@ -111,7 +123,7 @@
         }
 
         .btn-update {
-            background-color:#570B4F;
+            background-color: #570B4F;
             color: white;
         }
 
@@ -129,7 +141,6 @@
             background-color: #f1f1f1;
         }
 
-        /* Media queries for responsiveness */
         @media (min-width: 768px) {
             .form-container {
                 padding: 40px;
@@ -148,16 +159,21 @@
 </head>
 <body>
     <div class="form-container">
-       
-        <form action="/admin/editCategory/<%= category._id %>" method="POST">
+        <div class="form-header">
+            <div class="logo">Furnique</div>
+            <h2>Edit Category</h2>
+        </div>
+        <form id="editCategoryForm" action="/admin/editCategory/<%= category._id %>" method="POST">
             <div class="form-group">
                 <label for="categoryName">Category Name</label>
                 <input type="text" id="categoryName" name="categoryName" value="<%= category.name %>" required>
+                <div class="error-message" id="categoryNameError"></div>
             </div>
             
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea id="description" name="description" required><%= category.description %></textarea>
+                <div class="error-message" id="descriptionError"></div>
             </div>
             
             <div class="btn-container">
@@ -166,5 +182,98 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('editCategoryForm');
+            const categoryNameInput = document.getElementById('categoryName');
+            const descriptionInput = document.getElementById('description');
+            const categoryNameError = document.getElementById('categoryNameError');
+            const descriptionError = document.getElementById('descriptionError');
+
+            // Clear error messages
+            function clearErrors() {
+                categoryNameError.textContent = '';
+                descriptionError.textContent = '';
+            }
+
+            // Show error message
+            function showError(element, message) {
+                element.textContent = message;
+            }
+
+            // Client-side validation
+            function validateForm() {
+                let isValid = true;
+
+                // Validate Category Name
+                const categoryName = categoryNameInput.value.trim();
+                if (!categoryName) {
+                    showError(categoryNameError, 'Category name is required.');
+                    isValid = false;
+                } else if (categoryName.length < 2) {
+                    showError(categoryNameError, 'Category name must be at least 2 characters long.');
+                    isValid = false;
+                } else if (!/^[a-zA-Z0-9\s-]+$/.test(categoryName)) {
+                    showError(categoryNameError, 'Category name can only contain letters, numbers, spaces, and hyphens.');
+                    isValid = false;
+                }
+
+                // Validate Description
+                const description = descriptionInput.value.trim();
+                if (!description) {
+                    showError(descriptionError, 'Description is required.');
+                    isValid = false;
+                } else if (description.length < 10) {
+                    showError(descriptionError, 'Description must be at least 10 characters long.');
+                    isValid = false;
+                } 
+
+                return isValid;
+            }
+
+            // Handle form submission
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent default form submission
+                clearErrors();
+
+                if (validateForm()) {
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                categoryName: categoryNameInput.value.trim(),
+                                description: descriptionInput.value.trim(),
+                            }),
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            // Handle backend errors
+                            if (data.error === 'Category not found') {
+                                showError(categoryNameError, 'Category not found.');
+                            } else if (data.error === 'Category already exists, please choose another name') {
+                                showError(categoryNameError, 'Category already exists, please choose another name.');
+                            } else if (data.error === 'Internal server error') {
+                                showError(categoryNameError, 'An error occurred. Please try again.');
+                            } else {
+                                showError(categoryNameError, 'An unexpected error occurred.');
+                            }
+                        } else if (data.success) {
+                            // Success - redirect
+                            window.location.href = data.redirect;
+                        }
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                        showError(categoryNameError, 'An error occurred. Please try again.');
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

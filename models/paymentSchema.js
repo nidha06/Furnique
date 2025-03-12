@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const paymentSchema = new mongoose.Schema({
   // Reference to the user who made the payment
+  orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -52,8 +53,8 @@ const paymentSchema = new mongoose.Schema({
   // Status of the payment
   status: {
     type: String,
-    enum: ['Pending', 'Completed', 'Failed'],
-    default: 'Pending',
+    enum: ['pending', 'success', 'failed'],
+    default: 'pending',
   },
 
   // Timestamps for when the payment was created and updated

@@ -105,7 +105,7 @@ const editCategory = async (req, res) => {
             { new: true }
         );
         if (updatedCategory) {
-            return res.redirect('/admin/category');
+            return res.status(200).json({ success: true, redirect: '/admin/category' });
         } else {
             return res.status(404).json({ error: "Category not found" });
         }
@@ -114,6 +114,8 @@ const editCategory = async (req, res) => {
         return res.status(500).json({ error: "Internal server error" });
     }
 };
+
+
 
 module.exports = {
     categoryInfo,

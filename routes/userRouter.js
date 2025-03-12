@@ -35,7 +35,7 @@ router.get('/wishlist-count',userAuth,productController.getWishlistCount);
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
 
-router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),
+router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),userAuth,
 userController.googleSignin
 );
 
@@ -89,6 +89,7 @@ router.post('/wallet-payment', userAuth,paymentController.processWalletPayment);
 router.post('/order-success',userAuth,paymentController.getOrderSuccess);
 // razorpay
 router.post('/create-razorpay-order',userAuth,paymentController.createRazorpayOrder);
+router.post('/handle-payment-failure', userAuth,paymentController.handlePaymentFailure);
 router.post('/verify-payment',userAuth,paymentController.verifyPayment);
 //couponmanagement
 router.post('/apply-coupon',userAuth,cartController.applyCoupon);
