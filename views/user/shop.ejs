@@ -429,42 +429,64 @@ body {
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
 
     addToCartButtons.forEach(button => {
-        button.addEventListener('click', async (event) => {
-            event.preventDefault();
-            const productId = button.getAttribute('data-id');
-            try {
-              const response = await fetch('/add-to-cart',{
-              method:'POST',
-              headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({productId})
-            })
-           
-           if(response.ok){
-            Swal.fire({
+    // Define the click handler as a named function so we can remove it later
+    const handleClick = async (event) => {
+        // Immediately disable the button and prevent default behavior
+        button.disabled = true;
+        event.preventDefault();
+
+        // Remove the event listener to prevent further clicks
+        button.removeEventListener('click', handleClick);
+
+        const productId = button.getAttribute('data-id');
+
+        try {
+            const response = await fetch('/add-to-cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+            });
+
+            if (response.ok) {
+                Swal.fire({
                     icon: 'success',
                     title: 'Success!',
                     text: 'Product added to cart!',
                     timer: 2000,
-                    toast:true,
+                    toast: true,
                     showConfirmButton: false
                 });
 
                 setTimeout(() => {
-                  window.location.reload();
+                    window.location.reload();
                 }, 500);
-               
-           } 
-          else {
+            } else {
+                // Re-enable and reattach listener on failure
+                button.disabled = false;
+                button.addEventListener('click', handleClick);
+                const data = await response.json();
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops!',
-                    text: data.message
+                    text: data.message || 'Something went wrong'
                 });
             }
-            } catch (error) {
-              console.log(error)
-            }
+        } catch (error) {
+            // Re-enable and reattach listener on network error
+            button.disabled = false;
+            button.addEventListener('click', handleClick);
+            console.log(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: 'Network error occurred'
+            });
+        }
+    };
 
+    // Attach the event listener initially
+    button.addEventListener('click', handleClick);
+});
             
 
   //          fetch("/add-to-cart")
@@ -484,9 +506,6 @@ body {
             
 
         });
-    });
-});
-
 
 document.addEventListener('DOMContentLoaded', function() {
     const sortDropdown = document.getElementById('sortDropdown');

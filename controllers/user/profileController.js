@@ -211,7 +211,7 @@ const addAddress = async (req, res) => {
 const checkoutAddAddress = async (req, res) => {
     try {
         const user = req.session.user;
-        res.render('checkout-AddAddress', { user: user });
+        res.render('checkout-addAddress', { user: user });
     } catch (error) {
         res.redirect('/pageNotFound');
     }

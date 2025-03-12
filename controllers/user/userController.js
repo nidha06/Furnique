@@ -523,110 +523,119 @@ const loadHomepage = async (req, res) => {
 };
 
 // Generate unique referral code function
-const generateReferralCode = () => {
-    // Generate a random string of 8 characters
+const generateReferralCode = async () => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
-    for (let i = 0; i < 8; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-  };
-  
-  // Verify OTP function with referral system
-  const verifyOtp = async (req, res) => {
-    try {
-      const { otp } = req.body;
-      
-      if (otp === req.session.userOtp) {
-        const userData = req.session.userData;
-        
-        // Generate unique referral code for new user
-        const newReferralCode = generateReferralCode();
-        
-        // Create new user with referral code
-        const saveUserData = new User({
-          name: userData.name,
-          email: userData.email,
-          password: userData.hashedPassword,
-          referralCode: newReferralCode,
-          wallet: 0
-        });
-        
-        await saveUserData.save();
-        
-        // If user was referred, add 500 to both users' wallets
-        if (userData.referralCode) {
-          const referrer = await User.findOne({ referralCode: userData.referralCode });
-          
-          if (referrer) {
-            // Create wallet transaction for referrer
-            await Wallet.findOneAndUpdate(
-              { user: referrer._id },
-              { 
-                $inc: { balance: 500 },
-                $push: { 
-                  transactions: {
-                    amount: 500,
-                    type: 'credit',
-                    description: `Referral Bonus: ${saveUserData.email} joined using your referral code`,
-                    date: new Date()
-                  }
-                }
-              },
-              { upsert: true }
-            );
-            
-            // Create wallet transaction for new user
-            await Wallet.create({
-              user: saveUserData._id,
-              balance: 500,
-              transactions: [{
-                amount: 500,
-                type: 'credit',
-                description: 'Referral Bonus: You joined using a referral code',
-                date: new Date()
-              }]
-            });
-          } else {
-            // Create empty wallet for new user if referral code was invalid
-            await Wallet.create({
-              user: saveUserData._id,
-              balance: 0,
-              transactions: []
-            });
-          }
-        } else {
-          // Create empty wallet for new user if no referral code was used
-          await Wallet.create({
-            user: saveUserData._id,
-            balance: 0,
-            transactions: []
-          });
+    let isUnique = false;
+    
+    // Keep generating until we find a unique code
+    while (!isUnique) {
+        result = '';
+        for (let i = 0; i < 8; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         
-        req.session.user = saveUserData._id;
-        
-        // Return success response with the same format as your original function
-        res.json({
-          success: true,
-          redirectUrl: "/",
-          user: saveUserData,
-        });
-      } else {
-        res.status(400).json({ 
-          success: false, 
-          message: "invalid OTP, please try again" 
-        });
-      }
-    } catch (error) {
-      console.error("error verifying", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "an error occurred" 
-      });
+        // Check if this code already exists in the database
+        const existingUser = await User.findOne({ referralCode: result });
+        isUnique = !existingUser; // If no user found with this code, it's unique
     }
-  };
+    
+    return result;
+};
+
+// Verify OTP function with referral system
+const verifyOtp = async (req, res) => {
+    try {
+        const { otp } = req.body;
+        
+        if (otp === req.session.userOtp) {
+            const userData = req.session.userData;
+            
+            // Generate unique referral code for new user
+            const newReferralCode = await generateReferralCode();
+            
+            // Create new user with referral code
+            const saveUserData = new User({
+                name: userData.name,
+                email: userData.email,
+                password: userData.hashedPassword,
+                referralCode: newReferralCode,
+                wallet: 0
+            });
+            
+            await saveUserData.save();
+            
+            // If user was referred, add 500 to both users' wallets
+            if (userData.referralCode) {
+                const referrer = await User.findOne({ referralCode: userData.referralCode });
+                
+                if (referrer) {
+                    // Create wallet transaction for referrer
+                    await Wallet.findOneAndUpdate(
+                        { user: referrer._id },
+                        { 
+                            $inc: { balance: 500 },
+                            $push: { 
+                                transactions: {
+                                    amount: 500,
+                                    type: 'credit',
+                                    description: `Referral Bonus: ${saveUserData.email} joined using your referral code`,
+                                    date: new Date()
+                                }
+                            }
+                        },
+                        { upsert: true }
+                    );
+                    
+                    // Create wallet transaction for new user
+                    await Wallet.create({
+                        user: saveUserData._id,
+                        balance: 500,
+                        transactions: [{
+                            amount: 500,
+                            type: 'credit',
+                            description: 'Referral Bonus: You joined using a referral code',
+                            date: new Date()
+                        }]
+                    });
+                } else {
+                    // Create empty wallet for new user if referral code was invalid
+                    await Wallet.create({
+                        user: saveUserData._id,
+                        balance: 0,
+                        transactions: []
+                    });
+                }
+            } else {
+                // Create empty wallet for new user if no referral code was used
+                await Wallet.create({
+                    user: saveUserData._id,
+                    balance: 0,
+                    transactions: []
+                });
+            }
+            
+            req.session.user = saveUserData._id;
+            
+            res.json({
+                success: true,
+                redirectUrl: "/",
+                user: saveUserData,
+            });
+        } else {
+            res.status(400).json({ 
+                success: false, 
+                message: "invalid OTP, please try again" 
+            });
+        }
+    } catch (error) {
+        console.error("error verifying", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "an error occurred" 
+        });
+    }
+};
 // Resend OTP
 const resendOtp = async (req, res) => {
     try {

@@ -16,7 +16,7 @@
 <body>
     <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furnique navigation bar">
         <div class="container">
-            <a class="navbar-brand" href="index.html">Furnique<span>.</span></a>
+            <a class="navbar-brand" href="/">Furnique<span>.</span></a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -90,7 +90,7 @@
                 <p class="empty-cart">Your cart is empty.</p>
             <% } %>
         </div>
-        <% if (cart?.items.length) { %>
+        <% if (cart?.items?.length) { %>
         <div class="cart-summary">
             <h3>Total: ₹<span id="cartTotal">0</span></h3>
             <a href="/checkout"><button class="checkout-btn">Proceed to Checkout</button></a>

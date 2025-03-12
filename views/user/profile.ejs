@@ -13,6 +13,14 @@
 
   <style>
     /* Base styles */
+    :root {
+            --primary: #1a2b3c;
+            --secondary: #f5f6f5;
+            --accent: #d32f2f;
+            --text: #263238;
+            --text-light: #607d8b;
+            --wishlist-bg: #570B4F;
+        }
     body {
       font-family: 'Arial', sans-serif;
       font-size: 16px;
@@ -343,10 +351,73 @@
         margin-bottom: 0;
       }
     }
+    .custom-navbar {
+            background: var(--wishlist-bg) !important;
+        }
+        .custom-navbar {
+            background: var(--wishlist-bg) !important;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
   </style>
 </head>
 <body>
-  <%- include('../../views/partials/user/header.ejs')%>
+  <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furnique navigation bar">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">Furnique<span>.</span></a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarsFurni">
+            <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+                <li class="nav-item ">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/shop">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/get-aboutUs">About us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/get-contactUs">Contact us</a>
+                </li>
+                <% if ((typeof user) ==='undefined') {%>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Sign in</a>
+                    </li>
+                <% }else{ %>
+                    <li class="nav-item" style="font-size: larger; color: #fff;"></li>
+                <% } %>
+            </ul>
+            
+            <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="/images/user.svg" alt="Profile">
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="/userProfile">Profile</a></li>
+                        <% if ((typeof user) ==='undefined') {%>
+                            <li><a class="dropdown-item" href="/login">Signin</a></li>
+                        <% }else{ %>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        <% } %>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart"><img src="/images/cart.svg" alt="Cart"></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist"><img src="/images/whishlist.png" alt="Wishlist"></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
   <main class="main">
     <div class="page-header breadcrumb-wrap mb-3">
       <div class="container">
@@ -398,12 +469,12 @@
                   <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
                     <div class="card card-green">
                       <div class="card-header">
-                        <h5 class="mb-0 text-center">User Profile</h5>
+                        <h4 class="mb-0 text-center"><%=user.name %>'s Profile</h4>
                       </div>
                       <div class="card-body text-center">
-                        <h5 class="card-title"><%=user.name %></h5>
+                        <h5 class="card-title"> <strong>Email:</strong> <%=user.email %></h5>
                         <p class="card-text">
-                          <strong>Email:</strong> <%=user.email %>
+                         
                         </p>
                         <a href="" class="btn btn-sm btn-success">Change Password</a>
                         <!-- Change Password Modal -->

@@ -162,6 +162,29 @@ const getOrderSuccess = async (req, res) => {
           await wallet.save(); // Save updated balance
       }
 
+      const order = new Order({
+        user: userId,
+        shippingAddress: {
+            addressType: selectedAddress.addressType,
+            name: selectedAddress.name,
+            city: selectedAddress.city,
+            state: selectedAddress.state,
+            pincode: selectedAddress.pincode,
+            phone: selectedAddress.phone,
+            altPhone: selectedAddress.altPhone || ''
+        },
+        paymentMethod,
+        items,
+        totalPrice
+    });
+
+    await order.save();
+
+
+  // **Clear the cart after order placement**
+  userCart.items = [];
+  await userCart.save();
+  
       res.status(201).json({ success: true, message: 'Order placed successfully.', orderId: Order._id });
   } catch (error) {
       console.error('Error placing order:', error);

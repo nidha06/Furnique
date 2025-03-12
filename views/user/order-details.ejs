@@ -169,6 +169,233 @@
         max-height: 80px;
       }
     }
+    /* Modern and elegant base styles */
+.footer-section {
+    padding: 40px 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+}
+
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.sofa-img img {
+    width: 100%;
+    max-width: 180px;
+    margin: 0 auto 30px;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.sofa-img img:hover {
+    transform: scale(1.05);
+}
+
+.footer-content {
+    margin-bottom: 40px;
+}
+
+.footer-info {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.footer-logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-logo span {
+    color: #e67e22;
+}
+
+.footer-logo:hover {
+    color: #e67e22;
+}
+
+.footer-info p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #666;
+    max-width: 300px;
+    margin: 15px auto;
+}
+
+.custom-social {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 0;
+}
+
+.custom-social li a {
+    color: #666;
+    font-size: 1.1rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.custom-social li a:hover {
+    color: #e67e22;
+    transform: translateY(-3px);
+}
+
+.links-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.footer-links h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.footer-links h4::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: #e67e22;
+}
+
+.footer-links ul {
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #e67e22;
+}
+
+.border-top {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 25px;
+}
+
+.copyright-content {
+    text-align: center;
+}
+
+.copyright-text {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.copyright-text a {
+    color: #e67e22;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.copyright-text a:hover {
+    color: #d35400;
+}
+
+.copyright-links {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    padding: 0;
+}
+
+.copyright-links a {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+}
+
+.copyright-links a:hover {
+    color: #e67e22;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+    .footer-content {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 40px;
+    }
+
+    .footer-info {
+        text-align: left;
+        margin-bottom: 0;
+    }
+
+    .footer-info p {
+        margin: 15px 0;
+    }
+
+    .custom-social {
+        justify-content: flex-start;
+    }
+
+    .links-wrap {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .footer-links {
+        flex: 1;
+    }
+
+    .copyright-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .copyright-text {
+        margin-bottom: 0;
+    }
+}
+
+/* Desktop and up */
+@media (min-width: 992px) {
+    .footer-section {
+        padding: 60px 0;
+    }
+
+    .links-wrap {
+        gap: 40px;
+    }
+
+    .footer-links {
+        flex: 0 0 20%;
+    }
+
+    .footer-logo {
+        font-size: 2.5rem;
+    }
+
+    .footer-info p {
+        max-width: 350px;
+    }
+}
   </style>
 </head>
 <body>
@@ -270,7 +497,7 @@
       </div>
       
       <div class="order-actions mt-3">
-        <% if (order.status == 'pending' || order.status.toLowerCase() === 'shipped' || order.status.toLowerCase() === 'processing' && order.items.length > 1) { %>
+        <% if ((order.status == 'pending' || order.status.toLowerCase() === 'shipped' || order.status.toLowerCase() === 'processing') && order.items.length > 1) { %>
           <button class="btn btn-danger" id="cancelOrderBtn">Cancel Entire Order</button>
         <% } %>
         
@@ -339,7 +566,58 @@
       </form>
     </div>
   </div>
+  <footer class="footer-section">
+    <div class="container relative">
+        
 
+        <div class="footer-content">
+            <div class="footer-info">
+                <div class="footer-logo-wrap">
+                    <a href="#" class="footer-logo">Furni<span>que</span></a>
+                </div>
+                <p>Elevate your living space with our exquisite collection of handcrafted furniture, designed to blend comfort with timeless style.</p>
+                <ul class="list-unstyled custom-social">
+                    <li><a href="#" aria-label="Facebook"><span class="fa fa-brands fa-facebook-f"></span></a></li>
+                    <li><a href="#" aria-label="Twitter"><span class="fa fa-brands fa-twitter"></span></a></li>
+                    <li><a href="#" aria-label="Instagram"><span class="fa fa-brands fa-instagram"></span></a></li>
+                    <li><a href="#" aria-label="LinkedIn"><span class="fa fa-brands fa-linkedin"></span></a></li>
+                </ul>
+            </div>
+
+            <div class="links-wrap">
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="/get-aboutUs">Our Story</a></li>
+                        <li><a href="/get-aboutUs">Design Services</a></li>
+                        <li><a href="/get-aboutUs">Furniture Blog</a></li>
+                        <li><a href="/get-contactUs">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="/get-contactUs">Customer Care</a></li>
+                        <li><a href="/get-contactUs">Design Guides</a></li>
+                        <li><a href="/get-contactUs">Live Chat</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>About</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="/get-aboutUs">Careers</a></li>
+                        <li><a href="/get-aboutUs">Our Designers</a></li>
+                        <li><a href="/get-aboutUs">Craftsmanship</a></li>
+                        <li><a href="/get-aboutUs">Sustainability</a></li>
+                    </ul>
+                </div>
+               
+            </div>
+        </div>
+
+        
+    </div>
+</footer>
   <script>
  document.addEventListener("DOMContentLoaded", () => {
   // Apply color styling to order status
@@ -669,6 +947,6 @@
 });
   </script>
   
-  <%- include('../../views/partials/user/footer') %>
+  
 </body>
 </html>
