@@ -183,7 +183,7 @@ body {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format regex
 
       if (emailValue === "") {
-        showError(emailInput, "Email or phone is required.");
+        showError(emailInput, "Email is required.");
         isValid = false;
       } else if (!emailRegex.test(emailValue)) {
         showError(emailInput, "Please enter a valid email address.");

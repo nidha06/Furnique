@@ -653,31 +653,10 @@
             if (response.ok) {
               const result = await response.json();
               
-              Swal.fire({
-                title: 'Cancelled!',
-                text: result.message || 'Item cancelled successfully',
-                icon: 'success'
-              }).then(() => {
                 location.reload();
-              });
+           
               
-              // Update the item status in the UI
-              const row = document.querySelector(`tr[data-item-id="${itemId}"]`);
-              const statusCell = row.querySelector('.item-status');
-              statusCell.textContent = 'Cancelled';
-              statusCell.setAttribute('data-status', 'cancelled');
-              applyItemStatusStyling();
-              
-              // Update the order status if needed
-              if (result.orderStatus) {
-                const statusElement = document.getElementById('current-status');
-                statusElement.textContent = result.orderStatus.charAt(0).toUpperCase() + result.orderStatus.slice(1);
-                statusElement.setAttribute('data-status', result.orderStatus.toLowerCase());
-                applyStatusStyling();
-              }
-              
-              // Remove the cancel button
-              e.target.remove();
+  
             } else {
               const errorData = await response.json();
               Swal.fire({
