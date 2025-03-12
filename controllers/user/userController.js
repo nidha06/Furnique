@@ -132,7 +132,12 @@ const googleSignin= async(req,res)=>{
     try {
         req.session.user = req.user._id;
         res.locals.user=req.user
-        // const user = res.session.user;
+        const user = await User.findById(req.user._id)
+        
+        const newReferralCode = await generateReferralCode();
+
+        user.referralCode=newReferralCode;
+        await user.save()
 
         return res.redirect('/');
     } catch (error) {
