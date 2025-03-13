@@ -127,7 +127,7 @@
         <div class="form-group">
           <label for="category">Category</label>
           <select id="category" name="category" required>
-            <option value="" disabled>Select Category</option>
+            <option value="" selected disabled>Select Category</option>
             <% for(let i = 0; i < cat.length; i++){ %>
               <option value="<%= cat[i].name %>"><%= cat[i].name %></option>
             <% } %>
