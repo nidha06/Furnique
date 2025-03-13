@@ -260,7 +260,9 @@ const verifyPayment = async (req, res) => {
       order.status = 'processing';
       order.paymentStatus = Pstatus;
       order.razorpay_payment_id = razorpay_payment_id; // Keep this in Order schema if needed
-      await order.save();
+      const newOrder=await order.save();
+
+      console.log('new order', newOrder)
 
       // Validate req.session.user
       if (!req.session.user) {
@@ -280,6 +282,7 @@ const verifyPayment = async (req, res) => {
         { user: req.session.user, totalPrice: order.totalPrice },
         {
           user: req.session.user,
+          orderId,
           paymentMethod: paymentMethod || order.paymentMethod,
           totalPrice: order.totalPrice,
           currency: 'INR',
@@ -296,12 +299,7 @@ const verifyPayment = async (req, res) => {
       order.status = 'processing';
       await order.save();
 
-      // Validate req.session.user
-      if (!req.session.user) {
-        console.error('Session user is undefined');
-        return res.status(401).json({ success: false, error: 'User not authenticated' });
-      }
-
+  
       // Validate totalPrice
       if (typeof order.totalPrice !== 'number' || isNaN(order.totalPrice)) {
         console.error(`Invalid totalPrice for new order: ${order.totalPrice}`);
@@ -311,6 +309,7 @@ const verifyPayment = async (req, res) => {
       // Create a new payment record
       const payment = new Payment({
         user: req.session.user,
+        orderId:order._id,
         paymentMethod: paymentMethod,
         totalPrice: order.totalPrice,
         currency: 'INR',
