@@ -35,7 +35,7 @@ router.get('/wishlist-count',userAuth,productController.getWishlistCount);
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
 
-router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),userAuth,
+router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),
 userController.googleSignin
 );
 

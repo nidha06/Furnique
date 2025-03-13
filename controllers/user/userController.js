@@ -127,18 +127,25 @@ const signup = async (req, res) => {
         res.redirect('/pageNotFound');
     }
 };
-
-const googleSignin= async(req,res)=>{
+const googleSignin = async (req, res) => {
     try {
         req.session.user = req.user._id;
-        res.locals.user=req.user
-        return res.redirect('/');
+        res.locals.user = req.user;
+
+        const data = await User.findById(req.session.user);
+
+        if (data && !data.isBlocked) {
+            return res.redirect('/');
+        } else {
+            return res.render('login', { message: "User blocked, contact admin" });
+        }
+
     } catch (error) {
         console.log(error);
-        
+        return res.status(500).render('login', { message: "Something went wrong. Please try again." });
     }
+};
 
-}
 
 // Handle Password Change
 const changePassword = async (req, res) => {
