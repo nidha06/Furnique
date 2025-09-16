@@ -1,7 +1,7 @@
 # 🪑 Furnique - Furniture Store Website
 
 Furnique is a full-stack web application for browsing and purchasing furniture.  
-It provides a smooth shopping experience with product listings, user authentication, cart management, and more.
+It provides a smooth shopping experience with product listings, user authentication, cart management, admin management and more.
 
 ---
 
@@ -31,18 +31,8 @@ It provides a smooth shopping experience with product listings, user authenticat
 - **Authentication**: Sessions
 - **Deployment**: (Will be updated after live hosting)
 
----
 
-## 📸 Screenshots
-*(Add your screenshots here later if you like)*  
-Example:  
 
-![Homepage Screenshot](./screenshots/home.png)
 
----
-
-## 🔗 Live Demo
-👉 [Click here to view the project](#)  
-*(Update this after deployment)*
 
 
