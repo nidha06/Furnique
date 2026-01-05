@@ -394,12 +394,6 @@ emailInput.addEventListener('input', () => {
         valid = false;
       }
 
-      // Check if email ends with @gmail.com
-      if (!emailInput.value.endsWith('@gmail.com')) {
-        event.preventDefault();
-        emailWarning.style.display = 'block';
-        valid = false;
-      }
       
       const referralCode = referralCodeInput.value.trim();
   if (referralCode !== '' && referralCode.length !== 8) {
