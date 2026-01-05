@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Question List</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 40px;
+      color: #333;
+    }
+
+    .container {
+      background-color: #ffffff;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    }
+
+    .back-button {
+      background-color: #e5e7eb;
+      color: #333;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .back-button:hover {
+      background-color: #d1d5db;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    tr:hover {
+      background-color: #f3f4f6;
+    }
+
+    .edit-button {
+      background-color: #3b82f6;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .edit-button:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Back Button -->
+    <button class="back-button" onclick="history.back()">← Back</button>
+
+    <!-- Page Title -->
+    <h2>Admin: List of Added Questions</h2>
+
+    <!-- Questions Table -->
+    <table>
+      <thead>
+        <tr>
+          <th>Question No</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>QN101</td><td>Add Two Numbers</td><td>Write a function that adds two numbers.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN102</td><td>Find Max</td><td>Find the maximum number in an array.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN103</td><td>Palindrome Check</td><td>Check if a given string is a palindrome.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN104</td><td>Factorial</td><td>Write a function to calculate factorial of a number.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN105</td><td>Reverse String</td><td>Reverse the given string without using built-in methods.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN106</td><td>Sum of Digits</td><td>Find the sum of digits of a number.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN107</td><td>Fibonacci Series</td><td>Generate Fibonacci series up to N terms.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN108</td><td>Check Prime</td><td>Check whether a number is prime or not.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN109</td><td>Array Sum</td><td>Calculate the sum of elements in an array.</td><td><button class="edit-button">Edit</button></td></tr>
+        <tr><td>QN110</td><td>Count Vowels</td><td>Count the number of vowels in a given string.</td><td><button class="edit-button">Edit</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

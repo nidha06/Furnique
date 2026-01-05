@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Coding Question - Admin</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 40px;
+      color: #333;
+    }
+
+    .container {
+      background-color: #ffffff;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    }
+
+    .back-button {
+      background-color: #e5e7eb;
+      color: #333;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .back-button:hover {
+      background-color: #d1d5db;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      font-size: 14px;
+      background-color: #f9fafb;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      background-color: #ffffff;
+    }
+
+    .submit-button {
+      background-color: #3b82f6;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      float: right;
+    }
+
+    .submit-button:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Back Button -->
+    <button class="back-button" onclick="history.back()">← Back</button>
+
+    <!-- Page Title -->
+    <h2>Add New Coding Question</h2>
+
+    <!-- Input Form -->
+    <form>
+      <!-- Question Number -->
+      <label for="qno">Question Number</label>
+      <input type="text" id="qno" name="qno" placeholder="Eg: QN102" required>
+
+      <!-- Question Title -->
+      <label for="title">Question Title</label>
+      <input type="text" id="title" name="title" placeholder="Eg: Add Two Numbers" required>
+
+      <!-- Description -->
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="5" placeholder="Write the problem description here..." required></textarea>
+
+      <!-- Test Cases -->
+      <label for="testcases">Test Cases (JSON Format)</label>
+      <textarea id="testcases" name="testcases" rows="4" placeholder='Eg: [{"input": "2 3", "output": "5"}]' required></textarea>
+
+      <!-- Add Button -->
+      <button type="submit" class="submit-button">Add Question</button>
+    </form>
+  </div>
+
+</body>
+</html>

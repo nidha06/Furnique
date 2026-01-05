@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Zone Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #e9e9e9;
+        }
+        .sidebar {
+            width: 160px;
+            background-color: #222222;
+            color: white;
+            padding: 20px 0;
+            height: 100%;
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .sidebar-item.active {
+            background-color: #333333;
+        }
+        .sidebar-item svg {
+            margin-right: 10px;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        .search-bar {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: none;
+            margin-bottom: 20px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding-left: 8px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            padding: 16px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .stat-card-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .stat-card-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+        .table th {
+            font-weight: 500;
+            color: #444;
+        }
+        .user-link {
+            color: #1890ff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .user-link:hover {
+            text-decoration: underline;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+        .status-approved {
+            background-color: #f6ffed;
+            color: #52c41a;
+        }
+        .status-rejected {
+            background-color: #fff1f0;
+            color: #f5222d;
+        }
+        .status-warned {
+            background-color: #fffbe6;
+            color: #faad14;
+        }
+        .status-fined {
+            background-color: #fff2e8;
+            color: #fa541c;
+        }
+        .btn {
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+        .btn-primary {
+            background-color: #1890ff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #52c41a;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #faad14;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #f5222d;
+            color: white;
+        }
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .filter-group {
+            display: flex;
+            gap: 8px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            margin: 0 4px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pagination-item.active {
+            background-color: #f0f0f0;
+        }
+        #userDetailsPanel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            transition: width 0.3s ease;
+            overflow: hidden;
+            z-index: 1000;
+        }
+        #userDetailsPanel.open {
+            width: 500px;
+            padding: 20px;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .user-details {
+            margin-bottom: 20px;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .detail-label {
+            width: 140px;
+            font-weight: 500;
+            color: #666;
+        }
+        .detail-value {
+            flex: 1;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 16px;
+        }
+        .tab {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .tab.active {
+            border-bottom: 2px solid #1890ff;
+            color: #1890ff;
+        }
+        
+        /* For the user detail view */
+        .action-history {
+            margin-top: 20px;
+        }
+        .history-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .history-type {
+            font-weight: 500;
+        }
+        .history-date {
+            color: #888;
+            font-size: 12px;
+        }
+        .history-details {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        /* The script to make the pages interactive */
+        script {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            Dashboard
+        </div>
+        <div class="sidebar-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Users
+        </div>
+        <div class="sidebar-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Attendance
+        </div>
+        <div class="sidebar-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            English Zone
+        </div>
+        <div class="sidebar-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            Settings
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="page-title">
+            <div>
+                <span>English Zone Admin</span>
+                <div class="page-subtitle">Manage Malayalam speaking reports and fines</div>
+            </div>
+            <button class="btn btn-primary" onclick="showAddReportForm()">Add Report</button>
+        </div>
+        
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-card-title">Total Reports</div>
+                <div class="stat-card-value">128</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Pending Reports</div>
+                <div class="stat-card-value">17</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Total Fines</div>
+                <div class="stat-card-value">₹9,850</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Rewards Given</div>
+                <div class="stat-card-value">4,250 pts</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="filter-bar">
+                <div class="tabs">
+                    <div class="tab active" onclick="changeTab(this, 'pending')">Pending (17)</div>
+                    <div class="tab" onclick="changeTab(this, 'approved')">Approved (84)</div>
+                    <div class="tab" onclick="changeTab(this, 'rejected')">Rejected (27)</div>
+                </div>
+                <div class="filter-group">
+                    <button class="btn">Filter</button>
+                    <button class="btn">Export</button>
+                </div>
+            </div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Reported User</th>
+                        <th>Reported By</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>REP2025-042</td>
+                        <td><a class="user-link" onclick="showUserDetails('Roshan')">Roshan</a></td>
+                        <td><a class="user-link" onclick="showReporterDetails('Anil')">Anil</a></td>
+                        <td>May 5, 2025</td>
+                        <td>Conference Room B</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>
+                            <button class="btn btn-success" onclick="approveReport('REP2025-042')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectReport('REP2025-042')">Reject</button>
+                            <button class="btn" onclick="viewReportDetails('REP2025-042')">View</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>REP2025-041</td>
+                        <td><a class="user-link" onclick="showUserDetails('Alia')">Alia</a></td>
+                        <td><a class="user-link" onclick="showReporterDetails('Preeti')">Preeti</a></td>
+                        <td>May 5, 2025</td>
+                        <td>Cafeteria</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>
+                            <button class="btn btn-success" onclick="approveReport('REP2025-041')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectReport('REP2025-041')">Reject</button>
+                            <button class="btn" onclick="viewReportDetails('REP2025-041')">View</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>REP2025-040</td>
+                        <td><a class="user-link" onclick="showUserDetails('Farshad')">Farshad</a></td>
+                        <td><a class="user-link" onclick="showReporterDetails('Ahmed')">Ahmed</a></td>
+                        <td>May 4, 2025</td>
+                        <td>Main Hall</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>
+                            <button class="btn btn-success" onclick="approveReport('REP2025-040')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectReport('REP2025-040')">Reject</button>
+                            <button class="btn" onclick="viewReportDetails('REP2025-040')">View</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>REP2025-039</td>
+                        <td><a class="user-link" onclick="showUserDetails('Roshan')">Roshan</a></td>
+                        <td><a class="user-link" onclick="showReporterDetails('Preeti')">Preeti</a></td>
+                        <td>May 4, 2025</td>
+                        <td>Break Room</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>
+                            <button class="btn btn-success" onclick="approveReport('REP2025-039')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectReport('REP2025-039')">Reject</button>
+                            <button class="btn" onclick="viewReportDetails('REP2025-039')">View</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>REP2025-038</td>
+                        <td><a class="user-link" onclick="showUserDetails('Ahmed')">Ahmed</a></td>
+                        <td><a class="user-link" onclick="showReporterDetails('Farshad')">Farshad</a></td>
+                        <td>May 3, 2025</td>
+                        <td>Engineering Dept</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>
+                            <button class="btn btn-success" onclick="approveReport('REP2025-038')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectReport('REP2025-038')">Reject</button>
+                            <button class="btn" onclick="viewReportDetails('REP2025-038')">View</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="pagination">
+                <div class="pagination-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </div>
+                <div class="pagination-item active">1</div>
+                <div class="pagination-item">2</div>
+                <div class="pagination-item">3</div>
+                <div class="pagination-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="filter-bar">
+                <h3>Recent Activities</h3>
+                <button class="btn">View All</button>
+            </div>
+            <div class="action-history">
+                <div class="history-item">
+                    <div class="history-header">
+                        <span class="history-type">Report Approved</span>
+                        <span class="history-date">May 3, 2025 - 14:36</span>
+                    </div>
+                    <div class="history-details">
+                        <strong>You</strong> approved report against <a class="user-link">Roshan</a> reported by <a class="user-link">Anil</a>. Fine: ₹200, Reward: 50 pts.
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-header">
+                        <span class="history-type">Report Rejected</span>
+                        <span class="history-date">May 3, 2025 - 13:21</span>
+                    </div>
+                    <div class="history-details">
+                        <strong>You</strong> rejected report against <a class="user-link">Preeti</a> reported by <a class="user-link">Ahmed</a>. Reason: Insufficient evidence.
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-header">
+                        <span class="history-type">Fine Reduced</span>
+                        <span class="history-date">May 2, 2025 - 16:49</span>
+                    </div>
+                    <div class="history-details">
+                        <strong>Admin (Sanjay)</strong> reduced fine for <a class="user-link">Farshad</a> from ₹300 to ₹200 after appeal review.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Details Side Panel -->
+    <div id="userDetailsPanel">
+        <div class="panel-header">
+            <h2 id="panelTitle">User Details</h2>
+            <button class="close-btn" onclick="closeUserDetails()">×</button>
+        </div>
+        
+        <div id="userDetailsContent">
+            <!-- Content will be dynamically loaded -->
+        </div>
+    </div>
+    
+    <script>
+        // Functions to handle interactions
+        function showUserDetails(username) {
+            const panel = document.getElementById('userDetailsPanel');
+            const content = document.getElementById('userDetailsContent');
+            document.getElementById('panelTitle').innerText = 'User Details: ' + username;
+            
+            // Generate content for the reported user
+            content.innerHTML = `
+                <div class="user-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value">${username}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">ID:</div>
+                        <div class="detail-value">EMP${Math.floor(Math.random() * 1000) + 2000}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Department:</div>
+                        <div class="detail-value">Engineering</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Total Reports:</div>
+                        <div class="detail-value">5</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Current Fines:</div>
+                        <div class="detail-value">₹400</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Pending Fines:</div>
+                        <div class="detail-value">₹200</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active">Reports History</div>
+                    <div class="tab">Fine History</div>
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Date</th>
+                            <th>Reported By</th>
+                            <th>Status</th>
+                            <th>Fine</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>REP2025-042</td>
+                            <td>May 5, 2025</td>
+                            <td>Anil</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>REP2025-031</td>
+                            <td>May 1, 2025</td>
+                            <td>Preeti</td>
+                            <td><span class="status-badge status-approved">Approved</span></td>
+                            <td>₹200</td>
+                        </tr>
+                        <tr>
+                            <td>REP2025-017</td>
+                            <td>Apr 27, 2025</td>
+                            <td>Ahmed</td>
+                            <td><span class="status-badge status-approved">Approved</span></td>
+                            <td>₹200</td>
+                        </tr>
+                        <tr>
+                            <td>REP2025-004</td>
+                            <td>Apr 22, 2025</td>
+                            <td>Farshad</td>
+                            <td><span class="status-badge status-rejected">Rejected</span></td>
+                            <td>—</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="filter-bar" style="margin-top: 20px;">
+                    <h3>Actions</h3>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-warning">Issue Warning</button>
+                    <button class="btn btn-danger">Apply Fine</button>
+                    <button class="btn">Reset Fines</button>
+                </div>
+            `;
+            
+            panel.classList.add('open');
+        }
+        
+        function showReporterDetails(username) {
+            const panel = document.getElementById('userDetailsPanel');
+            const content = document.getElementById('userDetailsContent');
+            document.getElementById('panelTitle').innerText = 'Reporter Details: ' + username;
+            
+            // Generate content for the reporter
+            content.innerHTML = `
+                <div class="user-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value">${username}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">ID:</div>
+                        <div class="detail-value">EMP${Math.floor(Math.random() * 1000) + 2000}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Department:</div>
+                        <div class="detail-value">Marketing</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Reports Made:</div>
+                        <div class="detail-value">12</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Reports Approved:</div>
+                        <div class="detail-value">9</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Rewards Earned:</div>
+                        <div class="detail-value">450 pts</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active">Reporting History</div>
+                    <div class="tab">Reward History</div>
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Date</th>
+                            <th>Reported User</th>
+                            <th>Status</th>
+                            <th>Reward</th>vv
