@@ -1,49 +1,11 @@
 const User = require('../../models/userSchema');
-const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
-const env = require('dotenv').config();
-const session = require('express-session');
-const otpGenerator = require('otp-generator');
 const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
 const Wallet = require('../../models/walletSchema');
+const {generateOtp,sendVerificationEmail}= require('../../helpers/otpSender')
 
-function generateOtp() {
-    const otp = otpGenerator.generate(6, { 
-        lowerCaseAlphabets: false,
-        upperCaseAlphabets: false, 
-        specialChars: false 
-    });
-    console.log(otp);
-    return otp;
-}
 
-const sendVerificationEmail = async (email, otp) => {
-    try {
-        const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD,
-            }
-        });
-        const mailOptions = {
-            from: process.env.NODEMAILER_EMAIL,
-            to: email,
-            subject: "Your OTP for Password reset",
-            text: `Your OTP is ${otp}`,
-            html: `Your OTP : ${otp}`,
-        };
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent :', info.messageId);
-        return true;
-    } catch (error) {
-        console.error('error sending email ', error);
-        return false;
-    }
-};
 
 const getForgotPassPage = async (req, res) => {
     try {
@@ -59,7 +21,7 @@ const forgotEmailValid = async (req, res) => {
         const findUser = await User.findOne({ email: email });
         if (findUser) {
             const otp = generateOtp();
-            const emailSent = await sendVerificationEmail(email, otp);
+            const emailSent = await sendVerificationEmail(email, otp,'reset your password');
             if (emailSent) {
                 req.session.userOtp = otp;
                 req.session.email = email;
@@ -78,7 +40,6 @@ const forgotEmailValid = async (req, res) => {
         res.redirect('/pageNotFound');
     }
 };
-
  const checkEmail=async (req, res) => {
     try {
         const { email } = req.body;

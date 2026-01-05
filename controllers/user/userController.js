@@ -5,17 +5,14 @@ const Cart = require('../../models/cartSchema');
 const Wallet = require('../../models/walletSchema');
 const Whishlist = require('../../models/wishlistSchema');
 const env = require('dotenv').config();
-const nodemailer = require('nodemailer');
 const bcrypt = require("bcrypt");
-const otpGenerator = require('otp-generator');
 const Offer = require('../../models/offerSchema');
+const {generateOtp,sendVerificationEmail}= require('../../helpers/otpSender')
 
 const isUser=async(req, res) => {
 
     try {
         const user = req.session.user;
-        console.log('user indoooo',user);
-        
         if (user) {
             res.json({ isLoggedIn: true });
           } else {
@@ -36,46 +33,6 @@ const loadSignup = async (req, res) => {
         res.status(500).send('internal server error');
     }
 };
-
-// Send Verification Email
-async function sendVerificationEmail(email, otp) {
-    try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 587,
-            secure: false,
-            requireTLS: true,
-            auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD,
-            },
-        });
-
-        const info = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL,
-            to: email,
-            subject: 'verify your account',
-            text: `Your OTP is ${otp}`,
-            html: ` Your OTP: ${otp} `,
-        });
-
-        return info.accepted.length > 0;
-    } catch (error) {
-        console.error('Error sending email...', error.message, error.stack);
-        return false;
-    }
-}
-
-// Generate OTP
-function generateOtp() {
-    const otp = otpGenerator.generate(6, {
-        lowerCaseAlphabets: false,
-        upperCaseAlphabets: false,
-        specialChars: false,
-    });
-    return otp;
-}
-
 
 
 // Handle Signup
@@ -111,7 +68,7 @@ const signup = async (req, res) => {
           }
         }
         
-        const emailSent = await sendVerificationEmail(email, otp);
+        const emailSent = await sendVerificationEmail(email, otp,'create your account');
 
         if (!emailSent) {
             return res.json('email.error');
