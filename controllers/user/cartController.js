@@ -16,28 +16,48 @@ exports.addToCart = async (req, res) => {
         const { productId } = req.body;
 
         if (!user) {
-            return res.status(400).json({ error: "User authentication required" });
+            return res.status(401).json({ error: "Login required" });
         }
+
         const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
 
         let cart = await Cart.findOne({ user });
+
         if (!cart) {
-            cart = new Cart({ user, items: [{ product }] });
+            cart = new Cart({
+                user,
+                items: [{
+                    product: product._id,
+                    quantity: 1
+                }]
+            });
+        } else {
+            const itemIndex = cart.items.findIndex(
+                item => item.product.toString() === productId
+            );
+
+            if (itemIndex > -1) {
+                cart.items[itemIndex].quantity += 1;
+            } else {
+                cart.items.push({
+                    product: product._id,
+                    quantity: 1
+                });
+            }
         }
-        cart.items.push({
-            product,
-            quantity: 1,
-            
-        });
 
         await cart.save();
+        res.json({ success: true });
 
-        res.status(200).json({ success: true, cart });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Server error" });
     }
 };
+
 
 exports.getCart = async (req, res) => {
     try {

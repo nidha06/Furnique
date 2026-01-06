@@ -3,6 +3,7 @@ const Coupon = require('../../models/couponSchema');
 
 const getCoupons = async (req, res) => {
     try {
+        
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
         const search = req.query.search || '';
@@ -14,13 +15,13 @@ const getCoupons = async (req, res) => {
         const totalCoupons = await Coupon.countDocuments(query);
         const totalPages = Math.ceil(totalCoupons / limit);
 
-        const coupons = await Coupon.find(query)
+        const coupon= await Coupon.find(query)
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(limit);
 
         res.render('coupon', {
-            coupons,
+            coupon,
             currentPage: page,
             totalPages,
             search
